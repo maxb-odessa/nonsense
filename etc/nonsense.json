@@ -1,7 +1,7 @@
 {
     "server": {
         "listen" : ":12345",
-        "resources" : "resources"
+        "resources" : "$PWD/resources"
     },
 
     "sensors" : [

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"text/template"
 
-	"github.com/maxb-odessa/nonsense/internal/utils"
+	"github.com/maxb-odessa/nonsens/internal/utils"
 
 	"github.com/maxb-odessa/slog"
 )

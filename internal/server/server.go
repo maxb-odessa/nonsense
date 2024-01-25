@@ -8,8 +8,8 @@ import (
 
 	ws "github.com/gorilla/websocket"
 
-	"github.com/maxb-odessa/nonsense/internal/config"
-	"github.com/maxb-odessa/nonsense/internal/tmpl"
+	"github.com/maxb-odessa/nonsens/internal/config"
+	"github.com/maxb-odessa/nonsens/internal/tmpl"
 	"github.com/maxb-odessa/slog"
 )
 
@@ -194,17 +194,15 @@ func server(c *config.Config) {
 	}
 	http.HandleFunc("/ws", wsHandler)
 
+	pageDir := os.ExpandEnv(c.Server.Resources + "/webpage")
+	slog.Debug(9, "Serving HTTP dir: %s", pageDir)
+	http.Handle("/img/", http.FileServer(http.Dir(pageDir+"/img/")))
+	http.Handle("/css/", http.FileServer(http.Dir(pageDir+"/css/")))
+
 	getIndex := func(w http.ResponseWriter, r *http.Request) {
-		slog.Info("served INDEX: %s", indexPage)
 		io.WriteString(w, indexPage)
 	}
 	http.HandleFunc("/", getIndex)
-
-	pageDir := c.Server.Resources + "/webpage"
-	pageDir = os.ExpandEnv(pageDir)
-	slog.Debug(9, "Serving HTTP dir: %s", pageDir)
-	http.Handle("/img", http.FileServer(http.Dir(pageDir)))
-	http.Handle("/css", http.FileServer(http.Dir(pageDir)))
 
 	listen := c.Server.Listen
 	if listen == "" {

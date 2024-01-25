@@ -21,7 +21,7 @@
 
 <body>
 
-<table>
+<table id="main">
     <thead>
     </thead>
     <tbody>
@@ -46,7 +46,7 @@
 function loadCSS() {
     document.getElementsByTagName('head')[0].insertAdjacentHTML(
         'beforeend',
-        '<link rel="stylesheet" href="css/nonsens.css?'+Date.now()+'" />');
+        '<link rel="stylesheet" type="text/css" href="css/nonsens.css?'+Date.now()+'" />');
 };
 
 window.onload = function () {
