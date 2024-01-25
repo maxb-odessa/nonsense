@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"io"
+	"mime"
 	"net/http"
 	"os"
 
@@ -16,6 +17,7 @@ import (
 var toClientCh chan []byte
 
 func init() {
+	mime.AddExtensionType(".css", "text/css")
 	toClientCh = make(chan []byte, 32)
 }
 
@@ -138,7 +140,8 @@ func processSensors(sensMap map[string]*config.Sensor, templates tmpl.Tmpls, sen
 	}
 }
 
-func server(c *config.Config) {
+func server(conf *config.Config) {
+	mux := http.NewServeMux()
 
 	wsHandler := func(w http.ResponseWriter, r *http.Request) {
 
@@ -192,22 +195,22 @@ func server(c *config.Config) {
 			}
 		}
 	}
-	http.HandleFunc("/ws", wsHandler)
+	mux.HandleFunc("/ws", wsHandler)
 
-	pageDir := os.ExpandEnv(c.Server.Resources + "/webpage")
+	pageDir := os.ExpandEnv(conf.Server.Resources + "/webpage")
 	slog.Debug(9, "Serving HTTP dir: %s", pageDir)
-	http.Handle("/img/", http.FileServer(http.Dir(pageDir+"/img/")))
-	http.Handle("/css/", http.FileServer(http.Dir(pageDir+"/css/")))
+	mux.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir(pageDir+"/img"))))
+	mux.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir(pageDir+"/css"))))
 
 	getIndex := func(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, indexPage)
 	}
-	http.HandleFunc("/", getIndex)
+	mux.HandleFunc("/", getIndex)
 
-	listen := c.Server.Listen
+	listen := conf.Server.Listen
 	if listen == "" {
 		listen = ":12345"
 	}
 	slog.Info("Listening at %s", listen)
-	http.ListenAndServe(listen, nil)
+	http.ListenAndServe(listen, mux)
 }
