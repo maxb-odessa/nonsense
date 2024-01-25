@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>NonSENS - sensors monitor</title>
+    <!-- <link rel="stylesheet" href="wedpad.css"> -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <style>
+        body {
+            color: white;
+            background-color: black;
+            background-image: url('background.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+    </style>
+</head>
+
+<body>
+
+<table>
+    <thead>
+    </thead>
+    <tbody>
+    {{ range $col, $groups := . }}
+        <tr class="column" id="{{ $col }}">
+            {{ range $i, $gr := $groups }}
+                <td class="group" id="{{ $gr.Id }}">
+                    {{ $gr.Id }}
+                    {{ range $j, $se := $gr.Sensors }}
+                        <div class="sensor" id="{{ $se.Id }}">
+                        </div>
+                    {{ end }}
+                </td>
+            {{ end }}
+        </tr>
+    {{ end }}
+    </tbody>
+</table>
+
+<script>
+
+function loadCSS() {
+    document.getElementsByTagName('head')[0].insertAdjacentHTML(
+        'beforeend',
+        '<link rel="stylesheet" href="css/nonsens.css?'+Date.now()+'" />');
+};
+
+window.onload = function () {
+    loadCSS();
+};
+
+function timestamp() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: "2-digit", hour12: false })
+}
+
+var wsUrl = "ws://" + window.location.hostname + ":" + window.location.port + "/ws";
+
+loop();
+
+async function loop() {
+
+    while (1) {
+
+        var reconnect = false;
+        var socket = new WebSocket(wsUrl);
+
+        socket.onopen = function() {
+            socket.send("ACK");
+            reconnect = false;
+        };
+
+        socket.onmessage = function(msg) {
+            const obj = JSON.parse(msg.data);
+            var target = obj.Target;
+            var data = obj.Data;
+            var output = document.getElementById(target);
+            output.innerHTML = data;
+            socket.send("ACK");
+        };
+
+        socket.onclose = function(ev) {
+            reconnect = true;
+        };
+
+        await waitUntil(() => reconnect === true);
+
+    };
+
+};
+
+async function waitUntil(condition, time = 2000) {
+    while (!condition()) {
+        await new Promise((resolve) => setTimeout(resolve, time));
+    }
+}
+
+</script>
+
+</body>
+
+</html>

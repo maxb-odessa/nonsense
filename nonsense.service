@@ -1,0 +1,16 @@
+# Simple systemd scenario for edpad2
+# - put it in @HOME@/.config/systemd/user/
+# - run: systemd --user reload-daemon
+# - use: systemctl --user <status|start|stop> edpad2
+###########################################################
+
+[Unit]
+Description = Web ED Pad: an Elite Dangerous companion
+
+[Service]
+Type = simple
+StandardOutput = journal
+ExecStart = %h/.local/bin/wedpad -d 9 -c %h/.local/etc/wedpad.conf
+
+[Install]
+WantedBy=default.target

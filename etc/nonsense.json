@@ -1,0 +1,30 @@
+{
+    "server": {
+        "listen" : ":12345",
+        "resources" : "resources"
+    },
+
+    "sensors" : [
+        [
+            {
+                "name" : "GPU fan",
+                "source" : "/tmp/a",
+                "group" : "FANS"
+            },
+            {
+                "name" : "CPU fan",
+                "source" : "/tmp/b",
+                "group" : "FANS"
+            },
+            {
+                "name" : "Temp",
+                "source" : "/tmp/c"
+            }
+        ],
+        [
+            {
+                "name" : "thios one goes into second column"
+            }
+        ]
+    ]
+}
