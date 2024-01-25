@@ -41,7 +41,7 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 		Sensors []*Sen
 	}
 
-	groups := make([][]*Grp, 1)
+	groups := make([][]*Grp, 0)
 
 	// walk over columns
 	for _, col := range conf.Sensors {
@@ -49,6 +49,11 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 		// walk over sensors in this column and make a list of groups
 		grList := make([]string, 0)
 		for _, sens := range col {
+
+			// skip disabled
+			if sens.Disabled {
+				continue
+			}
 
 			// group name can not be empty
 			if sens.Group == "" {
@@ -82,6 +87,10 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 			ngr.Id = g
 			ngr.Sensors = make([]*Sen, 0)
 			for _, sens := range col {
+				// skip disabled
+				if sens.Disabled {
+					continue
+				}
 				if g == sens.Group {
 					ngr.Sensors = append(ngr.Sensors, &Sen{Id: sens.Name})
 				}
@@ -186,6 +195,7 @@ func server(conf *config.Config) {
 				if !ok {
 					return
 				}
+				slog.Debug(9, "will send to ws: %s", msg)
 				if err = conn.WriteMessage(ws.TextMessage, msg); err != nil {
 					slog.Err("Websocket send() failed: %s", err)
 					return
@@ -199,6 +209,7 @@ func server(conf *config.Config) {
 
 	pageDir := os.ExpandEnv(conf.Server.Resources + "/webpage")
 	slog.Debug(9, "Serving HTTP dir: %s", pageDir)
+	// NB: that odd "nosniff" thingie
 	mux.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir(pageDir+"/img"))))
 	mux.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir(pageDir+"/css"))))
 

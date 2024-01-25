@@ -25,4 +25,15 @@ body {
 table#main {
     border: solid 1px white;
     width: 100%;
+    table-layout: fixed;
+}
+
+td.column {
+    width: auto;
+}
+
+div.group {
+    align: left;
+    width: 100%;
+    border: solid 1px blue;
 }

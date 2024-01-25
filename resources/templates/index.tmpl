@@ -25,19 +25,21 @@
     <thead>
     </thead>
     <tbody>
+    <tr>
     {{ range $col, $groups := . }}
-        <tr class="column" id="{{ $col }}">
+        <td class="column" id="{{ $col }}">
             {{ range $i, $gr := $groups }}
-                <td class="group" id="{{ $gr.Id }}">
+                <div class="group" id="{{ $gr.Id }}">
                     {{ $gr.Id }}
                     {{ range $j, $se := $gr.Sensors }}
-                        <div class="sensor" id="{{ $se.Id }}">
-                        </div>
+                        <div class="sensor" id="{{ $se.Id }}"></div>
                     {{ end }}
-                </td>
+                </div>
+                <p>
             {{ end }}
-        </tr>
+        </td>
     {{ end }}
+    </tr>
     </tbody>
 </table>
 
@@ -75,10 +77,10 @@ async function loop() {
 
         socket.onmessage = function(msg) {
             const obj = JSON.parse(msg.data);
-            var target = obj.Target;
-            var data = obj.Data;
-            var output = document.getElementById(target);
-            output.innerHTML = data;
+            var id = obj.id;
+            var body = obj.body;
+            var output = document.getElementById(id);
+            output.innerHTML = body;
             socket.send("ACK");
         };
 

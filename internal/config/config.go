@@ -8,6 +8,7 @@ import (
 
 type Sensor struct {
 	sync.Mutex           // for internal uses
+	Disabled     bool    `json:"enabled"`
 	Name         string  `json:"name"`
 	Type         string  `json:"type"`
 	Group        string  `json:"group"`
