@@ -8,15 +8,6 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <style>
-        body {
-            color: white;
-            background-color: black;
-            background-image: url('background.jpg');
-            background-repeat: no-repeat;
-            background-size: cover;
-        }
-    </style>
 </head>
 
 <body>
@@ -29,13 +20,16 @@
     {{ range $col, $groups := . }}
         <td class="column" id="{{ $col }}">
             {{ range $i, $gr := $groups }}
-                <div class="group" id="{{ $gr.Id }}">
-                    {{ $gr.Id }}
-                    {{ range $j, $se := $gr.Sensors }}
-                        <div class="sensor" id="{{ $se.Id }}"></div>
-                    {{ end }}
-                </div>
-                <p>
+                <fieldset class="group">
+                    <legend>
+                        {{ $gr.Id }}
+                    </legend>
+                    <div class="group" id="{{ $gr.Id }}">
+                        {{ range $j, $se := $gr.Sensors }}
+                            <div class="sensor" id="{{ $se.Id }}"></div>
+                        {{ end }}
+                    </div>
+                </fieldset>
             {{ end }}
         </td>
     {{ end }}

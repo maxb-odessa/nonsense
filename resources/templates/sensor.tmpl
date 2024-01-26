@@ -1,5 +1,6 @@
-{{ .Name }}
-<div style="background: linear-gradient(90deg, green, red);border: solid 1px white;width: 100%;">
-300 RPM
+<div class="sensor">
+    {{ if ne .Name .Group }}
+        <i>{{ .Name }}</i>
+    {{ end }}
+    <div class="gauge">{{  .Priv.CurrValue }}&nbsp;{{ .Units }}</div>
 </div>
-

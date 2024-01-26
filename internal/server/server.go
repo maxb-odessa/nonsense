@@ -125,9 +125,9 @@ func processSensors(sensMap map[string]*config.Sensor, templates tmpl.Tmpls, sen
 	for sens := range sensChan {
 
 		// apply template on that sensor
-		sens.Lock()
+		sens.Priv.Lock()
 		body, err := tmpl.ApplyByName("sensor", templates, sens)
-		sens.Unlock()
+		sens.Priv.Unlock()
 		if err != nil {
 			slog.Warn("json.Marshal failed: %s", err)
 			continue
@@ -140,13 +140,10 @@ func processSensors(sensMap map[string]*config.Sensor, templates tmpl.Tmpls, sen
 		data, _ := json.Marshal(msg)
 
 		// send data to the client
-		select {
-		case toClientCh <- data:
-		default:
-			slog.Warn("http websocket queue is full, discarding the message")
-		}
-
+		slog.Debug(9, "sendig to server: %+v", data)
+		toClientCh <- data
 	}
+
 }
 
 func server(conf *config.Config) {

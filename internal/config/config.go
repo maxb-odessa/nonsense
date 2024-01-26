@@ -7,7 +7,11 @@ import (
 )
 
 type Sensor struct {
-	sync.Mutex           // for internal uses
+	Priv struct { // runtime data
+		sync.Mutex
+		Online    bool
+		CurrValue float64
+	}
 	Disabled     bool    `json:"enabled"`
 	Name         string  `json:"name"`
 	Type         string  `json:"type"`
@@ -16,7 +20,6 @@ type Sensor struct {
 	Reopen       bool    `json:"reopen"`
 	MinValue     float64 `json:"min value"`
 	MaxValue     float64 `json:"max value"`
-	currValue    float64 // not configurable, this will be calculated
 	Divider      float64 `json:"divider"`
 	Units        string  `json:"units"`
 	PollInterval float64 `json:"poll interval"`

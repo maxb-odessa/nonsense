@@ -7,29 +7,46 @@
     "sensors" : [
         [
             {
-                "name" : "GPU fan",
-                "source" : "/tmp/a",
-                "group" : "FANS"
+                "name" : "Graphics",
+                "type": "file",
+                "group" : "FANS",
+                "source" : "/sys/devices/platform/hp-wmi/hwmon/hwmon8/fan1_input",
+                "units" : "rpm"
             },
             {
-                "name" : "CPU fan",
-                "source" : "/tmp/b",
-                "group" : "FANS"
+                "name" : "Processor",
+                "type": "file",
+                "group" : "FANS",
+                "source" : "/sys/devices/platform/hp-wmi/hwmon/hwmon8/fan2_input",
+                "units" : "rpm"
             },
             {
                 "name" : "Temp",
-                "source" : "/tmp/c"
+                "type": "file",
+                "source" : "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon7/temp1_input",
+                "divider": 1000,
+                "poll interval" : 2,
+                "units": "&deg;C"
             },
             {
                 "name" : "Temp2",
+                "type": "file",
                 "source" : "/tmp/e",
                 "disabled" : true
             }
         ],
         [
             {
-                "name" : "thios one goes into second column"
+                "type": "file",
+                "name" : "this one goes into second column"
+            }
+        ],
+        [
+            {
+                "type": "file",
+                "name" : "A THIRD COLUMN, WHEEE!"
             }
         ]
+
     ]
 }
