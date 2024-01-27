@@ -3,7 +3,7 @@
 {{ else }}
 <div class="sensor" style="opacity: 0.2;">
 {{ end }}
-    {{ if ne .Name .Group }}
+    {{ if ne .Group .Name }}
         <i>{{ .Name }}</i>
     {{ end }}
     <div class="gauge_text">{{ .Priv.Value }}&nbsp;{{ .Units }}

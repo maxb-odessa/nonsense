@@ -25,8 +25,6 @@ var indexPage string
 
 func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 
-	sensorsByName := make(map[string]*config.Sensor)
-
 	// prepare index page
 
 	templates, err := tmpl.Load(conf.Server.Resources + "/templates")
@@ -35,11 +33,11 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 	}
 
 	type Sen struct {
-		Name string
+		Id string
 	}
 
 	type Grp struct {
-		Name    string
+		Id      string
 		Sensors []*Sen
 	}
 
@@ -77,16 +75,13 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 				grList = append(grList, sens.Group)
 			}
 
-			// for faster searches
-			sensorsByName[sens.Name] = sens
-
 		}
 
 		// populate group with corresponding sensors (preserve configured order)
 		gr := make([]*Grp, 0)
 		for _, g := range grList {
 			ngr := new(Grp)
-			ngr.Name = g
+			ngr.Id = g
 			ngr.Sensors = make([]*Sen, 0)
 			for _, sens := range col {
 				// skip disabled
@@ -94,7 +89,7 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 					continue
 				}
 				if g == sens.Group {
-					ngr.Sensors = append(ngr.Sensors, &Sen{Name: sens.Name})
+					ngr.Sensors = append(ngr.Sensors, &Sen{Id: sens.Priv.Id})
 				}
 			}
 			gr = append(gr, ngr)
@@ -110,7 +105,7 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 	}
 
 	// start sensors events listening and processing
-	go processSensors(sensorsByName, templates, sensChan)
+	go processSensors(templates, sensChan)
 
 	// fire up the server
 	go server(conf)
@@ -118,9 +113,9 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 	return nil
 }
 
-func processSensors(sensMap map[string]*config.Sensor, templates tmpl.Tmpls, sensChan chan *config.Sensor) {
+func processSensors(templates tmpl.Tmpls, sensChan chan *config.Sensor) {
 	type Msg struct {
-		Name string `json:"id"`
+		Id   string `json:"id"`
 		Body string `json:"body"`
 	}
 
@@ -136,7 +131,7 @@ func processSensors(sensMap map[string]*config.Sensor, templates tmpl.Tmpls, sen
 		}
 
 		msg := &Msg{
-			Name: sens.Name,
+			Id:   sens.Priv.Id,
 			Body: body,
 		}
 		data, _ := json.Marshal(msg)

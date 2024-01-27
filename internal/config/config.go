@@ -13,6 +13,7 @@ const (
 type Sensor struct {
 	Priv struct { // runtime data
 		sync.Mutex
+		Id             string
 		Online         bool
 		Value          float64
 		Percent        float64

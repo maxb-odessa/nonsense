@@ -23,8 +23,20 @@
     "sensors" : [
         [
             {
-                "name" : "Graphics",
-                "group" : "Fans",
+                "group" : "GPU",
+                "name" : "temperature",
+                "device" : "0000:09:00.0",
+                "sensor" : "temp1",
+                "divider": 1000,
+                "max" : 100,
+                "min" : 0,
+                "percents" : true,
+                "poll interval" : 2,
+                "units": "&deg;C"
+            },
+            {
+                "group" : "GPU",
+                "name" : "fan speed",
                 "device" : "hp-wmi",
                 "sensor" : "fan1", 
                 "max": 5000,
@@ -33,16 +45,8 @@
                 "units" : "rpm"
             },
             {
-                "name" : "Processor",
-                "group" : "Fans",
-                "device" : "hp-wmi",
-                "sensor" : "fan2",
-                "max" : 5000,
-                "min" : 0,
-                "percents" : true,
-                "units" : "rpm"
-            },
-            {
+                "group" : "CPU",
+                "name" : "temperature",
                 "device" : "0000:00:18.3",
                 "sensor" : "temp1",
                 "divider": 1000,
@@ -53,16 +57,41 @@
                 "units": "&deg;C"
             },
             {
+                "group" : "CPU",
+                "name" : "fan speed",
+                "device" : "hp-wmi",
+                "sensor" : "fan2",
+                "max" : 5000,
+                "min" : 0,
+                "percents" : true,
+                "units" : "rpm"
+            },
+            {
+                "group" : "Hard Drives",
+                "name" : "drive 1 temperature",
+                "device" : "nvme0",
+                "sensor" : "temp1",
+                "min auto" : true,
+                "max auto" : true,
+                "percents" : true,
+                "divider": 1000,
+                "units": "&deg;C"
+            },
+            {
+                "group" : "Hard Drives",
+                "name" : "drive 2 temperature",
                 "device" : "nvme1",
                 "sensor" : "temp1",
                 "min auto" : true,
                 "max auto" : true,
+                "percents" : true,
                 "divider": 1000,
                 "units": "&deg;C"
             }
         ],
         [
             {
+                "name" : "Laptop Battery",
                 "device" : "BAT0",
                 "sensor" : "in0",
                 "divider" : 1000,
