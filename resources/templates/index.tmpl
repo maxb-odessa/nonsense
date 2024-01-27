@@ -22,11 +22,11 @@
             {{ range $i, $gr := $groups }}
                 <fieldset class="group">
                     <legend>
-                        {{ $gr.Id }}
+                        {{ $gr.Name }}
                     </legend>
-                    <div class="group" id="{{ $gr.Id }}">
+                    <div class="group" id="{{ $gr.Name }}">
                         {{ range $j, $se := $gr.Sensors }}
-                            <div class="sensor" id="{{ $se.Id }}"></div>
+                            <div class="sensor" id="{{ $se.Name }}"></div>
                         {{ end }}
                     </div>
                 </fieldset>

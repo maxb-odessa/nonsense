@@ -18,7 +18,7 @@ var toClientCh chan []byte
 
 func init() {
 	mime.AddExtensionType(".css", "text/css")
-	toClientCh = make(chan []byte, 32)
+	toClientCh = make(chan []byte, 8)
 }
 
 var indexPage string
@@ -27,17 +27,19 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 
 	sensorsByName := make(map[string]*config.Sensor)
 
+	// prepare index page
+
 	templates, err := tmpl.Load(conf.Server.Resources + "/templates")
 	if err != nil {
 		return err
 	}
 
 	type Sen struct {
-		Id string
+		Name string
 	}
 
 	type Grp struct {
-		Id      string
+		Name    string
 		Sensors []*Sen
 	}
 
@@ -84,7 +86,7 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 		gr := make([]*Grp, 0)
 		for _, g := range grList {
 			ngr := new(Grp)
-			ngr.Id = g
+			ngr.Name = g
 			ngr.Sensors = make([]*Sen, 0)
 			for _, sens := range col {
 				// skip disabled
@@ -92,7 +94,7 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 					continue
 				}
 				if g == sens.Group {
-					ngr.Sensors = append(ngr.Sensors, &Sen{Id: sens.Name})
+					ngr.Sensors = append(ngr.Sensors, &Sen{Name: sens.Name})
 				}
 			}
 			gr = append(gr, ngr)
@@ -118,7 +120,7 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 
 func processSensors(sensMap map[string]*config.Sensor, templates tmpl.Tmpls, sensChan chan *config.Sensor) {
 	type Msg struct {
-		Id   string `json:"id"`
+		Name string `json:"id"`
 		Body string `json:"body"`
 	}
 
@@ -134,7 +136,7 @@ func processSensors(sensMap map[string]*config.Sensor, templates tmpl.Tmpls, sen
 		}
 
 		msg := &Msg{
-			Id:   sens.Name,
+			Name: sens.Name,
 			Body: body,
 		}
 		data, _ := json.Marshal(msg)

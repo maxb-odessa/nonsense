@@ -6,24 +6,33 @@ import (
 	"sync"
 )
 
+const (
+	HWMON_PATH = "/sys/class/hwmon"
+)
+
 type Sensor struct {
 	Priv struct { // runtime data
 		sync.Mutex
-		Online     bool
-		CurrValue  float64
-		Percent    float64
-		Percent100 float64
+		Online         bool
+		Value          float64
+		Percent        float64
+		Percent100     float64
+		InputPath      string
+		FractionsRatio float64
 	}
-	Disabled     bool    `json:"enabled"`
+	Disabled     bool    `json:"disabled"`
 	Name         string  `json:"name"`
-	Type         string  `json:"type"`
 	Group        string  `json:"group"`
-	Source       string  `json:"source"`
-	Reopen       bool    `json:"reopen"`
-	MinValue     float64 `json:"min value"`
-	MaxValue     float64 `json:"max value"`
+	Device       string  `json:"device"`
+	Sensor       string  `json:"sensor"`
+	Min          float64 `json:"min"`
+	MinAuto      bool    `json:"min auto"`
+	Max          float64 `json:"max"`
+	MaxAuto      bool    `json:"max auto"`
 	Divider      float64 `json:"divider"`
 	Units        string  `json:"units"`
+	Fractions    int     `json:"fractions"`
+	Percents     bool    `json:"percents"`
 	PollInterval float64 `json:"poll interval"`
 }
 

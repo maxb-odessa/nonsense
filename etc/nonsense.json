@@ -4,50 +4,76 @@
         "resources" : "$PWD/resources"
     },
 
+    "NOTES": [
+        "(o)name - visual name of this sensor, try auto (ex: AMD (temp1)) form *_label file if missed or use 'id' if failed",
+        "(o)group - optional, visually group sensors",
+        "(m)device - device to monitor, resolved symlink of /sys/class/hwmon/hwmon*/device",
+        "(m)sensor - use this file prefix as data input, label, max, etc, ex /sys/class/hwmon/hwmon1/`sensor`_input",
+        "(o)max - set this max value",
+        "(o)min - set this min value",
+        "(o)max auto - if true use file *_max value",
+        "(o)min auto - if true use file *_mix value",
+        "(o)units - value suffi to show, rpm, C, MB, etc",
+        "(o)fractions - show values with fractions of this len, i.e. fractions  = 3 => 0.123i, default is 0 (int)",
+        "(o)percents - calc and show percents gauge, bool",
+        "(o)disable - ignore this sensor",
+        "(o)poll interval - in seconds, default is 1 second"
+    ],
+
     "sensors" : [
         [
             {
                 "name" : "Graphics",
-                "type": "file",
-                "group" : "FANS",
-                "source" : "/sys/devices/platform/hp-wmi/hwmon/hwmon8/fan1_input",
-                "max value": 5000,
+                "group" : "Fans",
+                "device" : "hp-wmi",
+                "sensor" : "fan1", 
+                "max": 5000,
+                "min" : 0,
+                "percents" : true,
                 "units" : "rpm"
             },
             {
                 "name" : "Processor",
-                "type": "file",
-                "group" : "FANS",
-                "source" : "/sys/devices/platform/hp-wmi/hwmon/hwmon8/fan2_input",
-                "max value": 5000,
+                "group" : "Fans",
+                "device" : "hp-wmi",
+                "sensor" : "fan2",
+                "max" : 5000,
+                "min" : 0,
+                "percents" : true,
                 "units" : "rpm"
             },
             {
-                "name" : "Temp",
-                "type": "file",
-                "source" : "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon8/temp1_input",
+                "device" : "0000:00:18.3",
+                "sensor" : "temp1",
                 "divider": 1000,
+                "max" : 100,
+                "min" : 0,
+                "percents" : true,
                 "poll interval" : 2,
-                "max value": 100,
                 "units": "&deg;C"
             },
             {
-                "name" : "Temp2",
-                "type": "file",
-                "source" : "/tmp/e",
+                "device" : "nvme1",
+                "sensor" : "temp1",
+                "min auto" : true,
+                "max auto" : true,
+                "divider": 1000,
+                "units": "&deg;C"
+            }
+        ],
+        [
+            {
+                "device" : "BAT0",
+                "sensor" : "in0",
+                "divider" : 1000,
+                "fractions" : 3,
+                "units" : "Volts",
+                "min" : 15,
+                "max" : 18
+            },
+            {
+                "name" : "dummy sensor #2",
                 "disabled" : true
-            }
-        ],
-        [
-            {
-                "type": "file",
-                "name" : "this one goes into second column"
-            }
-        ],
-        [
-            {
-                "type": "file",
-                "name" : "A THIRD COLUMN, WHEEE!"
             }
         ]
 
