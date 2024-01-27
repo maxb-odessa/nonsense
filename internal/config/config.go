@@ -9,8 +9,10 @@ import (
 type Sensor struct {
 	Priv struct { // runtime data
 		sync.Mutex
-		Online    bool
-		CurrValue float64
+		Online     bool
+		CurrValue  float64
+		Percent    float64
+		Percent100 float64
 	}
 	Disabled     bool    `json:"enabled"`
 	Name         string  `json:"name"`

@@ -11,6 +11,7 @@
                 "type": "file",
                 "group" : "FANS",
                 "source" : "/sys/devices/platform/hp-wmi/hwmon/hwmon8/fan1_input",
+                "max value": 5000,
                 "units" : "rpm"
             },
             {
@@ -18,14 +19,16 @@
                 "type": "file",
                 "group" : "FANS",
                 "source" : "/sys/devices/platform/hp-wmi/hwmon/hwmon8/fan2_input",
+                "max value": 5000,
                 "units" : "rpm"
             },
             {
                 "name" : "Temp",
                 "type": "file",
-                "source" : "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon7/temp1_input",
+                "source" : "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon8/temp1_input",
                 "divider": 1000,
                 "poll interval" : 2,
+                "max value": 100,
                 "units": "&deg;C"
             },
             {

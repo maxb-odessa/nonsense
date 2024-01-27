@@ -60,7 +60,12 @@ func sensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
 				sens.Priv.Lock()
 				sens.Priv.CurrValue = math.Round(value / sens.Divider)
 				sens.Priv.Online = true
+				if sens.MaxValue > 0 {
+					sens.Priv.Percent = sens.Priv.CurrValue / sens.MaxValue * 100
+					sens.Priv.Percent100 = 100 - sens.Priv.Percent
+				}
 				sens.Priv.Unlock()
+				slog.Debug(1, "sensor '%s' value=%f perceent=%f", sens.Name, sens.Priv.CurrValue, sens.Priv.Percent)
 			}
 		}
 

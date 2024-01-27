@@ -141,7 +141,11 @@ func processSensors(sensMap map[string]*config.Sensor, templates tmpl.Tmpls, sen
 
 		// send data to the client
 		slog.Debug(9, "sendig to server: %+v", data)
-		toClientCh <- data
+		select {
+		case toClientCh <- data:
+		default:
+			slog.Debug(5, "http server queue is full, discarding sensor data")
+		}
 	}
 
 }
