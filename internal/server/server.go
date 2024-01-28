@@ -113,11 +113,16 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 	return nil
 }
 
+type Msg struct {
+	Type string `json:"type"`
+	Id   string `json:"id"`
+	Body string `json:"body"`
+}
+
+func sysinfo() {
+}
+
 func processSensors(templates tmpl.Tmpls, sensChan chan *config.Sensor) {
-	type Msg struct {
-		Id   string `json:"id"`
-		Body string `json:"body"`
-	}
 
 	for sens := range sensChan {
 
@@ -131,6 +136,7 @@ func processSensors(templates tmpl.Tmpls, sensChan chan *config.Sensor) {
 		}
 
 		msg := &Msg{
+			Type: "sensor",
 			Id:   sens.Priv.Id,
 			Body: body,
 		}
