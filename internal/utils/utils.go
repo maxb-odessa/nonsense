@@ -67,3 +67,10 @@ func LoadDir(holder map[string][]byte, dir string, ext string, maxSize int64, ma
 func HTMLSafe(s string) string {
 	return strings.ReplaceAll(html.EscapeString(s), " ", "&nbsp;")
 }
+
+func IsDir(dir string) bool {
+	if stat, err := os.Stat(dir); err == nil && stat.IsDir() {
+		return true
+	}
+	return false
+}

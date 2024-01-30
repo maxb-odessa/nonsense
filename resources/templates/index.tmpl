@@ -37,7 +37,7 @@
                     </legend>
                     <div class="group" id="{{ $gr.Id }}">
                         {{ range $j, $se := $gr.Sensors }}
-                            <div class="sensor" id="sensor{{ $se.Id }}"></div>
+                            <div class="sensor" id="sensor{{ $se.Id }}" onClick="popupEditor('{{ $se.Id }}');"></div>
                         {{ end }}
                     </div>
                 </fieldset>
@@ -48,7 +48,25 @@
     </tbody>
 </table>
 
+<!-- editor window -->
+<div class="editor" id="editor">
+    <table class="editor">
+        <tr><td><div id="outwindow"></div></td></tr>
+        <tr><td><button onClick="closeEditor();">CLOME ME</button></td></tr>
+    </table>
+</div>
+
 <script>
+
+function closeEditor() {
+    document.getElementById("editor").style.display = 'none';
+};
+
+function popupEditor(data) {
+    document.getElementById("editor").style.display = 'block';
+    document.getElementById("outwindow").innerHTML = data;
+};
+
 
 function loadCSS() {
     document.getElementsByTagName('head')[0].insertAdjacentHTML(

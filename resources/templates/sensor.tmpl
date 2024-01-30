@@ -1,17 +1,15 @@
-{{ if .Priv.Online }}
-<div class="sensor">
-{{ else }}
+{{ if .Priv.Offline }}
 <div class="sensor" style="opacity: 0.2;">
+{{ else }}
+<div class="sensor">
 {{ end }}
     {{ if ne .Group .Name }}
         <i>{{ .Name }}</i>
     {{ end }}
-    <div class="gauge_text">{{ .Priv.Value }}&nbsp;{{ .Units }}
-        {{ if .Percents }}
-        <div class="gauge" style="clip-path: inset(0 {{ .Priv.Percent100 }}% 0 0);">
-            <div class="gauge_text">{{ .Priv.Value }}&nbsp;{{ .Units }}
+    <div class="gauge_text">{{ .Priv.Value }}&nbsp;{{ .Widget.Units }}
+        <div class="gauge" style="clip-path: inset(0 {{ .Priv.AntiPercents }}% 0 0);">
+            <div class="gauge_text">{{ .Priv.Value }}&nbsp;{{ .Widget.Units }}
             </div>
         </div>
-        {{ end }}
     </div>
 </div>

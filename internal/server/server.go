@@ -6,6 +6,7 @@ import (
 	"mime"
 	"net/http"
 	"os"
+	"time"
 
 	ws "github.com/gorilla/websocket"
 
@@ -57,7 +58,7 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 
 			// group name can not be empty
 			if sens.Group == "" {
-				sens.Group = sens.Name
+				sens.Group = sens.Sensor.Device
 			}
 
 			unique := true
@@ -104,6 +105,9 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 		return err
 	}
 
+	// start sending sysinfo
+	//go sendSysinfo(templates)
+
 	// start sensors events listening and processing
 	go processSensors(templates, sensChan)
 
@@ -119,7 +123,20 @@ type Msg struct {
 	Body string `json:"body"`
 }
 
-func sysinfo() {
+func sendSysinfo(templates tmpl.Tmpls) {
+	ticker := time.NewTicker(1 * time.Second)
+
+	sinfo := func() {
+
+	}
+
+	for {
+		select {
+		case <-ticker.C:
+			sinfo()
+		}
+	}
+
 }
 
 func processSensors(templates tmpl.Tmpls, sensChan chan *config.Sensor) {

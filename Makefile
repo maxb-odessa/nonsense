@@ -9,6 +9,7 @@ GO111MODULE	=	auto
 all: build
 
 build:
+	go build ./cmd/nonsens-scan
 	go build ./cmd/nonsens
 
 install:
