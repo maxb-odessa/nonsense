@@ -18,6 +18,18 @@
 <div class="editor" id="editor">
     <table class="editor">
         <tr><td>Name</td><td><input id="edit-name"></input></tr>
+        <tr><td>Group</td><td><input id="edit-group"></input></tr>
+        <tr><td>Column</td><td><input id="edit-column"></input></tr>
+        <tr><td>Min Value</td><td><input id="edit-min" pattern="^[0-9]*\.?[0-9]+></input></tr>
+        <tr><td>Max Value</td><td><input id="edit-max"></input></tr>
+        <tr><td>Divider</td><td><input id="edit-divider"></input></tr>
+        <tr><td>Fractions</td><td><input id="edit-fractions"></input></tr>
+        <tr><td>Units</td><td><input id="edit-units"></input></tr>
+        <tr><td>Poll Interval</td><td><input id="edit-poll"></input></tr>
+        <tr><td>Type</td><td><input id="edit-type"></input></tr>
+        <tr><td>Color 0%</td><td><input id="edit-color0"></input></tr>
+        <tr><td>Color 100%</td><td><input id="edit-color100"></input></tr>
+        <tr><td>Disabled</td><td><input id="edit-disabled"></input></tr>
         <tr>
           <td><button onClick="closeEditor(1);">Apply</button></td>
           <td><button onClick="closeEditor(2);">Save</button></td>
@@ -40,13 +52,25 @@ function closeEditor(action) {
 };
 
 function popupEditor(id) {
-    var jdata = document.getElementById(id).innerHTML
+    var jdata = document.getElementById(id).innerHTML;
     if (jdata == null)
-        return
+        return;
 
-    var data = JSON.parse(jdata)
+    var data = JSON.parse(jdata);
 
-    document.getElementById("edit-name").value = data.name
+    document.getElementById("edit-name").value = data.name;
+    document.getElementById("edit-group").value = data.group;
+    document.getElementById("edit-column").value = document.getElementById(id).title;
+    document.getElementById("edit-min").value = data.sensor.min;
+    document.getElementById("edit-max").value = data.sensor.max;
+    document.getElementById("edit-divider").value = data.sensor.divider;
+    document.getElementById("edit-poll").value = data.sensor.poll;
+    document.getElementById("edit-type").value = data.widget.type;
+    document.getElementById("edit-units").value = data.widget.units;
+    document.getElementById("edit-fractions").value = data.widget.fractions;
+    document.getElementById("edit-color0").value = data.widget.color0;
+    document.getElementById("edit-color100").value = data.widget.color100;
+    document.getElementById("edit-disabled").value = data.disabled;
 
     document.getElementById("editor").style.display = 'block';
 };
