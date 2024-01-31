@@ -1,6 +1,7 @@
 package sensors
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -47,8 +48,8 @@ func setupSensors(sensors [][]*config.Sensor, dir string) error {
 			if setupSingleSensor(sens, dir) {
 				slog.Info("Configured sensor '%s' for device '%s'", sens.Name, sens.Sensor.Device)
 			} else {
-				// make uniq sens IDto address it within html page
-				sens.Priv.Id = sens.Sensor.Device + sens.Sensor.Input
+				// make uniq sens ID to address it within html page
+				sens.Priv.Id = base64.StdEncoding.EncodeToString([]byte(sens.Sensor.Device + sens.Sensor.Input))
 			}
 		}
 	}

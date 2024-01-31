@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>NonSENS - sensors monitor</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+</head>
+
+<body>
+<table class="main" id="main">
+    <tr><td style="font-size: large;">Connecting...</td></tr>
+</table>
+
+<!-- editor window -->
+<div class="editor" id="editor">
+    <table class="editor">
+        <tr><td>Name</td><td><input id="edit-name"></input></tr>
+        <tr>
+          <td><button onClick="closeEditor(1);">Apply</button></td>
+          <td><button onClick="closeEditor(2);">Save</button></td>
+          <td><button onClick="closeEditor(3);">Cancel</button></td>
+        </tr>
+    </table>
+</div>
+
+<script>
+
+function closeEditor(action) {
+    if (action == 1) {
+        //apply
+    } if (action == 2) {
+        // save config
+    } if (action == 3) {
+        // do nothing
+    }
+    document.getElementById("editor").style.display = 'none';
+};
+
+function popupEditor(id) {
+    var jdata = document.getElementById(id).innerHTML
+    if (jdata == null)
+        return
+
+    var data = JSON.parse(jdata)
+
+    document.getElementById("edit-name").value = data.name
+
+    document.getElementById("editor").style.display = 'block';
+};
+
+
+function loadCSS() {
+    document.getElementsByTagName('head')[0].insertAdjacentHTML(
+        'beforeend',
+        '<link rel="stylesheet" type="text/css" href="/css/nonsens.css?'+Date.now()+'" />');
+};
+
+window.onload = function () {
+    loadCSS();
+};
+
+var wsUrl = "ws://" + window.location.hostname + ":" + window.location.port + "/ws";
+
+loop();
+
+var socket;
+
+async function loop() {
+
+    while (1) {
+
+        var reconnect = false;
+        socket = new WebSocket(wsUrl);
+
+        socket.onopen = function() {
+            socket.send("{}");
+            reconnect = false;
+        };
+
+        socket.onmessage = function(msg) {
+            const obj = JSON.parse(msg.data);
+            var target = obj.target;
+            var data = obj.data;
+            var output = document.getElementById(target);
+            if (output !== null)
+                output.innerHTML = data;
+            socket.send("{}");
+        };
+
+        socket.onclose = function(ev) {
+            var output = document.getElementById("main");
+            output.innerHTML = '<tr><td style="font-size: large;">Reconnecting...</td></tr>';
+            reconnect = true;
+        };
+
+        await waitUntil(() => reconnect === true);
+
+    };
+
+};
+
+async function waitUntil(condition, time = 1000) {
+    while (!condition()) {
+        await new Promise((resolve) => setTimeout(resolve, time));
+    }
+}
+
+</script>
+
+</body>
+
+</html>

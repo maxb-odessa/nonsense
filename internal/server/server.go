@@ -2,12 +2,13 @@ package server
 
 import (
 	"encoding/json"
-	"io"
 	"mime"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
+	mux "github.com/gorilla/mux"
 	ws "github.com/gorilla/websocket"
 
 	"github.com/maxb-odessa/nonsens/internal/config"
@@ -16,25 +17,51 @@ import (
 )
 
 var toClientCh chan []byte
+var wsChans map[string]chan []byte
+var wsChansLock sync.Mutex
+var templates tmpl.Tmpls
 
-func init() {
-	mime.AddExtensionType(".css", "text/css")
-	toClientCh = make(chan []byte, 8)
-}
+// uniq body id
+const BODYID = "main"
 
-var indexPage string
+var bodyData string
 
 func Start(conf *config.Config, sensChan chan *config.Sensor) error {
+	var err error
 
-	// prepare index page
+	mime.AddExtensionType(".css", "text/css")
+	toClientCh = make(chan []byte, 8)
+	wsChans = make(map[string]chan []byte, 0)
 
-	templates, err := tmpl.Load(conf.Server.Resources + "/templates")
+	go chanDispatcher(toClientCh)
+
+	templates, err = tmpl.Load(conf.Server.Resources + "/templates")
 	if err != nil {
 		return err
 	}
 
+	if err = makeBody(conf); err != nil {
+		return err
+	}
+
+	// start sending sysinfo
+	//go sendSysinfo(templates)
+
+	// start sensors events listening and processing
+	go processSensors(templates, sensChan)
+
+	// fire up the server
+	go server(conf)
+
+	return nil
+}
+
+func makeBody(conf *config.Config) error {
+	var err error
+
 	type Sen struct {
-		Id string
+		Id   string
+		Json string
 	}
 
 	type Grp struct {
@@ -54,11 +81,6 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 			// skip disabled
 			if sens.Disabled {
 				continue
-			}
-
-			// group name can not be empty
-			if sens.Group == "" {
-				sens.Group = sens.Sensor.Device
 			}
 
 			unique := true
@@ -90,7 +112,8 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 					continue
 				}
 				if g == sens.Group {
-					ngr.Sensors = append(ngr.Sensors, &Sen{Id: sens.Priv.Id})
+					js, _ := json.Marshal(sens)
+					ngr.Sensors = append(ngr.Sensors, &Sen{Id: sens.Priv.Id, Json: string(js)})
 				}
 			}
 			gr = append(gr, ngr)
@@ -99,28 +122,33 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 		groups = append(groups, gr)
 	}
 
-	// prepare the index page with all groups and sensors placed
-	indexPage, err = tmpl.ApplyByName("index", templates, groups)
+	// prepare the body with all groups and sensors placed
+	bodyData, err = tmpl.ApplyByName("body", templates, groups)
 	if err != nil {
 		return err
 	}
 
-	// start sending sysinfo
-	//go sendSysinfo(templates)
-
-	// start sensors events listening and processing
-	go processSensors(templates, sensChan)
-
-	// fire up the server
-	go server(conf)
-
 	return nil
 }
 
-type Msg struct {
-	Type string `json:"type"`
-	Id   string `json:"id"`
-	Body string `json:"body"`
+type ToClientMsg struct {
+	Target string `json:"target"`
+	Data   string `json:"data"`
+}
+
+func sendBody() {
+
+	msg := &ToClientMsg{
+		Target: BODYID,
+		Data:   bodyData,
+	}
+
+	data, _ := json.Marshal(msg)
+
+	slog.Debug(1, "sending body to server: %+v", msg)
+
+	// can't skip this message - it's a body!
+	toClientCh <- data
 }
 
 func sendSysinfo(templates tmpl.Tmpls) {
@@ -152,15 +180,14 @@ func processSensors(templates tmpl.Tmpls, sensChan chan *config.Sensor) {
 			continue
 		}
 
-		msg := &Msg{
-			Type: "sensor",
-			Id:   sens.Priv.Id,
-			Body: body,
+		msg := &ToClientMsg{
+			Target: sens.Priv.Id,
+			Data:   body,
 		}
 		data, _ := json.Marshal(msg)
 
 		// send data to the client
-		slog.Debug(9, "sendig to server: %+v", data)
+		slog.Debug(9, "sending sensor to server: %+v", msg)
 		select {
 		case toClientCh <- data:
 		default:
@@ -171,10 +198,9 @@ func processSensors(templates tmpl.Tmpls, sensChan chan *config.Sensor) {
 }
 
 func server(conf *config.Config) {
-	mux := http.NewServeMux()
+	router := mux.NewRouter()
 
 	wsHandler := func(w http.ResponseWriter, r *http.Request) {
-
 		var upgrader = ws.Upgrader{
 			ReadBufferSize:  8192,
 			WriteBufferSize: 8192,
@@ -188,9 +214,14 @@ func server(conf *config.Config) {
 
 		slog.Info("Websocket connected: %s", conn.RemoteAddr())
 
+		wsChan := make(chan []byte, 8)
+		registerChan(wsChan, conn.RemoteAddr().String())
+
 		defer func() {
 			slog.Info("Websocket connection closed: %s", conn.RemoteAddr())
 			conn.Close()
+			unregisterChan(conn.RemoteAddr().String())
+			close(wsChan)
 		}()
 
 		reader := func() {
@@ -202,17 +233,19 @@ func server(conf *config.Config) {
 				}
 				// got a message from the remote
 				if mtype == ws.TextMessage {
-					slog.Debug(1, "Got from remote: %+v", string(msg))
+					slog.Debug(9, "Got from remote: %+v", string(msg))
+					processClientMsg(msg)
 				}
 			}
 		}
 
 		go reader()
 
-		for {
+		go sendBody() // this blocks if chan is full
 
+		for {
 			select {
-			case msg, ok := <-toClientCh:
+			case msg, ok := <-wsChan:
 				if !ok {
 					return
 				}
@@ -221,28 +254,101 @@ func server(conf *config.Config) {
 					slog.Err("Websocket send() failed: %s", err)
 					return
 				} else {
-					slog.Debug(5, "ws sent: %q", string(msg))
+					slog.Debug(9, "ws sent: %q", string(msg))
 				}
 			}
 		}
 	}
-	mux.HandleFunc("/ws", wsHandler)
+	router.HandleFunc("/ws", wsHandler)
 
 	pageDir := os.ExpandEnv(conf.Server.Resources + "/webpage")
 	slog.Debug(9, "Serving HTTP dir: %s", pageDir)
 	// NB: that odd "nosniff" thingie
-	mux.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir(pageDir+"/img"))))
-	mux.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir(pageDir+"/css"))))
-
-	getIndex := func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, indexPage)
-	}
-	mux.HandleFunc("/", getIndex)
+	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir(pageDir))))
+	/*
+		router.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(pageDir+"/"))))
+		router.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir(pageDir+"/img"))))
+		router.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir(pageDir+"/css"))))
+	*/
 
 	listen := conf.Server.Listen
 	if listen == "" {
 		listen = ":12345"
 	}
 	slog.Info("Listening at %s", listen)
-	http.ListenAndServe(listen, mux)
+
+	srv := &http.Server{
+		Handler: router,
+		Addr:    listen,
+		// Good practice: enforce timeouts for servers you create!
+		WriteTimeout: 5 * time.Second,
+		ReadTimeout:  5 * time.Second,
+	}
+
+	srv.ListenAndServe()
+}
+
+type FromClientMsg struct {
+	Id        string  `json:"id"`
+	Name      string  `json:"name"`
+	Group     string  `json:"group"`
+	Column    int     `json:"column"`
+	Min       float64 `json:"min"`
+	Max       float64 `json:"max"`
+	Disabled  bool    `json:"disabled"`
+	Divider   float64 `json:"divider"`
+	Poll      float64 `json:"poll"`
+	Units     string  `json:"units"`
+	Type      string  `json:"type"`
+	Fractions int     `json:"fractions"`
+	Color0    string  `json:"color0"`
+	Color100  string  `json:"color100"`
+}
+
+func processClientMsg(msg []byte) {
+	var data FromClientMsg
+
+	err := json.Unmarshal(msg, &data)
+	if err != nil {
+		slog.Err("failed to unmarshal json from client: %s", err)
+		return
+	}
+
+}
+
+func registerChan(ch chan []byte, id string) {
+	wsChansLock.Lock()
+	wsChans[id] = ch
+	wsChansLock.Unlock()
+	slog.Debug(9, "REG chan id %s", id)
+}
+
+func unregisterChan(id string) {
+	wsChansLock.Lock()
+	if _, ok := wsChans[id]; ok {
+		delete(wsChans, id)
+		slog.Debug(9, "UNREG chan id %s", id)
+	}
+	wsChansLock.Unlock()
+}
+
+func chanDispatcher(ch chan []byte) {
+	for {
+		select {
+		case msg, ok := <-ch:
+			if !ok {
+				continue
+			}
+			wsChansLock.Lock()
+			for id, wsCh := range wsChans {
+				select {
+				case wsCh <- msg:
+					slog.Debug(9, "SEND chan id %s", id)
+				default:
+					slog.Debug(9, "chan send to %s failed", id)
+				}
+			}
+			wsChansLock.Unlock()
+		}
+	}
 }

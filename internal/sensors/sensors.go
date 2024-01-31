@@ -10,6 +10,7 @@ import (
 	"github.com/maxb-odessa/slog"
 
 	"github.com/maxb-odessa/nonsens/internal/config"
+	"github.com/maxb-odessa/nonsens/internal/utils"
 )
 
 func Start(conf *config.Config, sensChan chan *config.Sensor) error {
@@ -60,6 +61,13 @@ func sensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
 	if sens.Sensor.Min > sens.Sensor.Max {
 		slog.Info("forcing sensor '%s' min/max to %f", sens.Name, sens.Sensor.Max)
 		sens.Sensor.Min = sens.Sensor.Max
+	}
+
+	sens.Name = utils.SafeHTML(sens.Name)
+	if sens.Group == "" {
+		sens.Group = sens.Name
+	} else {
+		sens.Group = utils.SafeHTML(sens.Group)
 	}
 
 	var err error

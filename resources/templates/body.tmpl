@@ -1,0 +1,35 @@
+<thead>
+    <tr>
+        <td class="sysinfo" colspan="{{ len . }}">
+            <div style="display: inline-grid; grid-template-columns: 33% 33% 34%; grid-template-rows: 50% 50%; width: 100%;">
+                <div style="border: 1px black solid;">1</div>
+                <div style="border: 1px black solid;">2</div>
+                <div style="border: 1px black solid;">3</div>
+                <div style="border: 1px black solid;">4</div>
+                <div style="border: 1px black solid;">5</div>
+                <div style="border: 1px black solid;">6</div>
+            </div>
+        </td>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+    {{ range $col, $groups := . }}
+        <td class="column">
+            {{ range $i, $gr := $groups }}
+                <fieldset class="group">
+                    <legend>
+                        [&nbsp;{{ $gr.Id }}&nbsp;]
+                    </legend>
+                    <div class="group">
+                        {{ range $j, $se := $gr.Sensors }}
+                            <div id="json-{{ $se.Id }}" hidden>{{ $se.Json }}</div>
+                            <div class="sensor" id="{{ $se.Id }}" onClick="popupEditor('json-{{ $se.Id }}');"></div>
+                        {{ end }}
+                    </div>
+                </fieldset>
+            {{ end }}
+        </td>
+    {{ end }}
+    </tr>
+</tbody>

@@ -64,7 +64,7 @@ func LoadDir(holder map[string][]byte, dir string, ext string, maxSize int64, ma
 	return nil
 }
 
-func HTMLSafe(s string) string {
+func SafeHTML(s string) string {
 	return strings.ReplaceAll(html.EscapeString(s), " ", "&nbsp;")
 }
 
