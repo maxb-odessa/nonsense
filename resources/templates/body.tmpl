@@ -23,8 +23,8 @@
                     </legend>
                     <div class="group">
                         {{ range $j, $se := $gr.Sensors }}
-                            <div title="{{ $col }}" id="json-{{ $se.Id }}" hidden>{{ $se.Json }}</div>
-                            <div class="sensor" id="{{ $se.Id }}" onClick="popupEditor('json-{{ $se.Id }}');"></div>
+                            <div id="json-{{ $se.Id }}" hidden>{{ $se.Json }}</div>
+                            <div class="sensor" id="{{ $se.Id }}" onClick="popupEditor('{{ $se.Id }}');"></div>
                         {{ end }}
                     </div>
                 </fieldset>

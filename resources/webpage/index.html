@@ -16,24 +16,90 @@
 
 <!-- editor window -->
 <div class="editor" id="editor">
+    <p id="edit-id" hidden></p>
     <table class="editor">
-        <tr><td>Name</td><td><input id="edit-name"></input></tr>
-        <tr><td>Group</td><td><input id="edit-group"></input></tr>
-        <tr><td>Column</td><td><input id="edit-column"></input></tr>
-        <tr><td>Min Value</td><td><input id="edit-min" pattern="^[0-9]*\.?[0-9]+></input></tr>
-        <tr><td>Max Value</td><td><input id="edit-max"></input></tr>
-        <tr><td>Divider</td><td><input id="edit-divider"></input></tr>
-        <tr><td>Fractions</td><td><input id="edit-fractions"></input></tr>
-        <tr><td>Units</td><td><input id="edit-units"></input></tr>
-        <tr><td>Poll Interval</td><td><input id="edit-poll"></input></tr>
-        <tr><td>Type</td><td><input id="edit-type"></input></tr>
-        <tr><td>Color 0%</td><td><input id="edit-color0"></input></tr>
-        <tr><td>Color 100%</td><td><input id="edit-color100"></input></tr>
-        <tr><td>Disabled</td><td><input id="edit-disabled"></input></tr>
-        <tr>
-          <td><button onClick="closeEditor(1);">Apply</button></td>
-          <td><button onClick="closeEditor(2);">Save</button></td>
-          <td><button onClick="closeEditor(3);">Cancel</button></td>
+        <tr class="editor">
+            <td class="name">Name</td>
+            <td class="input"><input id="edit-name"></input></td>
+            <td class="hint">*sensor name</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Group</td>
+            <td class="input"><input id="edit-group"></input></td>
+            <td class="hint">sensor group</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Column</td>
+            <td class="input">
+                <select id="edit-column">
+                    <option value="0" selected>1</option>
+                    <option value="1">2</option>
+                    <option value="2">3</option>
+                    <option value="3">4</option>
+                    <option value="4">5</option>
+                </select>
+            </td>
+            <td class="hint">select a column</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Minimal Value</td>
+            <td class="input"><input id="edit-min"></input></td>
+            <td class="hint">minimal sensor value, i.e. 12.7</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Maximal Value</td>
+            <td class="input"><input id="edit-max"></input></td>
+            <td class="hint">maximal sensor value, i.e. 3000.0</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Divider</td>
+            <td class="input"><input id="edit-divider"></input></td>
+            <td class="hint">sensor value divider, i.e. 1000</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Fractions</td>
+            <td class="input"><input id="edit-fractions"></input></td>
+            <td class="hint">value fractions to show, i.e. 2</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Units</td>
+            <td class="input"><input id="edit-units"></input></td>
+            <td class="hint">suffix value with units string, i.e. RPM</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Poll Interval</td>
+            <td class="input"><input id="edit-poll"></input></td>
+            <td class="hint">sensor polling interval, seconds, 1.0&lt;i&lt;600.0</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Type</td>
+            <td class="input"><input id="edit-type"></input></td>
+            <td class="hint">TBD</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Color 0%</td>
+            <td class="input"><input id="edit-color0"></input></td>
+            <td class="hint">low sensor value color</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Color 100%</td>
+            <td class="input"><input id="edit-color100"></input></td>
+            <td class="hint">high sensor value color</td>
+        </tr>
+        <tr class="editor">
+            <td class="name">Disabled</td>
+            <td class="input">
+                <select id="edit-disabled">
+                    <option value="false" selected>no</option>
+                    <option value="true">yes</option>
+                </select>
+            </td>
+            <td class="hint">disable this sensor</td>
+        </tr>
+        <tr class="editor">
+            <td class="button"><button class="button" onClick="closeEditor(1);">Apply</button></td>
+            <td class="button"><button class="button" onClick="closeEditor(2);">Apply &amp; Save</button></td>
+            <td class="button"><button class="button" onClick="closeEditor(3);">Cancel</button></td>
         </tr>
     </table>
 </div>
@@ -41,26 +107,73 @@
 <script>
 
 function closeEditor(action) {
-    if (action == 1) {
-        //apply
-    } if (action == 2) {
-        // save config
-    } if (action == 3) {
-        // do nothing
-    }
     document.getElementById("editor").style.display = 'none';
+
+    // cancel
+    if (action == 3) {
+        return;
+    }
+
+    var obj1 = new Object();
+    var obj2 = new Object();
+    obj2.sensor = new Object()
+    obj2.widget = new Object()
+
+
+
+    obj2.name = document.getElementById("edit-name").value;
+
+    obj2.group = document.getElementById("edit-group").value;
+
+    var col = document.getElementById("edit-column")
+    obj2.widget.column = Number(col.options[col.selectedIndex].value);
+
+    obj2.sensor.min = Number(document.getElementById("edit-min").value);
+
+    obj2.sensor.max = Number(document.getElementById("edit-max").value);
+
+    obj2.sensor.divider = Number(document.getElementById("edit-divider").value);
+
+    obj2.widget.fractions = Number(document.getElementById("edit-fractions").value);
+
+    obj2.widget.units = document.getElementById("edit-units").value;
+
+    obj2.sensor.poll = Number(document.getElementById("edit-poll").value);
+
+    obj2.widget.type = document.getElementById("edit-type").value;
+
+    obj2.widget.color0 = document.getElementById("edit-color0").value;
+
+    obj2.widget.color100 = document.getElementById("edit-color100").value;
+
+    var dis = document.getElementById("edit-disabled")
+    obj2.disabled = Boolean(dis.options[dis.selectedIndex].value);
+
+    if (action == 1) {
+        obj1.action = "apply";
+    } else if (action == 2) {
+        obj1.action = "save";
+    }
+    obj1.sensor = obj2;
+    obj1.id = document.getElementById("edit-id").innerHTML;
+
+    var js= JSON.stringify(obj1);
+
+    socket.send(js);
 };
 
 function popupEditor(id) {
-    var jdata = document.getElementById(id).innerHTML;
+    var jdata = document.getElementById('json-'+id).innerHTML;
     if (jdata == null)
         return;
 
     var data = JSON.parse(jdata);
 
+    document.getElementById("edit-id").innerHTML = id;
+
     document.getElementById("edit-name").value = data.name;
     document.getElementById("edit-group").value = data.group;
-    document.getElementById("edit-column").value = document.getElementById(id).title;
+    document.getElementById("edit-column").value = data.widget.column;
     document.getElementById("edit-min").value = data.sensor.min;
     document.getElementById("edit-max").value = data.sensor.max;
     document.getElementById("edit-divider").value = data.sensor.divider;
@@ -100,7 +213,7 @@ async function loop() {
         socket = new WebSocket(wsUrl);
 
         socket.onopen = function() {
-            socket.send("{}");
+            //socket.send("{}");
             reconnect = false;
         };
 
@@ -111,7 +224,7 @@ async function loop() {
             var output = document.getElementById(target);
             if (output !== null)
                 output.innerHTML = data;
-            socket.send("{}");
+            //socket.send("{}");
         };
 
         socket.onclose = function(ev) {

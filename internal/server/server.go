@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	mux "github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 	ws "github.com/gorilla/websocket"
 
 	"github.com/maxb-odessa/nonsens/internal/config"
@@ -20,17 +20,20 @@ var toClientCh chan []byte
 var wsChans map[string]chan []byte
 var wsChansLock sync.Mutex
 var templates tmpl.Tmpls
+var conf *config.Config
 
 // uniq body id
 const BODYID = "main"
 
 var bodyData string
 
-func Start(conf *config.Config, sensChan chan *config.Sensor) error {
+func Start(cf *config.Config, sensChan chan *config.Sensor) error {
 	var err error
 
+	conf = cf
+
 	mime.AddExtensionType(".css", "text/css")
-	toClientCh = make(chan []byte, 8)
+	toClientCh = make(chan []byte, 32)
 	wsChans = make(map[string]chan []byte, 0)
 
 	go chanDispatcher(toClientCh)
@@ -40,7 +43,7 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 		return err
 	}
 
-	if err = makeBody(conf); err != nil {
+	if err = makeBody(); err != nil {
 		return err
 	}
 
@@ -51,12 +54,12 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 	go processSensors(templates, sensChan)
 
 	// fire up the server
-	go server(conf)
+	go server()
 
 	return nil
 }
 
-func makeBody(conf *config.Config) error {
+func makeBody() error {
 	var err error
 
 	type Sen struct {
@@ -72,7 +75,7 @@ func makeBody(conf *config.Config) error {
 	groups := make([][]*Grp, 0)
 
 	// walk over columns
-	for _, col := range conf.Sensors {
+	for i, col := range conf.Sensors {
 
 		// walk over sensors in this column and make a list of groups
 		grList := make([]string, 0)
@@ -97,6 +100,8 @@ func makeBody(conf *config.Config) error {
 			if unique {
 				grList = append(grList, sens.Group)
 			}
+
+			sens.Widget.Column = i
 
 		}
 
@@ -197,7 +202,7 @@ func processSensors(templates tmpl.Tmpls, sensChan chan *config.Sensor) {
 
 }
 
-func server(conf *config.Config) {
+func server() {
 	router := mux.NewRouter()
 
 	wsHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -214,7 +219,7 @@ func server(conf *config.Config) {
 
 		slog.Info("Websocket connected: %s", conn.RemoteAddr())
 
-		wsChan := make(chan []byte, 8)
+		wsChan := make(chan []byte, 16)
 		registerChan(wsChan, conn.RemoteAddr().String())
 
 		defer func() {
@@ -233,7 +238,7 @@ func server(conf *config.Config) {
 				}
 				// got a message from the remote
 				if mtype == ws.TextMessage {
-					slog.Debug(9, "Got from remote: %+v", string(msg))
+					slog.Debug(5, "Got from remote: %+v", string(msg))
 					processClientMsg(msg)
 				}
 			}
@@ -289,20 +294,9 @@ func server(conf *config.Config) {
 }
 
 type FromClientMsg struct {
-	Id        string  `json:"id"`
-	Name      string  `json:"name"`
-	Group     string  `json:"group"`
-	Column    int     `json:"column"`
-	Min       float64 `json:"min"`
-	Max       float64 `json:"max"`
-	Disabled  bool    `json:"disabled"`
-	Divider   float64 `json:"divider"`
-	Poll      float64 `json:"poll"`
-	Units     string  `json:"units"`
-	Type      string  `json:"type"`
-	Fractions int     `json:"fractions"`
-	Color0    string  `json:"color0"`
-	Color100  string  `json:"color100"`
+	Action string        `json:"action"`
+	Id     string        `json:"id"`
+	Sensor config.Sensor `json:"sensor"`
 }
 
 func processClientMsg(msg []byte) {
@@ -313,6 +307,37 @@ func processClientMsg(msg []byte) {
 		slog.Err("failed to unmarshal json from client: %s", err)
 		return
 	}
+	slog.Info("GOT: %+v", data)
+
+	// search for the sensor
+	for _, gr := range conf.Sensors {
+		for _, se := range gr {
+
+			if se.Priv.Id != data.Id {
+				continue
+			}
+
+			if se.Widget.Column != data.Sensor.Widget.Column && data.Sensor.Widget.Column < config.MAX_COLUMNS {
+				// make space for new column
+				for i := data.Sensor.Widget.Column + 1; i > len(conf.Sensors); i-- {
+					conf.Sensors = append(conf.Sensors, make([]*config.Sensor, 0))
+				}
+				conf.Sensors[data.Sensor.Widget.Column] = append(conf.Sensors[data.Sensor.Widget.Column], se)
+				//conf.Sensors[se.Widget.Column] = append(conf.Sensors[:se.Widget.Column], conf.Sensors[se.Widget.Column+1:])
+				se.Widget.Column = data.Sensor.Widget.Column
+			}
+
+			se.Name = data.Sensor.Name
+			se.Group = data.Sensor.Group
+			// se.Disabled = data.Sensor.Disabled NOT WORKING, see JS code
+			se.Sensor = data.Sensor.Sensor
+			se.Widget = data.Sensor.Widget
+
+		}
+	}
+
+	makeBody()
+	sendBody()
 
 }
 

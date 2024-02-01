@@ -109,7 +109,7 @@ func sensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
 
 				sens.Priv.Unlock()
 
-				slog.Debug(1, "sensor '%s' value=%f percents=%f", sens.Name, sens.Priv.Value, sens.Priv.Percents)
+				slog.Debug(5, "sensor '%s' value=%f percents=%f", sens.Name, sens.Priv.Value, sens.Priv.Percents)
 			}
 		}
 
@@ -122,7 +122,7 @@ func sensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
 		select {
 		case sensChan <- sens:
 		default:
-			slog.Debug(1, "sensors queue is fuill, discarding sensor data")
+			slog.Debug(1, "sensors queue is full, discarding sensor data")
 		}
 	}
 

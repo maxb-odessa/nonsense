@@ -25,7 +25,7 @@ func main() {
 	conf.Server.Resources = "$HOME/.local/share/nonsens"
 
 	// no groups, go columns, just plain structure
-	conf.Sensors = make([][]*config.Sensor, 1)
+	conf.Sensors = make([][]*config.Sensor, 4)
 	conf.Sensors[0] = make([]*config.Sensor, 0)
 
 	slog.Info("Scanning %s ...", config.HWMON_PATH)
@@ -153,7 +153,7 @@ func setupSensor(dir, device, input string) *config.Sensor {
 	}
 
 	s.Widget.Color0 = "#00FF00"
-	s.Widget.Color100 = "FF0000"
+	s.Widget.Color100 = "#FF0000"
 
 	return s
 }
