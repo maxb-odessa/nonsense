@@ -18,15 +18,14 @@ import (
 
 func main() {
 
-	var conf config.Config
+	conf := new(config.Config)
 
 	//defaults
-	conf.Server.Listen = ":12345"
-	conf.Server.Resources = "$HOME/.local/share/nonsens"
-
-	// no groups, go columns, just plain structure
-	conf.Sensors = make([][]*config.Sensor, 4)
-	conf.Sensors[0] = make([]*config.Sensor, 0)
+	conf.Server = &config.Server{
+		Listen:         ":12345",
+		Resources:      "$HOME/.local/share/nonsens",
+		ConfigOverride: "$HOME/.config/nonsens/override.json",
+	}
 
 	slog.Info("Scanning %s ...", config.HWMON_PATH)
 
@@ -34,6 +33,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// 1-st stage: find all sensors and put them here
+	sensors := make([]*config.Sensor, 0)
 
 	for _, dir := range dirs {
 
@@ -51,19 +53,36 @@ func main() {
 
 		s := setupAllSensors(config.HWMON_PATH+"/"+dir.Name()+"/", device)
 		if s != nil {
-			conf.Sensors[0] = append(conf.Sensors[0], s...)
+			sensors = append(sensors, s...)
 		}
 
 	}
 
-	b, err := json.MarshalIndent(conf, "", "    ")
-	if err != nil {
-		log.Fatal(err)
+	// 2-d stage: arrange all sensors
+	conf.Columns = make([]*config.Column, 0)
+
+	col := 0
+	var column *config.Column
+	for i, sens := range sensors {
+
+		if i%8 == 0 && col < config.MAX_COLUMNS {
+			col++
+			column = new(config.Column)
+			column.Groups = make([]*config.Group, 1)
+			conf.Columns = append(conf.Columns, column)
+		}
+
+		g := &config.Group{
+			Name:    "Group: " + sens.Name,
+			Sensors: make([]*config.Sensor, 1),
+		}
+
+		g.Sensors = append(g.Sensors, sens)
+		column.Groups = append(column.Groups, g)
 	}
-	fmt.Println(string(b))
 
-	//slog.Info("Config: %+v", conf)
-
+	j, _ := json.MarshalIndent(conf, "", "    ")
+	fmt.Println(string(j))
 }
 
 func setupAllSensors(dir, device string) []*config.Sensor {
@@ -105,31 +124,42 @@ func setupAllSensors(dir, device string) []*config.Sensor {
 
 func setupSensor(dir, device, input string) *config.Sensor {
 	s := new(config.Sensor)
-	s.Sensor.Device = device
+	s.Options.Device = device
 
 	in := strings.Split(input, "_")[0]
 
-	// try to guess device name
+	if n, err := os.ReadFile(dir + "name"); err == nil {
+		name := strings.TrimSpace(string(n))
+		if name != "" {
+			s.Name = name
+		}
+	}
+
+	s.Name += "/" + in
+
 	for _, n := range []string{"device/manufacturer", "device/model_name", "device/model"} {
 		na := make([]string, 0)
 		if name, err := os.ReadFile(dir + n); err == nil {
 			na = append(na, strings.TrimSpace(string(name)))
 		}
-		s.Group = strings.Join(na, " ")
-	}
-
-	if s.Group == "" {
-		if n, err := os.ReadFile(dir + "name"); err == nil {
-			name := strings.TrimSpace(string(n))
-			s.Group = name
+		if len(na) > 0 {
+			s.Name += "/" + strings.Join(na, "/")
 		}
 	}
 
-	s.Group += " (" + device + ")"
-
-	s.Name = in
 	if l, err := os.ReadFile(dir + in + "_label"); err == nil {
-		s.Name = strings.TrimSpace(string(l)) + "," + s.Name
+		s.Name += "/" + strings.TrimSpace(string(l))
+	}
+
+	s.Options.Input = input
+	s.Options.Divider = 1.0
+	s.Options.Poll = 1.0
+
+	if min, err := os.ReadFile(dir + in + "_min"); err == nil {
+		s.Options.Min, _ = strconv.ParseFloat(strings.TrimSpace(string(min)), 64)
+	}
+	if max, err := os.ReadFile(dir + in + "_max"); err == nil {
+		s.Options.Max, _ = strconv.ParseFloat(strings.TrimSpace(string(max)), 64)
 	}
 
 	// TODO
@@ -141,17 +171,9 @@ func setupSensor(dir, device, input string) *config.Sensor {
 		s.Widget.Units = "units"
 	}
 
-	s.Sensor.Input = input
-	s.Sensor.Divider = 1.0
-	s.Sensor.Poll = 1.0
-
-	if min, err := os.ReadFile(dir + in + "_min"); err == nil {
-		s.Sensor.Min, _ = strconv.ParseFloat(strings.TrimSpace(string(min)), 64)
-	}
-	if max, err := os.ReadFile(dir + in + "_max"); err == nil {
-		s.Sensor.Max, _ = strconv.ParseFloat(strings.TrimSpace(string(max)), 64)
-	}
-
+	s.Widget.Type = "gauge"
+	s.Widget.Fractions = 1
+	s.Widget.Color = "#FFFFFF"
 	s.Widget.Color0 = "#00FF00"
 	s.Widget.Color100 = "#FF0000"
 

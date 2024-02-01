@@ -11,9 +11,9 @@ const (
 )
 
 // runtime data, not for save
-type SensorPrivate struct {
+type SensorPvt struct {
 	sync.Mutex
-	Id             string  // uniq sensor identifier
+	Id             string
 	Offline        bool    // is offline?
 	Value          float64 // current read value
 	Percents       float64 // calculated percents (based on Min and Max)
@@ -24,7 +24,7 @@ type SensorPrivate struct {
 
 // config data read from file
 type Sensor struct {
-	Private *SensorPrivate `json:"-"`
+	Pvt *SensorPvt `json:"-"`
 
 	// configured data
 	Name     string `json:"name"`     // name to show
@@ -59,13 +59,14 @@ type Column struct {
 }
 
 type Server struct {
-	Listen    string `json:"listen"`
-	Resources string `json:"resources"`
+	Listen         string `json:"listen"`          // listen to http requests here
+	Resources      string `json:"resources"`       // path to resources dir
+	ConfigOverride string `json:"config override"` // will use this config instead of main
 }
 
 type Config struct {
-	Server  *Server   `json:"server"`
-	Columns []*Column `json:"columns"`
+	Server  *Server   `json:"server"`  // server config
+	Columns []*Column `json:"columns"` // sensors config: columns->groups->sensors
 }
 
 const MAX_COLUMNS = 10

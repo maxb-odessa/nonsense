@@ -1,490 +1,648 @@
 {
     "server": {
         "listen": ":12345",
-        "resources": "resources"
+        "resources": "$HOME/.local/share/nonsens",
+        "config override": "$HOME/.config/nonsens/override.json"
     },
-    "sensors": [
-        [
-            {
-                "name": "temp1",
-                "disabled": false,
-                "group": "acpitz (thermal_zone0)",
-                "sensor": {
-                    "device": "thermal_zone0",
-                    "input": "temp1_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+    "columns": [
+        {
+            "groups": [
+                null,
+                {
+                    "name": "Group: acpitz/temp1",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "acpitz/temp1",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "thermal_zone0",
+                                "input": "temp1_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "temp2",
-                "disabled": false,
-                "group": "acpitz (thermal_zone0)",
-                "sensor": {
-                    "device": "thermal_zone0",
-                    "input": "temp2_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: acpitz/temp2",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "acpitz/temp2",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "thermal_zone0",
+                                "input": "temp2_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "in0",
-                "disabled": false,
-                "group": "BAT0 (BAT0)",
-                "sensor": {
-                    "device": "BAT0",
-                    "input": "in0_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: BAT0/in0/HP/Primary",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "BAT0/in0/HP/Primary",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "BAT0",
+                                "input": "in0_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "units",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "units",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "device/capacity",
-                "disabled": false,
-                "group": "BAT0 (BAT0)",
-                "sensor": {
-                    "device": "BAT0",
-                    "input": "device/capacity",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: BAT0/device/capacity/HP/Primary",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "BAT0/device/capacity/HP/Primary",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "BAT0",
+                                "input": "device/capacity",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "units",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "units",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "Composite,temp1",
-                "disabled": false,
-                "group": "INTEL SSDPEKNU512GZ (nvme0)",
-                "sensor": {
-                    "device": "nvme0",
-                    "input": "temp1_input",
-                    "min": -150,
-                    "max": 76850,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: nvme/temp1/INTEL SSDPEKNU512GZ/Composite",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "nvme/temp1/INTEL SSDPEKNU512GZ/Composite",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "nvme0",
+                                "input": "temp1_input",
+                                "min": -150,
+                                "max": 76850,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "Composite,temp1",
-                "disabled": false,
-                "group": "SAMSUNG MZVL21T0HCLR-00BH1 (nvme1)",
-                "sensor": {
-                    "device": "nvme1",
-                    "input": "temp1_input",
-                    "min": -273150,
-                    "max": 80850,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: nvme/temp1/SAMSUNG MZVL21T0HCLR-00BH1/Composite",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "nvme/temp1/SAMSUNG MZVL21T0HCLR-00BH1/Composite",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "nvme1",
+                                "input": "temp1_input",
+                                "min": -273150,
+                                "max": 80850,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "Sensor 1,temp2",
-                "disabled": false,
-                "group": "SAMSUNG MZVL21T0HCLR-00BH1 (nvme1)",
-                "sensor": {
-                    "device": "nvme1",
-                    "input": "temp2_input",
-                    "min": -273150,
-                    "max": 65261850,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: nvme/temp2/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 1",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "nvme/temp2/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 1",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "nvme1",
+                                "input": "temp2_input",
+                                "min": -273150,
+                                "max": 65261850,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
+                {
+                    "name": "Group: nvme/temp3/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 2",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "nvme/temp3/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 2",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "nvme1",
+                                "input": "temp3_input",
+                                "min": -273150,
+                                "max": 65261850,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 }
-            },
-            {
-                "name": "Sensor 2,temp3",
-                "disabled": false,
-                "group": "SAMSUNG MZVL21T0HCLR-00BH1 (nvme1)",
-                "sensor": {
-                    "device": "nvme1",
-                    "input": "temp3_input",
-                    "min": -273150,
-                    "max": 65261850,
-                    "divider": 1,
-                    "poll": 1
+            ]
+        },
+        {
+            "groups": [
+                null,
+                {
+                    "name": "Group: amdgpu/fan1",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/fan1",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:03:00.0",
+                                "input": "fan1_input",
+                                "min": 0,
+                                "max": 3300,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "rpm",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "fan1",
-                "disabled": false,
-                "group": "amdgpu (0000:03:00.0)",
-                "sensor": {
-                    "device": "0000:03:00.0",
-                    "input": "fan1_input",
-                    "min": 0,
-                    "max": 3300,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: amdgpu/freq1/sclk",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/freq1/sclk",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:03:00.0",
+                                "input": "freq1_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "units",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "rpm",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "sclk,freq1",
-                "disabled": false,
-                "group": "amdgpu (0000:03:00.0)",
-                "sensor": {
-                    "device": "0000:03:00.0",
-                    "input": "freq1_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: amdgpu/freq2/mclk",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/freq2/mclk",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:03:00.0",
+                                "input": "freq2_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "units",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "units",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "mclk,freq2",
-                "disabled": false,
-                "group": "amdgpu (0000:03:00.0)",
-                "sensor": {
-                    "device": "0000:03:00.0",
-                    "input": "freq2_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: amdgpu/in0/vddgfx",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/in0/vddgfx",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:03:00.0",
+                                "input": "in0_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "units",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "units",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "vddgfx,in0",
-                "disabled": false,
-                "group": "amdgpu (0000:03:00.0)",
-                "sensor": {
-                    "device": "0000:03:00.0",
-                    "input": "in0_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: amdgpu/temp1/edge",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/temp1/edge",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:03:00.0",
+                                "input": "temp1_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "units",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "edge,temp1",
-                "disabled": false,
-                "group": "amdgpu (0000:03:00.0)",
-                "sensor": {
-                    "device": "0000:03:00.0",
-                    "input": "temp1_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: amdgpu/temp2/junction",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/temp2/junction",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:03:00.0",
+                                "input": "temp2_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "junction,temp2",
-                "disabled": false,
-                "group": "amdgpu (0000:03:00.0)",
-                "sensor": {
-                    "device": "0000:03:00.0",
-                    "input": "temp2_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: amdgpu/temp3/mem",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/temp3/mem",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:03:00.0",
+                                "input": "temp3_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
+                {
+                    "name": "Group: amdgpu/freq1/sclk",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/freq1/sclk",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:09:00.0",
+                                "input": "freq1_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "units",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 }
-            },
-            {
-                "name": "mem,temp3",
-                "disabled": false,
-                "group": "amdgpu (0000:03:00.0)",
-                "sensor": {
-                    "device": "0000:03:00.0",
-                    "input": "temp3_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+            ]
+        },
+        {
+            "groups": [
+                null,
+                {
+                    "name": "Group: amdgpu/in0/vddgfx",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/in0/vddgfx",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:09:00.0",
+                                "input": "in0_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "units",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "sclk,freq1",
-                "disabled": false,
-                "group": "amdgpu (0000:09:00.0)",
-                "sensor": {
-                    "device": "0000:09:00.0",
-                    "input": "freq1_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: amdgpu/in1/vddnb",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/in1/vddnb",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:09:00.0",
+                                "input": "in1_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "units",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "units",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "vddgfx,in0",
-                "disabled": false,
-                "group": "amdgpu (0000:09:00.0)",
-                "sensor": {
-                    "device": "0000:09:00.0",
-                    "input": "in0_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: amdgpu/power1/PPT",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/power1/PPT",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:09:00.0",
+                                "input": "power1_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "units",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "units",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "vddnb,in1",
-                "disabled": false,
-                "group": "amdgpu (0000:09:00.0)",
-                "sensor": {
-                    "device": "0000:09:00.0",
-                    "input": "in1_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: amdgpu/temp1/edge",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "amdgpu/temp1/edge",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:09:00.0",
+                                "input": "temp1_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "units",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "PPT,power1",
-                "disabled": false,
-                "group": "amdgpu (0000:09:00.0)",
-                "sensor": {
-                    "device": "0000:09:00.0",
-                    "input": "power1_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: k10temp/temp1/Tctl",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "k10temp/temp1/Tctl",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "0000:00:18.3",
+                                "input": "temp1_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "units",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "edge,temp1",
-                "disabled": false,
-                "group": "amdgpu (0000:09:00.0)",
-                "sensor": {
-                    "device": "0000:09:00.0",
-                    "input": "temp1_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: hp/fan1",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "hp/fan1",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "hp-wmi",
+                                "input": "fan1_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "rpm",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "Tctl,temp1",
-                "disabled": false,
-                "group": "k10temp (0000:00:18.3)",
-                "sensor": {
-                    "device": "0000:00:18.3",
-                    "input": "temp1_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
+                {
+                    "name": "Group: hp/fan2",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "hp/fan2",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "hp-wmi",
+                                "input": "fan2_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "rpm",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
+                {
+                    "name": "Group: iwlwifi_1/temp1",
+                    "sensors": [
+                        null,
+                        {
+                            "name": "iwlwifi_1/temp1",
+                            "disabled": false,
+                            "sensor": {
+                                "device": "thermal_zone2",
+                                "input": "temp1_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
                 }
-            },
-            {
-                "name": "fan1",
-                "disabled": false,
-                "group": "hp (hp-wmi)",
-                "sensor": {
-                    "device": "hp-wmi",
-                    "input": "fan1_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
-                },
-                "widget": {
-                    "type": "",
-                    "units": "rpm",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "fan2",
-                "disabled": false,
-                "group": "hp (hp-wmi)",
-                "sensor": {
-                    "device": "hp-wmi",
-                    "input": "fan2_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
-                },
-                "widget": {
-                    "type": "",
-                    "units": "rpm",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            },
-            {
-                "name": "temp1",
-                "disabled": false,
-                "group": "iwlwifi_1 (thermal_zone2)",
-                "sensor": {
-                    "device": "thermal_zone2",
-                    "input": "temp1_input",
-                    "min": 0,
-                    "max": 0,
-                    "divider": 1,
-                    "poll": 1
-                },
-                "widget": {
-                    "type": "",
-                    "units": "\u0026deg;C",
-                    "fractions": 0,
-                    "color0": "#00FF00",
-                    "color100": "FF0000"
-                }
-            }
-        ]
+            ]
+        }
     ]
 }
