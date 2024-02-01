@@ -16,15 +16,17 @@ import (
 func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 
 	// configure sensors via hwmon kernel subsystem
-	if err := hwmonConfig(conf.Sensors); err != nil {
+	if err := hwmonConfig(conf); err != nil {
 		return err
 	}
 
 	// start sensors
-	for _, group := range conf.Sensors {
-		for _, sens := range group {
-			if err := sensor(sens, sensChan); err != nil {
-				return err
+	for _, col := range conf.Columns {
+		for _, grp := range col.Groups {
+			for _, sens := range grp.Sensors {
+				if err := pollSensor(sens, sensChan); err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -32,7 +34,7 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 	return nil
 }
 
-func sensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
+func pollSensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
 
 	// ignore disabled sensors
 	if sens.Disabled {
@@ -41,82 +43,77 @@ func sensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
 	}
 
 	// some params checking
-	if sens.Sensor.Divider == 0.0 {
+	if sens.Options.Divider == 0.0 {
 		slog.Info("forcing sensor '%s' divider to 1.0", sens.Name)
-		sens.Sensor.Divider = 1.0
+		sens.Options.Divider = 1.0
 	}
 
-	if sens.Sensor.Poll < 0.01 {
+	if sens.Options.Poll < 0.5 {
 		slog.Info("forcing sensor '%s' poll interval to 1.0", sens.Name)
-		sens.Sensor.Poll = 1.0
+		sens.Options.Poll = 1.0
 	}
 
 	if sens.Widget.Fractions < 0 || sens.Widget.Fractions > 8 {
 		slog.Info("forcing sensor '%s' fractions to 0", sens.Name)
 		sens.Widget.Fractions = 0
 	} else {
-		sens.Priv.FractionsRatio = math.Pow(10, float64(sens.Widget.Fractions))
+		sens.Pvt.FractionsRatio = math.Pow(10, float64(sens.Widget.Fractions))
 	}
 
-	if sens.Sensor.Min > sens.Sensor.Max {
-		slog.Info("forcing sensor '%s' min/max to %f", sens.Name, sens.Sensor.Max)
-		sens.Sensor.Min = sens.Sensor.Max
+	if sens.Options.Min > sens.Options.Max {
+		slog.Info("forcing sensor '%s' min/max to %f", sens.Name, sens.Options.Max)
+		sens.Options.Min = sens.Options.Max
 	}
 
 	sens.Name = utils.SafeHTML(sens.Name)
-	if sens.Group == "" {
-		sens.Group = sens.Name
-	} else {
-		sens.Group = utils.SafeHTML(sens.Group)
-	}
 
 	var err error
 	reader := func() {
 
-		if data, err := os.ReadFile(sens.Priv.Input); err == nil {
+		if data, err := os.ReadFile(sens.Pvt.Input); err == nil {
 
 			s := strings.TrimSpace(string(data))
 
 			if value, err := strconv.ParseFloat(s, 64); err == nil {
 
-				sens.Priv.Lock()
+				sens.Pvt.Lock()
 
 				// this senseor is operational
-				sens.Priv.Offline = false
-				sens.Priv.Value = value
+				sens.Pvt.Offline = false
+				sens.Pvt.Value = value
 
 				// apply divider if defined
-				if sens.Sensor.Divider != 1.0 {
-					sens.Priv.Value = value / sens.Sensor.Divider
+				if sens.Options.Divider != 1.0 {
+					sens.Pvt.Value = value / sens.Options.Divider
 				}
 
 				// round to fractions if defined
 				if sens.Widget.Fractions > 0 {
-					sens.Priv.Value = math.Round(sens.Priv.Value*sens.Priv.FractionsRatio) / sens.Priv.FractionsRatio
+					sens.Pvt.Value = math.Round(sens.Pvt.Value*sens.Pvt.FractionsRatio) / sens.Pvt.FractionsRatio
 				} else {
-					sens.Priv.Value = math.Round(sens.Priv.Value)
+					sens.Pvt.Value = math.Round(sens.Pvt.Value)
 				}
 				// calc percents if we can
-				if sens.Sensor.Min != sens.Sensor.Max {
-					sens.Priv.Percents = sens.Priv.Value / sens.Sensor.Max * 100.0
-					if sens.Priv.Percents > 100.0 {
-						sens.Priv.Percents = 100.0
-						slog.Warn("Max value for sensor '%s' is too low (%f < %f)", sens.Name, sens.Sensor.Max, sens.Priv.Value)
+				if sens.Options.Min != sens.Options.Max {
+					sens.Pvt.Percents = sens.Pvt.Value / sens.Options.Max * 100.0
+					if sens.Pvt.Percents > 100.0 {
+						sens.Pvt.Percents = 100.0
+						slog.Warn("Max value for sensor '%s' is too low (%f < %f)", sens.Name, sens.Options.Max, sens.Pvt.Value)
 						// TODO auto adjust Max limit?
 					}
-					sens.Priv.AntiPercents = 100.0 - sens.Priv.Percents
+					sens.Pvt.AntiPercents = 100.0 - sens.Pvt.Percents
 				}
 
-				sens.Priv.Unlock()
+				sens.Pvt.Unlock()
 
-				slog.Debug(5, "sensor '%s' value=%f percents=%f", sens.Name, sens.Priv.Value, sens.Priv.Percents)
+				slog.Debug(5, "sensor '%s' value=%f percents=%f", sens.Name, sens.Pvt.Value, sens.Pvt.Percents)
 			}
 		}
 
 		if err != nil {
-			sens.Priv.Lock()
-			sens.Priv.Offline = true
-			sens.Priv.Unlock()
+			sens.Pvt.Lock()
+			sens.Pvt.Offline = true
+			sens.Pvt.Unlock()
 		}
 
 		select {
@@ -128,7 +125,7 @@ func sensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
 
 	// start sensor poller
 	go func() {
-		interval := time.Duration(sens.Sensor.Poll)
+		interval := time.Duration(sens.Options.Poll)
 		ticker := time.NewTicker(interval * time.Second)
 		for {
 			select {

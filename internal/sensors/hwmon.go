@@ -1,7 +1,7 @@
 package sensors
 
 import (
-	"encoding/base64"
+	"crypto/md5"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -15,7 +15,7 @@ import (
 )
 
 // scan hwmon dirs, read required files, config appropriate sensors
-func hwmonConfig(sensors [][]*config.Sensor) error {
+func hwmonConfig(conf *config.Config) error {
 
 	// dirty trik, but this is much easier than call WalkDir()
 	for i := 0; i < 100; i++ {
@@ -30,8 +30,8 @@ func hwmonConfig(sensors [][]*config.Sensor) error {
 		}
 
 		// setup sensor with data, it is ok if we fail
-		if err := setupSensors(sensors, dirName); err != nil {
-			slog.Warn("Failed to read '%s': %s", dirName, err)
+		if err := setupSensors(conf, dirName); err != nil {
+			slog.Warn("Failed to setup sensor '%s': %s", dirName, err)
 		}
 
 	}
@@ -40,16 +40,15 @@ func hwmonConfig(sensors [][]*config.Sensor) error {
 }
 
 // find matching sensor and setup it
-func setupSensors(sensors [][]*config.Sensor, dir string) error {
+func setupSensors(conf *config.Config, dirName string) error {
 
 	// find named sensor and setup it
-	for _, groups := range sensors {
-		for _, sens := range groups {
-			if setupSingleSensor(sens, dir) {
-				slog.Info("Configured sensor '%s' for device '%s'", sens.Name, sens.Sensor.Device)
-			} else {
-				// make uniq sens ID to address it within html page
-				sens.Priv.Id = base64.StdEncoding.EncodeToString([]byte(sens.Sensor.Device + sens.Sensor.Input))
+	for _, col := range conf.Columns {
+		for _, grp := range col.Groups {
+			for _, sens := range grp.Sensors {
+				if setupSingleSensor(sens, dirName) {
+					slog.Info("Configured sensor '%s', device '%s'", sens.Name, sens.Options.Device)
+				}
 			}
 		}
 	}
@@ -66,36 +65,40 @@ func setupSingleSensor(sens *config.Sensor, dir string) bool {
 		return false
 	} else {
 		// this is not our device
-		if filepath.Base(dev) != sens.Sensor.Device {
+		if filepath.Base(dev) != sens.Options.Device {
 			return false
 		}
 	}
 
 	// full path to input data file
-	sens.Priv.Input = dir + sens.Sensor.Input
+	sens.Pvt = new(config.SensorPvt)
+	sens.Pvt.Input = dir + sens.Options.Input
 
 	// default divider
-	if sens.Sensor.Divider == 0.0 {
-		sens.Sensor.Divider = 1.0
+	if sens.Options.Divider == 0.0 {
+		sens.Options.Divider = 1.0
 	}
 
-	inPrefix := strings.Split(sens.Sensor.Input, "_")[0]
+	inPrefix := strings.Split(sens.Options.Input, "_")[0]
 
 	// check and read *_min and _max
-	if sens.Sensor.Min == 0.0 && sens.Sensor.Max == 0.0 {
+	if sens.Options.Min == 0.0 && sens.Options.Max == 0.0 {
 		minFile := dir + inPrefix + "_min"
 		if min, err := os.ReadFile(minFile); err == nil {
-			sens.Sensor.Min, _ = strconv.ParseFloat(strings.TrimSpace(string(min)), 64) // TODO: check error
-			sens.Sensor.Min /= sens.Sensor.Divider
-			slog.Info("Using Min value '%f' for sensor '%s (%s)'", sens.Sensor.Min, sens.Sensor.Device, sens.Name)
+			sens.Options.Min, _ = strconv.ParseFloat(strings.TrimSpace(string(min)), 64) // TODO: check error
+			sens.Options.Min /= sens.Options.Divider
+			slog.Info("Using Min value '%f' for sensor '%s (%s)'", sens.Options.Min, sens.Options.Device, sens.Name)
 		}
 		maxFile := dir + inPrefix + "_max"
 		if max, err := os.ReadFile(maxFile); err == nil {
-			sens.Sensor.Max, _ = strconv.ParseFloat(strings.TrimSpace(string(max)), 64) // TODO: check error
-			sens.Sensor.Max /= sens.Sensor.Divider
-			slog.Info("Using Max values '%f' for sensor '%s (%s)'", sens.Sensor.Max, sens.Sensor.Device, sens.Name)
+			sens.Options.Max, _ = strconv.ParseFloat(strings.TrimSpace(string(max)), 64) // TODO: check error
+			sens.Options.Max /= sens.Options.Divider
+			slog.Info("Using Max values '%f' for sensor '%s (%s)'", sens.Options.Max, sens.Options.Device, sens.Name)
 		}
 	}
+
+	// make uniq sensor id
+	sens.Pvt.Id = fmt.Sprintf("%x", md5.Sum([]byte(sens.Name+sens.Pvt.Input)))
 
 	return true
 }

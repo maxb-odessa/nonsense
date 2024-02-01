@@ -21,11 +21,10 @@ var wsChans map[string]chan []byte
 var wsChansLock sync.Mutex
 var templates tmpl.Tmpls
 var conf *config.Config
+var bodyData string
 
 // uniq body id
 const BODYID = "main"
-
-var bodyData string
 
 func Start(cf *config.Config, sensChan chan *config.Sensor) error {
 	var err error
@@ -47,7 +46,7 @@ func Start(cf *config.Config, sensChan chan *config.Sensor) error {
 		return err
 	}
 
-	// start sending sysinfo
+	// start sending sysinfo TODO
 	//go sendSysinfo(templates)
 
 	// start sensors events listening and processing
@@ -59,81 +58,11 @@ func Start(cf *config.Config, sensChan chan *config.Sensor) error {
 	return nil
 }
 
+// prepare the body with all groups and sensors placed
 func makeBody() error {
 	var err error
-
-	type Sen struct {
-		Id   string
-		Json string
-	}
-
-	type Grp struct {
-		Id      string
-		Sensors []*Sen
-	}
-
-	groups := make([][]*Grp, 0)
-
-	// walk over columns
-	for i, col := range conf.Sensors {
-
-		// walk over sensors in this column and make a list of groups
-		grList := make([]string, 0)
-		for _, sens := range col {
-
-			// skip disabled
-			if sens.Disabled {
-				continue
-			}
-
-			unique := true
-
-			for _, g := range grList {
-				// this group is already defined
-				if sens.Group == g {
-					unique = false
-					break
-				}
-			}
-
-			// record new group
-			if unique {
-				grList = append(grList, sens.Group)
-			}
-
-			sens.Widget.Column = i
-
-		}
-
-		// populate group with corresponding sensors (preserve configured order)
-		gr := make([]*Grp, 0)
-		for _, g := range grList {
-			ngr := new(Grp)
-			ngr.Id = g
-			ngr.Sensors = make([]*Sen, 0)
-			for _, sens := range col {
-				// skip disabled
-				if sens.Disabled {
-					continue
-				}
-				if g == sens.Group {
-					js, _ := json.Marshal(sens)
-					ngr.Sensors = append(ngr.Sensors, &Sen{Id: sens.Priv.Id, Json: string(js)})
-				}
-			}
-			gr = append(gr, ngr)
-		}
-
-		groups = append(groups, gr)
-	}
-
-	// prepare the body with all groups and sensors placed
-	bodyData, err = tmpl.ApplyByName("body", templates, groups)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	bodyData, err = tmpl.ApplyByName("body", templates, conf)
+	return err
 }
 
 type ToClientMsg struct {
@@ -156,6 +85,7 @@ func sendBody() {
 	toClientCh <- data
 }
 
+// TODO
 func sendSysinfo(templates tmpl.Tmpls) {
 	ticker := time.NewTicker(1 * time.Second)
 
@@ -177,16 +107,16 @@ func processSensors(templates tmpl.Tmpls, sensChan chan *config.Sensor) {
 	for sens := range sensChan {
 
 		// apply template on that sensor
-		sens.Priv.Lock()
+		sens.Pvt.Lock()
 		body, err := tmpl.ApplyByName("sensor", templates, sens)
-		sens.Priv.Unlock()
+		sens.Pvt.Unlock()
 		if err != nil {
-			slog.Warn("json.Marshal failed: %s", err)
+			slog.Warn("templating sensor failed: %s", err)
 			continue
 		}
 
 		msg := &ToClientMsg{
-			Target: sens.Priv.Id,
+			Target: sens.Pvt.Id,
 			Data:   body,
 		}
 		data, _ := json.Marshal(msg)
@@ -310,34 +240,8 @@ func processClientMsg(msg []byte) {
 	slog.Info("GOT: %+v", data)
 
 	// search for the sensor
-	for _, gr := range conf.Sensors {
-		for _, se := range gr {
-
-			if se.Priv.Id != data.Id {
-				continue
-			}
-
-			if se.Widget.Column != data.Sensor.Widget.Column && data.Sensor.Widget.Column < config.MAX_COLUMNS {
-				// make space for new column
-				for i := data.Sensor.Widget.Column + 1; i > len(conf.Sensors); i-- {
-					conf.Sensors = append(conf.Sensors, make([]*config.Sensor, 0))
-				}
-				conf.Sensors[data.Sensor.Widget.Column] = append(conf.Sensors[data.Sensor.Widget.Column], se)
-				//conf.Sensors[se.Widget.Column] = append(conf.Sensors[:se.Widget.Column], conf.Sensors[se.Widget.Column+1:])
-				se.Widget.Column = data.Sensor.Widget.Column
-			}
-
-			se.Name = data.Sensor.Name
-			se.Group = data.Sensor.Group
-			// se.Disabled = data.Sensor.Disabled NOT WORKING, see JS code
-			se.Sensor = data.Sensor.Sensor
-			se.Widget = data.Sensor.Widget
-
-		}
-	}
-
-	makeBody()
-	sendBody()
+	//makeBody()
+	//sendBody()
 
 }
 

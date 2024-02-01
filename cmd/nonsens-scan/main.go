@@ -68,13 +68,13 @@ func main() {
 		if i%8 == 0 && col < config.MAX_COLUMNS {
 			col++
 			column = new(config.Column)
-			column.Groups = make([]*config.Group, 1)
+			column.Groups = make([]*config.Group, 0)
 			conf.Columns = append(conf.Columns, column)
 		}
 
 		g := &config.Group{
 			Name:    "Group: " + sens.Name,
-			Sensors: make([]*config.Sensor, 1),
+			Sensors: make([]*config.Sensor, 0),
 		}
 
 		g.Sensors = append(g.Sensors, sens)

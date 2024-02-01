@@ -81,3 +81,8 @@ func (c *Config) Load(path string) error {
 
 	return nil
 }
+
+func (s *Sensor) Json() string {
+	j, _ := json.Marshal(s)
+	return string(j)
+}

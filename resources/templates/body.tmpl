@@ -1,6 +1,6 @@
 <thead>
     <tr>
-        <td class="sysinfo" colspan="{{ len . }}">
+        <td class="sysinfo" colspan="{{ len .Columns }}">
             <div style="display: inline-grid; grid-template-columns: 33% 33% 34%; grid-template-rows: 50% 50%; width: 100%;">
                 <div style="border: 1px black solid;">1</div>
                 <div style="border: 1px black solid;">2</div>
@@ -14,17 +14,17 @@
 </thead>
 <tbody>
     <tr>
-    {{ range $col, $groups := . }}
-        <td class="column">
-            {{ range $i, $gr := $groups }}
+    {{ range $i, $column := .Columns }}
+        <td class="column" id="{{ $i }}">
+            {{ range $i, $group := $column.Groups }}
                 <fieldset class="group">
                     <legend>
-                        [&nbsp;{{ $gr.Id }}&nbsp;]
+                        [&nbsp;{{ $group.Name }}&nbsp;]
                     </legend>
                     <div class="group">
-                        {{ range $j, $se := $gr.Sensors }}
-                            <div id="json-{{ $se.Id }}" hidden>{{ $se.Json }}</div>
-                            <div class="sensor" id="{{ $se.Id }}" onClick="popupEditor('{{ $se.Id }}');"></div>
+                        {{ range $j, $sensor := $group.Sensors }}
+                            <div id="json-{{ $sensor.Pvt.Id }}" hidden>{{ $sensor.Json }}</div>
+                            <div class="sensor" id="{{ $sensor.Pvt.Id }}" onClick="popupEditor('{{ $sensor.Pvt.Id }}');"></div>
                         {{ end }}
                     </div>
                 </fieldset>

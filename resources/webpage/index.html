@@ -174,10 +174,10 @@ function popupEditor(id) {
     document.getElementById("edit-name").value = data.name;
     document.getElementById("edit-group").value = data.group;
     document.getElementById("edit-column").value = data.widget.column;
-    document.getElementById("edit-min").value = data.sensor.min;
-    document.getElementById("edit-max").value = data.sensor.max;
-    document.getElementById("edit-divider").value = data.sensor.divider;
-    document.getElementById("edit-poll").value = data.sensor.poll;
+    document.getElementById("edit-min").value = data.options.min;
+    document.getElementById("edit-max").value = data.options.max;
+    document.getElementById("edit-divider").value = data.options.divider;
+    document.getElementById("edit-poll").value = data.options.poll;
     document.getElementById("edit-type").value = data.widget.type;
     document.getElementById("edit-units").value = data.widget.units;
     document.getElementById("edit-fractions").value = data.widget.fractions;
