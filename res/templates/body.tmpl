@@ -13,18 +13,21 @@
     </tr>
 </thead>
 <tbody>
-    <tr>
-    {{ range $i, $column := .Columns }}
-        <td class="column" id="{{ $i }}">
-            {{ range $i, $group := $column.Groups }}
-                <fieldset class="group">
-                    <legend>
+    <tr id="columns">
+    {{ range $ci, $column := .Columns }}
+        <td class="column" id="{{ $ci }}">
+            {{ range $gi, $group := $column.Groups }}
+                {{ if not $group.Sensors }}
+                    {{ continue }}
+                {{ end }}
+                <fieldset class="group" id="{{ $group.Id }}" title="click to edit or move this group">
+                    <legend onClick="editGroup('{{ $group.Id }}', '{{ $group.Name }}', '{{ $ci }}');">
                         [&nbsp;{{ $group.Name }}&nbsp;]
                     </legend>
                     <div class="group">
-                        {{ range $j, $sensor := $group.Sensors }}
-                            <div id="json-{{ $sensor.Pvt.Id }}" hidden>{{ $sensor.Json }}</div>
-                            <div class="sensor" id="{{ $sensor.Pvt.Id }}" onClick="popupEditor('{{ $sensor.Pvt.Id }}');"></div>
+                        {{ range $si, $sensor := $group.Sensors }}
+                            <div id="json-{{ $sensor.Pvt.Id }}" hidden="">{{ $sensor.Json }}</div>
+                            <div class="sensor" id="{{ $sensor.Pvt.Id }}" onClick="editSensor('{{ $sensor.Pvt.Id }}', '{{ $group.Name }}');" title="click to edit this sensor"></div>
                         {{ end }}
                     </div>
                 </fieldset>

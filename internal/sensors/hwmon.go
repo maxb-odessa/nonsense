@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/maxb-odessa/nonsens/internal/config"
 	"github.com/maxb-odessa/nonsens/internal/utils"
@@ -49,6 +50,9 @@ func setupSensors(conf *config.Config, dirName string) error {
 				if setupSingleSensor(sens, dirName) {
 					slog.Info("Configured sensor '%s', device '%s'", sens.Name, sens.Options.Device)
 				}
+			}
+			if grp.Id == "" {
+				grp.Id = fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String())))
 			}
 		}
 	}

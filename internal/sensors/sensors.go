@@ -1,6 +1,7 @@
 package sensors
 
 import (
+	"context"
 	"math"
 	"os"
 	"strconv"
@@ -24,9 +25,17 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 	for _, col := range conf.Columns {
 		for _, grp := range col.Groups {
 			for _, sens := range grp.Sensors {
-				if err := pollSensor(sens, sensChan); err != nil {
+
+				// ignore disabled sensors
+				if sens.Disabled {
+					slog.Info("skipping disabled sensor '%s'", sens.Name)
+					continue
+				}
+
+				if err := StartSensor(sens, sensChan); err != nil {
 					return err
 				}
+
 			}
 		}
 	}
@@ -34,13 +43,8 @@ func Start(conf *config.Config, sensChan chan *config.Sensor) error {
 	return nil
 }
 
-func pollSensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
-
-	// ignore disabled sensors
-	if sens.Disabled {
-		slog.Info("skipping disabled sensor '%s'", sens.Name)
-		return nil
-	}
+func StartSensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
+	var err error
 
 	// some params checking
 	if sens.Options.Divider == 0.0 {
@@ -67,8 +71,7 @@ func pollSensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
 
 	sens.Name = utils.SafeHTML(sens.Name)
 
-	var err error
-	reader := func() {
+	poller := func() {
 
 		if data, err := os.ReadFile(sens.Pvt.Input); err == nil {
 
@@ -125,16 +128,27 @@ func pollSensor(sens *config.Sensor, sensChan chan *config.Sensor) error {
 
 	// start sensor poller
 	go func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		sens.Pvt.CancelFunc = cancel
+
 		interval := time.Duration(sens.Options.Poll)
 		ticker := time.NewTicker(interval * time.Second)
+
 		for {
 			select {
+			case <-ctx.Done():
+				break
 			case <-ticker.C:
-				reader()
+				poller()
 			}
 		}
+		ticker.Stop()
 
 	}()
 
 	return nil
+}
+
+func StopSensor(sens *config.Sensor) {
+	sens.Pvt.CancelFunc()
 }

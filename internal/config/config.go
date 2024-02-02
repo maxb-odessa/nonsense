@@ -13,6 +13,7 @@ const (
 // runtime data, not for save
 type SensorPvt struct {
 	sync.Mutex
+	CancelFunc     func()
 	Id             string
 	Offline        bool    // is offline?
 	Value          float64 // current read value
@@ -37,7 +38,7 @@ type Sensor struct {
 		Max     float64 `json:"max"`     // max value
 		Divider float64 `json:"divider"` // value divider, i.e. 1000 for temperature values like 42123 which 42.123 deg
 		Poll    float64 `json:"poll"`    // poll interval, in seconds
-	} `json:"sensor"`
+	} `json:"options"`
 
 	Widget struct {
 		Type      string `json:"type"`      // gauge, static, text, blink, etc (TBD)
@@ -50,6 +51,7 @@ type Sensor struct {
 }
 
 type Group struct {
+	Id      string    `json:"id"` // uniq group id
 	Name    string    `json:"name"`
 	Sensors []*Sensor `json:"sensors"`
 }
@@ -85,4 +87,30 @@ func (c *Config) Load(path string) error {
 func (s *Sensor) Json() string {
 	j, _ := json.Marshal(s)
 	return string(j)
+}
+
+func (c *Config) FindSensorById(id string) (*Column, *Group, *Sensor) {
+	for _, col := range c.Columns {
+		for _, gr := range col.Groups {
+			for _, se := range gr.Sensors {
+				if se.Pvt.Id == id {
+					return col, gr, se
+				}
+			}
+		}
+	}
+
+	return nil, nil, nil
+}
+
+func (c *Config) FindGroupById(id string) (int, int, *Group) {
+	for colIdx, col := range c.Columns {
+		for grIdx, gr := range col.Groups {
+			if gr.Id == id {
+				return colIdx, grIdx, gr
+			}
+		}
+	}
+
+	return -1, -1, nil
 }

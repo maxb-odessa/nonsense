@@ -73,7 +73,7 @@ func main() {
 		}
 
 		g := &config.Group{
-			Name:    "Group: " + sens.Name,
+			Name:    strings.ToUpper(sens.Name),
 			Sensors: make([]*config.Sensor, 0),
 		}
 

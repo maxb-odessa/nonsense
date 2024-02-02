@@ -1,7 +1,7 @@
 {
     "server": {
         "listen": ":12345",
-        "resources": "resources",
+        "resources": "res",
         "config override": "$HOME/.config/nonsens/override.json"
     },
     "columns": [
@@ -13,7 +13,7 @@
                         {
                             "name": "acpitz/temp1",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "thermal_zone0",
                                 "input": "temp1_input",
                                 "min": 0,
@@ -38,9 +38,34 @@
                         {
                             "name": "acpitz/temp2",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "thermal_zone0",
                                 "input": "temp2_input",
+                                "min": 0,
+                                "max": 0,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Group: iwlwifi_1/temp1",
+                    "sensors": [
+                        {
+                            "name": "iwlwifi_1/temp1",
+                            "disabled": false,
+                            "options": {
+                                "device": "thermal_zone2",
+                                "input": "temp1_input",
                                 "min": 0,
                                 "max": 0,
                                 "divider": 1,
@@ -63,7 +88,7 @@
                         {
                             "name": "BAT0/in0/HP/Primary",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "BAT0",
                                 "input": "in0_input",
                                 "min": 0,
@@ -88,7 +113,7 @@
                         {
                             "name": "BAT0/device/capacity/HP/Primary",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "BAT0",
                                 "input": "device/capacity",
                                 "min": 0,
@@ -113,7 +138,7 @@
                         {
                             "name": "nvme/temp1/INTEL SSDPEKNU512GZ/Composite",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "nvme0",
                                 "input": "temp1_input",
                                 "min": -150,
@@ -138,7 +163,7 @@
                         {
                             "name": "nvme/temp1/SAMSUNG MZVL21T0HCLR-00BH1/Composite",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "nvme1",
                                 "input": "temp1_input",
                                 "min": -273150,
@@ -163,34 +188,9 @@
                         {
                             "name": "nvme/temp2/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 1",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "nvme1",
                                 "input": "temp2_input",
-                                "min": -273150,
-                                "max": 65261850,
-                                "divider": 1,
-                                "poll": 1
-                            },
-                            "widget": {
-                                "type": "gauge",
-                                "units": "\u0026deg;C",
-                                "fractions": 1,
-                                "color": "#FFFFFF",
-                                "color0": "#00FF00",
-                                "color100": "#FF0000"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "Group: nvme/temp3/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 2",
-                    "sensors": [
-                        {
-                            "name": "nvme/temp3/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 2",
-                            "disabled": false,
-                            "sensor": {
-                                "device": "nvme1",
-                                "input": "temp3_input",
                                 "min": -273150,
                                 "max": 65261850,
                                 "divider": 1,
@@ -212,12 +212,37 @@
         {
             "groups": [
                 {
+                    "name": "Group: nvme/temp3/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 2",
+                    "sensors": [
+                        {
+                            "name": "nvme/temp3/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 2",
+                            "disabled": false,
+                            "options": {
+                                "device": "nvme1",
+                                "input": "temp3_input",
+                                "min": -273150,
+                                "max": 65261850,
+                                "divider": 1,
+                                "poll": 1
+                            },
+                            "widget": {
+                                "type": "gauge",
+                                "units": "\u0026deg;C",
+                                "fractions": 1,
+                                "color": "#FFFFFF",
+                                "color0": "#00FF00",
+                                "color100": "#FF0000"
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "Group: amdgpu/fan1",
                     "sensors": [
                         {
                             "name": "amdgpu/fan1",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:03:00.0",
                                 "input": "fan1_input",
                                 "min": 0,
@@ -242,7 +267,7 @@
                         {
                             "name": "amdgpu/freq1/sclk",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:03:00.0",
                                 "input": "freq1_input",
                                 "min": 0,
@@ -267,7 +292,7 @@
                         {
                             "name": "amdgpu/freq2/mclk",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:03:00.0",
                                 "input": "freq2_input",
                                 "min": 0,
@@ -292,7 +317,7 @@
                         {
                             "name": "amdgpu/in0/vddgfx",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:03:00.0",
                                 "input": "in0_input",
                                 "min": 0,
@@ -317,7 +342,7 @@
                         {
                             "name": "amdgpu/temp1/edge",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:03:00.0",
                                 "input": "temp1_input",
                                 "min": 0,
@@ -342,7 +367,7 @@
                         {
                             "name": "amdgpu/temp2/junction",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:03:00.0",
                                 "input": "temp2_input",
                                 "min": 0,
@@ -367,7 +392,7 @@
                         {
                             "name": "amdgpu/temp3/mem",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:03:00.0",
                                 "input": "temp3_input",
                                 "min": 0,
@@ -385,14 +410,18 @@
                             }
                         }
                     ]
-                },
+                }
+            ]
+        },
+        {
+            "groups": [
                 {
                     "name": "Group: amdgpu/freq1/sclk",
                     "sensors": [
                         {
                             "name": "amdgpu/freq1/sclk",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:09:00.0",
                                 "input": "freq1_input",
                                 "min": 0,
@@ -410,18 +439,14 @@
                             }
                         }
                     ]
-                }
-            ]
-        },
-        {
-            "groups": [
+                },
                 {
                     "name": "Group: amdgpu/in0/vddgfx",
                     "sensors": [
                         {
                             "name": "amdgpu/in0/vddgfx",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:09:00.0",
                                 "input": "in0_input",
                                 "min": 0,
@@ -446,7 +471,7 @@
                         {
                             "name": "amdgpu/in1/vddnb",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:09:00.0",
                                 "input": "in1_input",
                                 "min": 0,
@@ -471,7 +496,7 @@
                         {
                             "name": "amdgpu/power1/PPT",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:09:00.0",
                                 "input": "power1_input",
                                 "min": 0,
@@ -496,7 +521,7 @@
                         {
                             "name": "amdgpu/temp1/edge",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:09:00.0",
                                 "input": "temp1_input",
                                 "min": 0,
@@ -521,7 +546,7 @@
                         {
                             "name": "k10temp/temp1/Tctl",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "0000:00:18.3",
                                 "input": "temp1_input",
                                 "min": 0,
@@ -546,7 +571,7 @@
                         {
                             "name": "hp/fan1",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "hp-wmi",
                                 "input": "fan1_input",
                                 "min": 0,
@@ -571,7 +596,7 @@
                         {
                             "name": "hp/fan2",
                             "disabled": false,
-                            "sensor": {
+                            "options": {
                                 "device": "hp-wmi",
                                 "input": "fan2_input",
                                 "min": 0,
@@ -582,31 +607,6 @@
                             "widget": {
                                 "type": "gauge",
                                 "units": "rpm",
-                                "fractions": 1,
-                                "color": "#FFFFFF",
-                                "color0": "#00FF00",
-                                "color100": "#FF0000"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "Group: iwlwifi_1/temp1",
-                    "sensors": [
-                        {
-                            "name": "iwlwifi_1/temp1",
-                            "disabled": false,
-                            "sensor": {
-                                "device": "thermal_zone2",
-                                "input": "temp1_input",
-                                "min": 0,
-                                "max": 0,
-                                "divider": 1,
-                                "poll": 1
-                            },
-                            "widget": {
-                                "type": "gauge",
-                                "units": "\u0026deg;C",
                                 "fractions": 1,
                                 "color": "#FFFFFF",
                                 "color0": "#00FF00",

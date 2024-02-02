@@ -1,1 +1,3 @@
-- edit group js code separate it from edit sensor
+- add ctx cancl to running sensor in order to restart it
+- add new sensors
+- move sensors between groups

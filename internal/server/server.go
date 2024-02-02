@@ -12,7 +12,9 @@ import (
 	ws "github.com/gorilla/websocket"
 
 	"github.com/maxb-odessa/nonsens/internal/config"
+	"github.com/maxb-odessa/nonsens/internal/sensors"
 	"github.com/maxb-odessa/nonsens/internal/tmpl"
+	"github.com/maxb-odessa/nonsens/internal/utils"
 	"github.com/maxb-odessa/slog"
 )
 
@@ -216,21 +218,29 @@ func server() {
 		Handler: router,
 		Addr:    listen,
 		// Good practice: enforce timeouts for servers you create!
-		WriteTimeout: 5 * time.Second,
-		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
 	}
 
 	srv.ListenAndServe()
 }
 
+type Group struct {
+	Name   string `json:"name"`
+	Column int    `json:"column"`
+	Top    bool   `json:"top"`
+}
+
 type FromClientMsg struct {
-	Action string        `json:"action"`
-	Id     string        `json:"id"`
-	Sensor config.Sensor `json:"sensor"`
+	Action string         `json:"action"`
+	Id     string         `json:"id"`
+	Sensor *config.Sensor `json:"sensor"`
+	Group  *Group         `json:"group"`
 }
 
 func processClientMsg(msg []byte) {
 	var data FromClientMsg
+	needRefresh := false
 
 	err := json.Unmarshal(msg, &data)
 	if err != nil {
@@ -239,9 +249,108 @@ func processClientMsg(msg []byte) {
 	}
 	slog.Info("GOT: %+v", data)
 
-	// search for the sensor
-	//makeBody()
-	//sendBody()
+	// modify sensor
+	if data.Sensor != nil {
+		needRefresh = true
+
+		_, _, se := conf.FindSensorById(data.Id)
+		if se == nil {
+			slog.Warn("sensor '%s' not found", data.Id)
+			return
+		}
+		slog.Info("se: %+v", *data.Sensor)
+
+		se.Pvt.Lock()
+
+		// this chnage requires sensor restart
+		restart := false
+		if se.Options.Poll != data.Sensor.Options.Poll {
+			restart = true
+		}
+
+		se.Name = data.Sensor.Name
+		se.Disabled = data.Sensor.Disabled
+		se.Options = data.Sensor.Options
+		se.Widget = data.Sensor.Widget
+
+		if restart {
+			sensors.StopSensor(se)
+			sensors.StartSensor(se)
+			// TBD: move config.Sensor to sensors, write methods
+		}
+
+		se.Pvt.Unlock()
+		// TBD group placing
+
+	}
+
+	// modify this group
+	if data.Group != nil {
+
+		colIdx, grIdx, gr := conf.FindGroupById(data.Id)
+		if gr == nil {
+			slog.Warn("group '%s' not found", data.Id)
+			return
+		}
+
+		// name changed
+		if data.Group.Name != data.Id {
+			needRefresh = true
+			gr.Name = utils.SafeHTML(data.Group.Name)
+		}
+
+		// column changed
+		if colIdx != data.Group.Column {
+			needRefresh = true
+
+			// remove from old column
+			conf.Columns[colIdx].Groups = append(conf.Columns[colIdx].Groups[:grIdx], conf.Columns[colIdx].Groups[grIdx+1:]...)
+
+			// create new column if missed
+			for data.Group.Column > len(conf.Columns)-1 {
+				conf.Columns = append(conf.Columns, new(config.Column))
+				// columns must be monotonic, don't allow change column from 1 to 7, but from 3 to 4 is ok
+				data.Group.Column = len(conf.Columns) - 1
+			}
+
+			// add to new column
+			if len(conf.Columns[data.Group.Column].Groups) < 1 {
+				conf.Columns[data.Group.Column].Groups = make([]*config.Group, 0)
+			}
+			conf.Columns[data.Group.Column].Groups = append(conf.Columns[data.Group.Column].Groups, gr)
+
+			// delete all empty columns
+			for i := 0; i < len(conf.Columns); i++ {
+				if len(conf.Columns[i].Groups) == 0 {
+					conf.Columns = append(conf.Columns[:i], conf.Columns[i+1:]...)
+				}
+			}
+		}
+
+		// move this group to column top
+		if data.Group.Top {
+			needRefresh = true
+
+			// get group position again in case of it was move between columns
+			colIdx, grIdx, gr := conf.FindGroupById(data.Id)
+
+			for i := grIdx; i > 0; i-- {
+				conf.Columns[colIdx].Groups[i] = conf.Columns[colIdx].Groups[i-1]
+			}
+			conf.Columns[colIdx].Groups[0] = gr
+
+		}
+	}
+
+	if data.Action == "save" {
+		// save config file
+	}
+
+	// rebuild the body and refresh it
+	if needRefresh {
+		makeBody()
+		sendBody()
+	}
 
 }
 
