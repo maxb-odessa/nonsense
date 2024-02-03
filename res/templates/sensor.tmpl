@@ -1,12 +1,12 @@
-{{ if .Pvt.Offline }}
+{{ if .Runtime.Offline }}
 <div class="sensor" style="opacity: 0.2;">
 {{ else }}
 <div class="sensor">
 {{ end }}
     <i>{{ .Name }}</i>
-    <div class="gauge_text">{{ .Pvt.Value }}&nbsp;{{ .Widget.Units }}
-        <div class="gauge" style="clip-path: inset(0 {{ .Pvt.AntiPercents }}% 0 0);">
-            <div class="gauge_text">{{ .Pvt.Value }}&nbsp;{{ .Widget.Units }}
+    <div class="gauge_text">{{ .Runtime.Value }}&nbsp;{{ .Widget.Units }}
+        <div class="gauge" style="clip-path: inset(0 {{ .Runtime.AntiPercents }}% 0 0);">
+            <div class="gauge_text">{{ .Runtime.Value }}&nbsp;{{ .Widget.Units }}
             </div>
         </div>
     </div>

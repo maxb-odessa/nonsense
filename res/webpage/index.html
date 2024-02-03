@@ -105,11 +105,7 @@
         </tr>
         <tr class="editor">
             <td class="name">Disabled</td>
-            <td class="input">
-                <select id="sensor-edit-disabled">
-                    <option value="false" selected>no</option>
-                    <option value="true">yes</option>
-                </select>
+            <td class="input"><input id="sensor-edit-disabled" type="checkbox"></input></td>
             </td>
             <td class="hint">disable this sensor</td>
         </tr>
@@ -164,7 +160,7 @@ function closeGroupEditor(action) {
         obj1.action = "save";
     }
     obj2.column = Number(document.getElementById("group-edit-column").value);
-    obj2.top = Boolean(document.getElementById("group-edit-move-top").value);
+    obj2.top = Boolean(document.getElementById("group-edit-move-top").checked);
 
     obj1.id = document.getElementById("group-edit-id").innerHTML;
     obj1.group = obj2;
@@ -201,8 +197,7 @@ function closeSensorEditor(action) {
     obj2.widget.color0 = document.getElementById("sensor-edit-color0").value;
     obj2.widget.color100 = document.getElementById("sensor-edit-color100").value;
 
-    var dis = document.getElementById("sensor-edit-disabled")
-    obj2.disabled = Boolean(dis.options[dis.selectedIndex].value);
+    obj2.disabled = Boolean(document.getElementById("sensor-edit-disabled").checked);
 
     if (action == 1) {
         obj1.action = "apply";

@@ -64,7 +64,7 @@ func Run(cf *config.Config) error {
 // prepare the body with all groups and sensors placed
 func makeBody() error {
 	var err error
-	bodyData, err = tmpl.ApplyByName("body", templates, conf.Columns)
+	bodyData, err = tmpl.ApplyByName("body", templates, conf)
 	return err
 }
 
@@ -106,35 +106,34 @@ func sendSysinfo(templates tmpl.Tmpls) {
 }
 
 func processSensors() {
-	/*
-	   sensChan := sensor.Chan()
 
-	   for sens := range sensChan {
+	sensChan := sensors.Chan()
 
-	   		// apply template on that sensor
-	   		sens.Lock()
-	   		body, err := tmpl.ApplyByName("sensor", templates, sens)
-	   		sens.Unlock()
-	   		if err != nil {
-	   			slog.Warn("templating sensor failed: %s", err)
-	   			continue
-	   		}
+	for sens := range sensChan {
 
-	   		msg := &ToClientMsg{
-	   			Target: sens.Id(),
-	   			Data:   body,
-	   		}
-	   		data, _ := json.Marshal(msg)
+		// apply template on that sensor
+		sens.Lock()
+		body, err := tmpl.ApplyByName("sensor", templates, sens)
+		sens.Unlock()
+		if err != nil {
+			slog.Warn("templating sensor failed: %s", err)
+			continue
+		}
 
-	   		// send data to the client
-	   		slog.Debug(9, "sending sensor to server: %+v", msg)
-	   		select {
-	   		case toClientCh <- data:
-	   		default:
-	   			slog.Debug(5, "http server queue is full, discarding sensor data")
-	   		}
-	   	}
-	*/
+		msg := &ToClientMsg{
+			Target: sens.Id(),
+			Data:   body,
+		}
+		data, _ := json.Marshal(msg)
+
+		// send data to the client
+		slog.Debug(9, "sending sensor to server: %+v", msg)
+		select {
+		case toClientCh <- data:
+		default:
+			slog.Debug(5, "http server queue is full, discarding sensor data")
+		}
+	}
 }
 
 func server() {
@@ -243,7 +242,7 @@ type FromClientMsg struct {
 
 func processClientMsg(msg []byte) {
 	var data FromClientMsg
-	needRefresh := false
+	needRefresh := 0
 
 	err := json.Unmarshal(msg, &data)
 	if err != nil {
@@ -277,22 +276,25 @@ func processClientMsg(msg []byte) {
 		se.Options = data.Sensor.Options
 		se.Widget = data.Sensor.Widget
 
-		if restart {
+		if se.Disabled {
+			se.Stop()
+		} else if restart {
 			se.Stop()
 			se.Start(sensors.Chan())
-			// TBD: move config.Sensor to sensors, write methods
 		}
 
 		se.Unlock()
-		// TBD group placing
+		// TODO group placing
 
-		needRefresh = true
+		needRefresh++
 	}
 
 	// modify this group
 	if data.Group != nil {
 
-		colIdx, grIdx, gr := conf.FindGroupById(data.Id)
+		slog.Info("gr: %+v", *data.Group)
+
+		colIdx, _, gr := conf.FindGroupById(data.Id)
 		if gr == nil {
 			slog.Warn("group '%s' not found", data.Id)
 			return
@@ -300,61 +302,48 @@ func processClientMsg(msg []byte) {
 
 		// name changed
 		if data.Group.Name != gr.Name {
-			needRefresh = true
 			gr.Name = utils.SafeHTML(data.Group.Name)
+			needRefresh++
 		}
 
 		// column changed
 		if colIdx != data.Group.Column {
-			needRefresh = true
 
 			// remove from old column
 			conf.RemoveGroup(gr)
 
 			// create new column if missed
-			for data.Group.Column > len(columns)-1 {
+			for data.Group.Column > len(conf.Columns)-1 {
 				conf.AddColumn()
-				columns = append(columns, new(column.Column))
 				// columns must be monotonic, don't allow change column from 1 to 7, but from 3 to 4 is ok
-				data.Group.Column = len(columns) - 1
+				data.Group.Column = len(conf.Columns) - 1
 			}
 
 			// add to new column
-			if len(columns[data.Group.Column].Groups) < 1 {
-				columns[data.Group.Column].Groups = make([]*group.Group, 0)
-			}
-			columns[data.Group.Column].Groups = append(columns[data.Group.Column].Groups, gr)
+			conf.AddGroup(data.Group.Column, gr)
 
-			// delete all empty columns
-			for i := 0; i < len(columns); i++ {
-				if len(columns[i].Groups) == 0 {
-					columns = append(columns[:i], columns[i+1:]...)
-				}
-			}
+			// delete all empty columns, etc
+			conf.Sanitize()
+
+			needRefresh++
 		}
 
 		// move this group to column top
 		if data.Group.Top {
-			needRefresh = true
-
-			// get group position again in case of it was move between columns
-			colIdx, grIdx, gr := group.FindGroupById(columns, data.Id)
-
-			for i := grIdx; i > 0; i-- {
-				columns[colIdx].Groups[i] = columns[colIdx].Groups[i-1]
+			if conf.MoveGroupToTop(data.Id) {
+				needRefresh++
 			}
-			columns[colIdx].Groups[0] = gr
-
 		}
 	}
 
 	if data.Action == "save" {
-		// save config file
+		if err := conf.Save(); err != nil {
+			slog.Err("Config file save failed: %s", err)
+		}
 	}
 
 	// rebuild the body and refresh it
-
-	if needRefresh {
+	if needRefresh > 0 {
 		makeBody()
 		sendBody()
 	}

@@ -3,9 +3,13 @@ package config
 import (
 	"encoding/json"
 	"os"
+	"time"
 
 	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
+	"github.com/maxb-odessa/slog"
 )
+
+var configFile string
 
 type Server struct {
 	Listen    string `json:"listen"`    // listen to http requests here
@@ -13,9 +17,17 @@ type Server struct {
 }
 
 type Group struct {
-	Id      string           `json:"id"`
+	id      string
 	Name    string           `json:"name"`
 	Sensors []*sensor.Sensor `json:"sensors"`
+}
+
+func (g *Group) Id() string {
+	return g.id
+}
+
+func (g *Group) SetId(id string) {
+	g.id = id
 }
 
 type Column struct {
@@ -32,6 +44,28 @@ func (c *Config) Load(path string) error {
 	if data, err := os.ReadFile(path); err != nil {
 		return err
 	} else if err := json.Unmarshal(data, c); err != nil {
+		return err
+	}
+
+	configFile = path
+
+	return nil
+}
+
+func (c *Config) Save() error {
+
+	t := time.Now()
+	oldConfigFile := configFile + "-" + t.Format("20060102150405")
+
+	slog.Info("Moving config file '%s' to '%s'", configFile, oldConfigFile)
+	if err := os.Rename(configFile, oldConfigFile); err != nil {
+		return err
+	}
+
+	js, _ := json.MarshalIndent(c, "", "    ")
+
+	slog.Info("Saving new config to '%s'", configFile)
+	if err := os.WriteFile(configFile, js, 0644); err != nil {
 		return err
 	}
 
@@ -72,7 +106,7 @@ func (c *Config) FindGroupById(id string) (int, int, *Group) {
 
 	for ci, col := range c.Columns {
 		for gi, grp := range col.Groups {
-			if grp.Id == id {
+			if grp.Id() == id {
 				return ci, gi, grp
 			}
 		}
@@ -82,16 +116,48 @@ func (c *Config) FindGroupById(id string) (int, int, *Group) {
 }
 
 func (c *Config) RemoveGroup(g *Group) {
-
 	for _, col := range c.Columns {
 		for gi, grp := range col.Groups {
-
-			if grp != gr {
+			if grp != g {
 				continue
 			}
-
 			col.Groups = append(col.Groups[:gi], col.Groups[gi+1:]...)
-
 		}
 	}
+}
+
+func (c *Config) AddColumn() {
+	col := new(Column)
+	col.Groups = make([]*Group, 0)
+	c.Columns = append(c.Columns, col)
+}
+
+func (c *Config) AddGroup(ci int, gr *Group) {
+	c.Columns[ci].Groups = append(c.Columns[ci].Groups, gr)
+}
+
+// remove empty columns
+func (c *Config) Sanitize() {
+	for i := 0; i < len(c.Columns); i++ {
+		if len(c.Columns[i].Groups) == 0 {
+			c.Columns = append(c.Columns[:i], c.Columns[i+1:]...)
+		}
+	}
+}
+
+func (c *Config) MoveGroupToTop(id string) bool {
+
+	ci, gi, gr := c.FindGroupById(id)
+
+	// already at top or not found
+	if gi == 0 || gr == nil {
+		return false
+	}
+
+	for i := gi; i > 0; i-- {
+		c.Columns[ci].Groups[i] = c.Columns[ci].Groups[i-1]
+	}
+	c.Columns[ci].Groups[0] = gr
+
+	return true
 }

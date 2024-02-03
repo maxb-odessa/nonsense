@@ -1,8 +1,7 @@
 {
     "server": {
         "listen": ":12345",
-        "resources": "res",
-        "config override": "$HOME/.config/nonsens/override.json"
+        "resources": "res"
     },
     "columns": [
         {
@@ -83,7 +82,7 @@
                     ]
                 },
                 {
-                    "name": "Group: BAT0/in0/HP/Primary",
+                    "name": "BAT0/in0/HP/Primary",
                     "sensors": [
                         {
                             "name": "BAT0/in0/HP/Primary",
@@ -108,7 +107,7 @@
                     ]
                 },
                 {
-                    "name": "Group: BAT0/device/capacity/HP/Primary",
+                    "name": "BAT0",
                     "sensors": [
                         {
                             "name": "BAT0/device/capacity/HP/Primary",
@@ -133,24 +132,24 @@
                     ]
                 },
                 {
-                    "name": "Group: nvme/temp1/INTEL SSDPEKNU512GZ/Composite",
+                    "name": "hdd",
                     "sensors": [
                         {
-                            "name": "nvme/temp1/INTEL SSDPEKNU512GZ/Composite",
-                            "disabled": false,
+                            "name": "temp1",
+                            "disabled": true,
                             "options": {
-                                "device": "nvme0",
-                                "input": "temp1_input",
-                                "min": -150,
-                                "max": 76850,
-                                "divider": 1,
-                                "poll": 1
+                                "device": "",
+                                "input": "",
+                                "min": 0,
+                                "max": 100,
+                                "divider": 1000,
+                                "poll": 5
                             },
                             "widget": {
                                 "type": "gauge",
                                 "units": "\u0026deg;C",
                                 "fractions": 1,
-                                "color": "#FFFFFF",
+                                "color": "",
                                 "color0": "#00FF00",
                                 "color100": "#FF0000"
                             }
@@ -158,24 +157,24 @@
                     ]
                 },
                 {
-                    "name": "Group: nvme/temp1/SAMSUNG MZVL21T0HCLR-00BH1/Composite",
+                    "name": "hdd",
                     "sensors": [
                         {
-                            "name": "nvme/temp1/SAMSUNG MZVL21T0HCLR-00BH1/Composite",
-                            "disabled": false,
+                            "name": "temp1",
+                            "disabled": true,
                             "options": {
-                                "device": "nvme1",
-                                "input": "temp1_input",
-                                "min": -273150,
-                                "max": 80850,
-                                "divider": 1,
-                                "poll": 1
+                                "device": "",
+                                "input": "",
+                                "min": 0,
+                                "max": 100,
+                                "divider": 1000,
+                                "poll": 3
                             },
                             "widget": {
                                 "type": "gauge",
                                 "units": "\u0026deg;C",
-                                "fractions": 1,
-                                "color": "#FFFFFF",
+                                "fractions": 0,
+                                "color": "",
                                 "color0": "#00FF00",
                                 "color100": "#FF0000"
                             }
@@ -183,24 +182,24 @@
                     ]
                 },
                 {
-                    "name": "Group: nvme/temp2/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 1",
+                    "name": "SAMSUNG\u0026nbsp;nvme/Sensor\u0026nbsp;1",
                     "sensors": [
                         {
-                            "name": "nvme/temp2/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 1",
-                            "disabled": false,
+                            "name": "temp2",
+                            "disabled": true,
                             "options": {
-                                "device": "nvme1",
-                                "input": "temp2_input",
-                                "min": -273150,
-                                "max": 65261850,
-                                "divider": 1,
-                                "poll": 1
+                                "device": "",
+                                "input": "",
+                                "min": 0,
+                                "max": 100,
+                                "divider": 1000,
+                                "poll": 5
                             },
                             "widget": {
                                 "type": "gauge",
                                 "units": "\u0026deg;C",
-                                "fractions": 1,
-                                "color": "#FFFFFF",
+                                "fractions": 0,
+                                "color": "",
                                 "color0": "#00FF00",
                                 "color100": "#FF0000"
                             }
@@ -215,7 +214,7 @@
                     "name": "Group: nvme/temp3/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 2",
                     "sensors": [
                         {
-                            "name": "nvme/temp3/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 2",
+                            "name": "nvme/temp3/SAMSUNG\u0026amp;amp;nbsp;MZVL21T0HCLR-00BH1/Sensor\u0026amp;amp;nbsp;2",
                             "disabled": false,
                             "options": {
                                 "device": "nvme1",
@@ -420,20 +419,20 @@
                     "sensors": [
                         {
                             "name": "amdgpu/freq1/sclk",
-                            "disabled": false,
+                            "disabled": true,
                             "options": {
-                                "device": "0000:09:00.0",
-                                "input": "freq1_input",
+                                "device": "",
+                                "input": "",
                                 "min": 0,
                                 "max": 0,
-                                "divider": 1,
-                                "poll": 1
+                                "divider": 1000000,
+                                "poll": 2.5
                             },
                             "widget": {
                                 "type": "gauge",
                                 "units": "units",
-                                "fractions": 1,
-                                "color": "#FFFFFF",
+                                "fractions": 0,
+                                "color": "",
                                 "color0": "#00FF00",
                                 "color100": "#FF0000"
                             }
@@ -445,10 +444,10 @@
                     "sensors": [
                         {
                             "name": "amdgpu/in0/vddgfx",
-                            "disabled": false,
+                            "disabled": true,
                             "options": {
-                                "device": "0000:09:00.0",
-                                "input": "in0_input",
+                                "device": "",
+                                "input": "",
                                 "min": 0,
                                 "max": 0,
                                 "divider": 1,
@@ -456,9 +455,9 @@
                             },
                             "widget": {
                                 "type": "gauge",
-                                "units": "units",
+                                "units": "units11111",
                                 "fractions": 1,
-                                "color": "#FFFFFF",
+                                "color": "",
                                 "color0": "#00FF00",
                                 "color100": "#FF0000"
                             }

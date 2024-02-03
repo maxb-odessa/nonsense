@@ -26,8 +26,8 @@
                     </legend>
                     <div class="group">
                         {{ range $si, $sensor := $group.Sensors }}
-                            <div id="json-{{ $sensor.Pvt.Id }}" hidden="">{{ $sensor.Json }}</div>
-                            <div class="sensor" id="{{ $sensor.Pvt.Id }}" onClick="editSensor('{{ $sensor.Pvt.Id }}', '{{ $group.Name }}');" title="click to edit this sensor"></div>
+                            <div id="json-{{ $sensor.Id }}" hidden="">{{ $sensor.Json }}</div>
+                            <div class="sensor" id="{{ $sensor.Id }}" onClick="editSensor('{{ $sensor.Id }}', '{{ $group.Name }}');" title="click to edit this sensor"></div>
                         {{ end }}
                     </div>
                 </fieldset>
