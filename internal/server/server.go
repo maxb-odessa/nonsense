@@ -13,6 +13,7 @@ import (
 
 	"github.com/maxb-odessa/nonsens/internal/config"
 	"github.com/maxb-odessa/nonsens/internal/sensors"
+	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
 	"github.com/maxb-odessa/nonsens/internal/tmpl"
 	"github.com/maxb-odessa/nonsens/internal/utils"
 	"github.com/maxb-odessa/slog"
@@ -22,13 +23,13 @@ var toClientCh chan []byte
 var wsChans map[string]chan []byte
 var wsChansLock sync.Mutex
 var templates tmpl.Tmpls
-var conf *config.Config
 var bodyData string
+var conf *config.Config
 
 // uniq body id
 const BODYID = "main"
 
-func Start(cf *config.Config, sensChan chan *config.Sensor) error {
+func Run(cf *config.Config) error {
 	var err error
 
 	conf = cf
@@ -52,7 +53,7 @@ func Start(cf *config.Config, sensChan chan *config.Sensor) error {
 	//go sendSysinfo(templates)
 
 	// start sensors events listening and processing
-	go processSensors(templates, sensChan)
+	go processSensors()
 
 	// fire up the server
 	go server()
@@ -63,7 +64,7 @@ func Start(cf *config.Config, sensChan chan *config.Sensor) error {
 // prepare the body with all groups and sensors placed
 func makeBody() error {
 	var err error
-	bodyData, err = tmpl.ApplyByName("body", templates, conf)
+	bodyData, err = tmpl.ApplyByName("body", templates, conf.Columns)
 	return err
 }
 
@@ -104,34 +105,36 @@ func sendSysinfo(templates tmpl.Tmpls) {
 
 }
 
-func processSensors(templates tmpl.Tmpls, sensChan chan *config.Sensor) {
+func processSensors() {
+	/*
+	   sensChan := sensor.Chan()
 
-	for sens := range sensChan {
+	   for sens := range sensChan {
 
-		// apply template on that sensor
-		sens.Pvt.Lock()
-		body, err := tmpl.ApplyByName("sensor", templates, sens)
-		sens.Pvt.Unlock()
-		if err != nil {
-			slog.Warn("templating sensor failed: %s", err)
-			continue
-		}
+	   		// apply template on that sensor
+	   		sens.Lock()
+	   		body, err := tmpl.ApplyByName("sensor", templates, sens)
+	   		sens.Unlock()
+	   		if err != nil {
+	   			slog.Warn("templating sensor failed: %s", err)
+	   			continue
+	   		}
 
-		msg := &ToClientMsg{
-			Target: sens.Pvt.Id,
-			Data:   body,
-		}
-		data, _ := json.Marshal(msg)
+	   		msg := &ToClientMsg{
+	   			Target: sens.Id(),
+	   			Data:   body,
+	   		}
+	   		data, _ := json.Marshal(msg)
 
-		// send data to the client
-		slog.Debug(9, "sending sensor to server: %+v", msg)
-		select {
-		case toClientCh <- data:
-		default:
-			slog.Debug(5, "http server queue is full, discarding sensor data")
-		}
-	}
-
+	   		// send data to the client
+	   		slog.Debug(9, "sending sensor to server: %+v", msg)
+	   		select {
+	   		case toClientCh <- data:
+	   		default:
+	   			slog.Debug(5, "http server queue is full, discarding sensor data")
+	   		}
+	   	}
+	*/
 }
 
 func server() {
@@ -214,7 +217,7 @@ func server() {
 	}
 	slog.Info("Listening at %s", listen)
 
-	srv := &http.Server{
+	sr := &http.Server{
 		Handler: router,
 		Addr:    listen,
 		// Good practice: enforce timeouts for servers you create!
@@ -222,10 +225,10 @@ func server() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	srv.ListenAndServe()
+	sr.ListenAndServe()
 }
 
-type Group struct {
+type GroupData struct {
 	Name   string `json:"name"`
 	Column int    `json:"column"`
 	Top    bool   `json:"top"`
@@ -234,8 +237,8 @@ type Group struct {
 type FromClientMsg struct {
 	Action string         `json:"action"`
 	Id     string         `json:"id"`
-	Sensor *config.Sensor `json:"sensor"`
-	Group  *Group         `json:"group"`
+	Sensor *sensor.Sensor `json:"sensor"`
+	Group  *GroupData     `json:"group"`
 }
 
 func processClientMsg(msg []byte) {
@@ -250,17 +253,18 @@ func processClientMsg(msg []byte) {
 	slog.Info("GOT: %+v", data)
 
 	// modify sensor
-	if data.Sensor != nil {
-		needRefresh = true
 
-		_, _, se := conf.FindSensorById(data.Id)
+	if data.Sensor != nil {
+
+		slog.Info("se: %+v", *data.Sensor)
+
+		se := conf.FindSensorById(data.Id)
 		if se == nil {
 			slog.Warn("sensor '%s' not found", data.Id)
 			return
 		}
-		slog.Info("se: %+v", *data.Sensor)
 
-		se.Pvt.Lock()
+		se.Lock()
 
 		// this chnage requires sensor restart
 		restart := false
@@ -274,14 +278,15 @@ func processClientMsg(msg []byte) {
 		se.Widget = data.Sensor.Widget
 
 		if restart {
-			sensors.StopSensor(se)
-			sensors.StartSensor(se)
+			se.Stop()
+			se.Start(sensors.Chan())
 			// TBD: move config.Sensor to sensors, write methods
 		}
 
-		se.Pvt.Unlock()
+		se.Unlock()
 		// TBD group placing
 
+		needRefresh = true
 	}
 
 	// modify this group
@@ -294,7 +299,7 @@ func processClientMsg(msg []byte) {
 		}
 
 		// name changed
-		if data.Group.Name != data.Id {
+		if data.Group.Name != gr.Name {
 			needRefresh = true
 			gr.Name = utils.SafeHTML(data.Group.Name)
 		}
@@ -304,25 +309,26 @@ func processClientMsg(msg []byte) {
 			needRefresh = true
 
 			// remove from old column
-			conf.Columns[colIdx].Groups = append(conf.Columns[colIdx].Groups[:grIdx], conf.Columns[colIdx].Groups[grIdx+1:]...)
+			conf.RemoveGroup(gr)
 
 			// create new column if missed
-			for data.Group.Column > len(conf.Columns)-1 {
-				conf.Columns = append(conf.Columns, new(config.Column))
+			for data.Group.Column > len(columns)-1 {
+				conf.AddColumn()
+				columns = append(columns, new(column.Column))
 				// columns must be monotonic, don't allow change column from 1 to 7, but from 3 to 4 is ok
-				data.Group.Column = len(conf.Columns) - 1
+				data.Group.Column = len(columns) - 1
 			}
 
 			// add to new column
-			if len(conf.Columns[data.Group.Column].Groups) < 1 {
-				conf.Columns[data.Group.Column].Groups = make([]*config.Group, 0)
+			if len(columns[data.Group.Column].Groups) < 1 {
+				columns[data.Group.Column].Groups = make([]*group.Group, 0)
 			}
-			conf.Columns[data.Group.Column].Groups = append(conf.Columns[data.Group.Column].Groups, gr)
+			columns[data.Group.Column].Groups = append(columns[data.Group.Column].Groups, gr)
 
 			// delete all empty columns
-			for i := 0; i < len(conf.Columns); i++ {
-				if len(conf.Columns[i].Groups) == 0 {
-					conf.Columns = append(conf.Columns[:i], conf.Columns[i+1:]...)
+			for i := 0; i < len(columns); i++ {
+				if len(columns[i].Groups) == 0 {
+					columns = append(columns[:i], columns[i+1:]...)
 				}
 			}
 		}
@@ -332,12 +338,12 @@ func processClientMsg(msg []byte) {
 			needRefresh = true
 
 			// get group position again in case of it was move between columns
-			colIdx, grIdx, gr := conf.FindGroupById(data.Id)
+			colIdx, grIdx, gr := group.FindGroupById(columns, data.Id)
 
 			for i := grIdx; i > 0; i-- {
-				conf.Columns[colIdx].Groups[i] = conf.Columns[colIdx].Groups[i-1]
+				columns[colIdx].Groups[i] = columns[colIdx].Groups[i-1]
 			}
-			conf.Columns[colIdx].Groups[0] = gr
+			columns[colIdx].Groups[0] = gr
 
 		}
 	}
@@ -347,6 +353,7 @@ func processClientMsg(msg []byte) {
 	}
 
 	// rebuild the body and refresh it
+
 	if needRefresh {
 		makeBody()
 		sendBody()

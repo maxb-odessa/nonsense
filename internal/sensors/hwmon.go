@@ -10,9 +10,14 @@ import (
 	"time"
 
 	"github.com/maxb-odessa/nonsens/internal/config"
+	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
 	"github.com/maxb-odessa/nonsens/internal/utils"
 
 	"github.com/maxb-odessa/slog"
+)
+
+const (
+	HWMON_PATH = "/sys/class/hwmon"
 )
 
 // scan hwmon dirs, read required files, config appropriate sensors
@@ -22,7 +27,7 @@ func hwmonConfig(conf *config.Config) error {
 	for i := 0; i < 100; i++ {
 
 		// compose dir path
-		dirName := fmt.Sprintf("%s/hwmon%d/", config.HWMON_PATH, i)
+		dirName := fmt.Sprintf("%s/hwmon%d/", HWMON_PATH, i)
 
 		// stop if dir doesn't exist
 		if !utils.IsDir(dirName) {
@@ -61,7 +66,7 @@ func setupSensors(conf *config.Config, dirName string) error {
 }
 
 // setup single sensor
-func setupSingleSensor(sens *config.Sensor, dir string) bool {
+func setupSingleSensor(sens *sensor.Sensor, dir string) bool {
 
 	// is this really our device?
 	if dev, err := filepath.EvalSymlinks(dir + "device"); err != nil {
@@ -74,9 +79,7 @@ func setupSingleSensor(sens *config.Sensor, dir string) bool {
 		}
 	}
 
-	// full path to input data file
-	sens.Pvt = new(config.SensorPvt)
-	sens.Pvt.Input = dir + sens.Options.Input
+	sens.SetInput(dir + sens.Options.Input)
 
 	// default divider
 	if sens.Options.Divider == 0.0 {
@@ -101,8 +104,7 @@ func setupSingleSensor(sens *config.Sensor, dir string) bool {
 		}
 	}
 
-	// make uniq sensor id
-	sens.Pvt.Id = fmt.Sprintf("%x", md5.Sum([]byte(sens.Name+sens.Pvt.Input)))
+	sens.SetId(fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))))
 
 	return true
 }

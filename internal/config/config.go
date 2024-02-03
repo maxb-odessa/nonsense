@@ -3,75 +3,29 @@ package config
 import (
 	"encoding/json"
 	"os"
-	"sync"
+
+	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
 )
 
-const (
-	HWMON_PATH = "/sys/class/hwmon"
-)
-
-// runtime data, not for save
-type SensorPvt struct {
-	sync.Mutex
-	CancelFunc     func()
-	Id             string
-	Offline        bool    // is offline?
-	Value          float64 // current read value
-	Percents       float64 // calculated percents (based on Min and Max)
-	AntiPercents   float64 // = (100 - percents) used for gauges
-	Input          string  // full path to sensor input file, may vary across reboots
-	FractionsRatio float64 // calculated fractions ratio to be shown
-}
-
-// config data read from file
-type Sensor struct {
-	Pvt *SensorPvt `json:"-"`
-
-	// configured data
-	Name     string `json:"name"`     // name to show
-	Disabled bool   `json:"disabled"` // do not show if true
-
-	Options struct {
-		Device  string  `json:"device"`  // device id as in /sys/devices/..., i.e. 0000:09:00.0
-		Input   string  `json:"input"`   // short input data file name relative to /sys/class/hwmon/hwmonX/
-		Min     float64 `json:"min"`     // min value
-		Max     float64 `json:"max"`     // max value
-		Divider float64 `json:"divider"` // value divider, i.e. 1000 for temperature values like 42123 which 42.123 deg
-		Poll    float64 `json:"poll"`    // poll interval, in seconds
-	} `json:"options"`
-
-	Widget struct {
-		Type      string `json:"type"`      // gauge, static, text, blink, etc (TBD)
-		Units     string `json:"units"`     // suffix shown value with units string
-		Fractions int    `json:"fractions"` // show only this number of value fractions, i.e. 2 = 1.23 for 1.23456 value
-		Color     string `json:"color"`     // text color
-		Color0    string `json:"color0"`    // min value color (at 0%)
-		Color100  string `json:"color100"`  // max value color (at 100%)
-	} `json:"widget"`
+type Server struct {
+	Listen    string `json:"listen"`    // listen to http requests here
+	Resources string `json:"resources"` // path to resources dir
 }
 
 type Group struct {
-	Id      string    `json:"id"` // uniq group id
-	Name    string    `json:"name"`
-	Sensors []*Sensor `json:"sensors"`
+	Id      string           `json:"id"`
+	Name    string           `json:"name"`
+	Sensors []*sensor.Sensor `json:"sensors"`
 }
 
 type Column struct {
 	Groups []*Group `json:"groups"`
 }
 
-type Server struct {
-	Listen         string `json:"listen"`          // listen to http requests here
-	Resources      string `json:"resources"`       // path to resources dir
-	ConfigOverride string `json:"config override"` // will use this config instead of main
-}
-
 type Config struct {
 	Server  *Server   `json:"server"`  // server config
 	Columns []*Column `json:"columns"` // sensors config: columns->groups->sensors
 }
-
-const MAX_COLUMNS = 10
 
 func (c *Config) Load(path string) error {
 
@@ -84,33 +38,60 @@ func (c *Config) Load(path string) error {
 	return nil
 }
 
-func (s *Sensor) Json() string {
-	j, _ := json.Marshal(s)
-	return string(j)
+func (c *Config) AllSensors() []*sensor.Sensor {
+
+	sarr := make([]*sensor.Sensor, 0)
+
+	for _, c := range c.Columns {
+		for _, g := range c.Groups {
+			for _, s := range g.Sensors {
+				sarr = append(sarr, s)
+			}
+		}
+	}
+
+	return sarr
 }
 
-func (c *Config) FindSensorById(id string) (*Column, *Group, *Sensor) {
-	for _, col := range c.Columns {
-		for _, gr := range col.Groups {
-			for _, se := range gr.Sensors {
-				if se.Pvt.Id == id {
-					return col, gr, se
+func (c *Config) FindSensorById(id string) *sensor.Sensor {
+
+	for _, c := range c.Columns {
+		for _, g := range c.Groups {
+			for _, s := range g.Sensors {
+				if s.Id() == id {
+					return s
 				}
 			}
 		}
 	}
 
-	return nil, nil, nil
+	return nil
 }
 
 func (c *Config) FindGroupById(id string) (int, int, *Group) {
-	for colIdx, col := range c.Columns {
-		for grIdx, gr := range col.Groups {
-			if gr.Id == id {
-				return colIdx, grIdx, gr
+
+	for ci, col := range c.Columns {
+		for gi, grp := range col.Groups {
+			if grp.Id == id {
+				return ci, gi, grp
 			}
 		}
 	}
 
-	return -1, -1, nil
+	return 0, 0, nil
+}
+
+func (c *Config) RemoveGroup(g *Group) {
+
+	for _, col := range c.Columns {
+		for gi, grp := range col.Groups {
+
+			if grp != gr {
+				continue
+			}
+
+			col.Groups = append(col.Groups[:gi], col.Groups[gi+1:]...)
+
+		}
+	}
 }
