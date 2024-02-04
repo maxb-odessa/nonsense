@@ -140,9 +140,7 @@ td.hint {
 
 td.button {
     text-align: center;
+    display: inline;
 }
 
-button.button {
-    width: 60%
-}
 

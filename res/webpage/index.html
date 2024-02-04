@@ -16,31 +16,27 @@
 
 <!-- sensor editor -->
 <div class="editor" id="group-editor">
-    <p id="group-edit-id" hidden></p>
-    <table class="editor">
-        <tr class="editor">
-            <td class="name">Name</td>
-            <td class="input"><input id="group-edit-name"></input></td>
-            <td class="hint">*group name</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Column</td>
-            <td class="input">
-                <select id="group-edit-column"></select>
-            </td>
-            <td class="hint">column</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Move to top</td>
-            <td class="input"><input id="group-edit-move-top" type="checkbox"></input></td>
-            <td class="hint">move the group to column top</td>
-        </tr>
-        <tr class="editor">
-            <td class="button"><button class="button" onClick="closeGroupEditor(1);">Apply</button></td>
-            <td class="button"><button class="button" onClick="closeGroupEditor(2);">Apply &amp; Save</button></td>
-            <td class="button"><button class="button" onClick="closeGroupEditor(3);">Cancel</button></td>
-        </tr>
-    </table>
+    <form id="group-editor-form">
+       <fieldset class="editor">
+            <legend>Group Editor</legend>
+            <input id="group-edit-id" type="hidden">
+            <br>
+            <label for="group-edit-name">Name</label>
+            <input type="text" id="group-edit-name" minlength="1" maxlength="24">
+            <br>
+            <label for="group-edit-column">Column number</label>
+            <select id="group-edit-column"></select>
+            <br>
+            <label for="group-edit-totop">Move to column top</label>
+            <input type="checkbox" id="group-edit-totop">
+            <br>
+            <label for="group-edit-disabled">Disable</label>
+            <input type="checkbox" id="group-edit-disabled" onclick="confirmation('disabled');">
+            <br>
+        </fieldset>
+        <button class="button" onClick="closeGroupEditor('apply');">Apply</button>
+        <button class="button" onClick="closeGroupEditor('cancel');">Cancel</button>
+    </form>
 </div>
 
 
@@ -50,42 +46,42 @@
     <table class="editor">
         <tr class="editor">
             <td class="name">Name</td>
-            <td class="input"><input id="sensor-edit-name"></input></td>
+            <td class="input"><input type="text" id="sensor-edit-name" minlength="0" maxlength="24"></input></td>
             <td class="hint">*sensor name</td>
         </tr>
         <tr class="editor">
             <td class="name">Group</td>
-            <td class="input"><input id="sensor-edit-group"></input></td>
+            <td class="input"><input id="sensor-edit-group" minlength="1" maxlength="24"></input></td>
             <td class="hint">sensor group</td>
         </tr>
         <tr class="editor">
             <td class="name">Minimal Value</td>
-            <td class="input"><input id="sensor-edit-min"></input></td>
+            <td class="input"><input type="number" id="sensor-edit-min"></input></td>
             <td class="hint">minimal sensor value, i.e. 12.7</td>
         </tr>
         <tr class="editor">
             <td class="name">Maximal Value</td>
-            <td class="input"><input id="sensor-edit-max"></input></td>
+            <td class="input"><input type="number" id="sensor-edit-max"></input></td>
             <td class="hint">maximal sensor value, i.e. 3000.0</td>
         </tr>
         <tr class="editor">
             <td class="name">Divider</td>
-            <td class="input"><input id="sensor-edit-divider"></input></td>
+            <td class="input"><input type="number" id="sensor-edit-divider"></input></td>
             <td class="hint">sensor value divider, i.e. 1000</td>
         </tr>
         <tr class="editor">
             <td class="name">Fractions</td>
-            <td class="input"><input id="sensor-edit-fractions"></input></td>
+            <td class="input"><input type="number" id="sensor-edit-fractions"></input></td>
             <td class="hint">value fractions to show, i.e. 2</td>
         </tr>
         <tr class="editor">
             <td class="name">Units</td>
-            <td class="input"><input id="sensor-edit-units"></input></td>
+            <td class="input"><input type="text" id="sensor-edit-units" minlength="0" maxlength="12"></input></td>
             <td class="hint">suffix value with units string, i.e. RPM</td>
         </tr>
         <tr class="editor">
             <td class="name">Poll Interval</td>
-            <td class="input"><input id="sensor-edit-poll"></input></td>
+            <td class="input"><input type="number" id="sensor-edit-poll"></input></td>
             <td class="hint">sensor polling interval, seconds, 1.0&lt;i&lt;600.0</td>
         </tr>
         <tr class="editor">
@@ -95,23 +91,22 @@
         </tr>
         <tr class="editor">
             <td class="name">Color 0%</td>
-            <td class="input"><input id="sensor-edit-color0"></input></td>
+            <td class="input"><input type="color" id="sensor-edit-color0"></input></td>
             <td class="hint">low sensor value color</td>
         </tr>
         <tr class="editor">
             <td class="name">Color 100%</td>
-            <td class="input"><input id="sensor-edit-color100"></input></td>
+            <td class="input"><input type="color" id="sensor-edit-color100"></input></td>
             <td class="hint">high sensor value color</td>
         </tr>
         <tr class="editor">
             <td class="name">Disabled</td>
-            <td class="input"><input id="sensor-edit-disabled" type="checkbox"></input></td>
+            <td class="input"><input id="sensor-edit-disabled" type="checkbox" onclick="confirmation('sensor-edit-disabled');"></input></td>
             </td>
             <td class="hint">disable this sensor</td>
         </tr>
         <tr class="editor">
             <td class="button"><button class="button" onClick="closeSensorEditor(1);">Apply</button></td>
-            <td class="button"><button class="button" onClick="closeSensorEditor(2);">Apply &amp; Save</button></td>
             <td class="button"><button class="button" onClick="closeSensorEditor(3);">Cancel</button></td>
         </tr>
     </table>
@@ -120,32 +115,44 @@
 <script>
 
 
+function confirmation(id) {
+    let text = "Are you sure?"
+    if (confirm(text) == true) {
+        document.getElementById(id).checked = true;
+    } else {
+        document.getElementById(id).checked = false;
+    }
+}
+
 function editGroup(id, name, column) {
     document.getElementById("group-editor").style.display = 'block';
 
-    document.getElementById("group-edit-id").innerHTML = id;
+    document.getElementById("group-edit-id").value = id;
     document.getElementById("group-edit-name").value = name;
 
     // here: delete excess columns from option list
     // leave no more than #columns + 1 (new)
     var cols = document.getElementById("columns").childElementCount;
-    var options;
     for (let i = 0; i <= cols; i++) {
+        const op = document.createElement("option")
+        op.value = i;
         if (i != cols) {
-            options += '<option value="' + i + '">' + (i+1) + '</option>'
+            if (i == column) {
+                op.selected = true
+            }
+            op.innerHTML = i+1;
         } else {
-            options += '<option value="' + i + '">' + (i+1) + ' (new)</option>'
+            op.innerHTML = i+1+' (new)';
         }
+        document.getElementById("group-edit-column").appendChild(op)
     } 
-    document.getElementById("group-edit-column").innerHTML = options;
-    document.getElementById("group-edit-column").value = column;
 }
 
 function closeGroupEditor(action) {
     document.getElementById("group-editor").style.display = 'none';
 
     // cancel
-    if (action == 3) {
+    if (action == "cancel") {
         return;
     }
 
@@ -154,16 +161,14 @@ function closeGroupEditor(action) {
 
     obj2.name = document.getElementById("group-edit-name").value;
 
-    if (action == 1) {
-        obj1.action = "apply";
-    } else if (action == 2) {
-        obj1.action = "save";
-    }
     obj2.column = Number(document.getElementById("group-edit-column").value);
-    obj2.top = Boolean(document.getElementById("group-edit-move-top").checked);
+    obj2.totop = Boolean(document.getElementById("group-edit-totop").checked);
+    obj2.disabled = Boolean(document.getElementById("group-edit-disabled").checked);
 
-    obj1.id = document.getElementById("group-edit-id").innerHTML;
+    obj1.id = document.getElementById("group-edit-id").value;
+    obj1.action = "apply";
     obj1.group = obj2;
+
     var js = JSON.stringify(obj1);
 
     socket.send(js);
@@ -223,7 +228,9 @@ function editSensor(id, group) {
     document.getElementById("sensor-edit-id").innerHTML = id;
 
     document.getElementById("sensor-edit-name").value = data.name;
+
     document.getElementById("sensor-edit-group").value = group;
+
     document.getElementById("sensor-edit-min").value = data.options.min;
     document.getElementById("sensor-edit-max").value = data.options.max;
     document.getElementById("sensor-edit-divider").value = data.options.divider;

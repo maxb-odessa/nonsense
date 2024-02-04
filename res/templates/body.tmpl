@@ -20,6 +20,9 @@
                 {{ if not $group.Sensors }}
                     {{ continue }}
                 {{ end }}
+                {{ if $group.Disabled }}
+                    {{ continue }}
+                {{ end }}
                 <fieldset class="group" id="{{ $group.Id }}" title="click to edit or move this group">
                     <legend onClick="editGroup('{{ $group.Id }}', '{{ $group.Name }}', '{{ $ci }}');">
                         [&nbsp;{{ $group.Name }}&nbsp;]

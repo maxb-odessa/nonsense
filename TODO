@@ -1,5 +1,4 @@
 - add new sensors
 - move sensors between groups
-- delete column with no groups, all groups are empty? or simply add Disable flag to group?
 - limit sensor name and group name to... 32 chars?
 - page input fields validation, disable sensor

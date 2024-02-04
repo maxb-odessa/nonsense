@@ -227,17 +227,20 @@ func server() {
 	sr.ListenAndServe()
 }
 
+type SensorData sensor.Sensor
+
 type GroupData struct {
-	Name   string `json:"name"`
-	Column int    `json:"column"`
-	Top    bool   `json:"top"`
+	Name     string `json:"name"`
+	Column   int    `json:"column"`
+	ToTop    bool   `json:"totop"`
+	Disabled bool   `json:"disabled"`
 }
 
 type FromClientMsg struct {
-	Action string         `json:"action"`
-	Id     string         `json:"id"`
-	Sensor *sensor.Sensor `json:"sensor"`
-	Group  *GroupData     `json:"group"`
+	Action string      `json:"action"` // waht to do: appply, save. etc
+	Id     string      `json:"id"`     // taget id, group or sensor
+	Sensor *SensorData `json:"sensor"`
+	Group  *GroupData  `json:"group"`
 }
 
 func processClientMsg(msg []byte) {
@@ -329,10 +332,20 @@ func processClientMsg(msg []byte) {
 		}
 
 		// move this group to column top
-		if data.Group.Top {
+		if data.Group.ToTop {
 			if conf.MoveGroupToTop(data.Id) {
 				needRefresh++
 			}
+		}
+
+		// disable the group and all its sensors
+		if data.Group.Disabled {
+			gr.Disabled = data.Group.Disabled
+			// stop all sensors within the group
+			for _, se := range gr.Sensors {
+				se.Stop()
+			}
+			needRefresh++
 		}
 	}
 

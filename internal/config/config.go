@@ -17,9 +17,10 @@ type Server struct {
 }
 
 type Group struct {
-	id      string
-	Name    string           `json:"name"`
-	Sensors []*sensor.Sensor `json:"sensors"`
+	id       string
+	Name     string           `json:"name"`
+	Disabled bool             `json:"disabled"`
+	Sensors  []*sensor.Sensor `json:"sensors"`
 }
 
 func (g *Group) Id() string {
