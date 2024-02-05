@@ -54,6 +54,8 @@ func processFeedback(data []byte) {
 			// TODO rescan all sensors
 		case "reload":
 			// TODO reload config
+		case "new":
+			// new sensor, also make a group for it
 		default:
 			slog.Err("undefined feedback action '%s'", msg.Action)
 			return
@@ -104,11 +106,7 @@ func modifySensor(id string, action string, sData *SensorData) bool {
 		conf.MoveSensorToGroup(se, gr, sData.GroupId)
 	}
 
-	if action == "stop" {
-		se.Stop()
-	} else if action == "start" {
-		se.Start(sensors.Chan())
-	} else if restart {
+	if restart {
 		se.Stop()
 		se.Start(sensors.Chan())
 	}

@@ -81,9 +81,6 @@
             <label for="sensor-edit-totop">Move to group top</label>
             <input type="checkbox" id="sensor-edit-totop">
             <br>
-            <label for="sensor-edit-offline">Offline</label>
-            <input id="sensor-edit-offline" type="checkbox">
-            <br>
             <label for="sensor-edit-remove">Remove empty group</label>
             <input id="sensor-edit-remove" type="checkbox" onClick="confirmation('sensor-edit-remove');">
             <br>
@@ -186,11 +183,11 @@ function editSensor(id) {
     var groups = document.getElementsByName("group");
     for (let i = 0; i < groups.length; i++) {
         const op = document.createElement("option");
-        if (groups[i].value == groupId) {
+        op.value = groups[i].getAttribute("id");
+        op.innerHTML = groups[i].getAttribute("data-group-name");
+        if (op.value == groupId) {
             op.selected = true;
         }
-        op.value = groups[i].Id
-        op.innerHTML = groups[i].getAttribute("data-group-name");
         document.getElementById("sensor-edit-group").appendChild(op);
     } 
 
@@ -203,7 +200,6 @@ function editSensor(id) {
     document.getElementById("sensor-edit-fractions").value = data.widget.fractions;
     document.getElementById("sensor-edit-color0").value = data.widget.color0;
     document.getElementById("sensor-edit-color100").value = data.widget.color100;
-    document.getElementById("sensor-edit-offline").checked = data.offline;
     document.getElementById("sensor-edit-totop").checked = false;
 
     document.getElementById("sensor-editor").style.display = 'block';
@@ -236,7 +232,6 @@ function closeSensorEditor(action) {
     //obj3.widget.type = document.getElementById("sensor-edit-type").value;
     obj3.widget.color0 = document.getElementById("sensor-edit-color0").value;
     obj3.widget.color100 = document.getElementById("sensor-edit-color100").value;
-    obj3.offline = Boolean(document.getElementById("sensor-edit-offline").checked);
 
     obj2.sensor = obj3;
     obj2.groupid = document.getElementById("sensor-edit-group").value;

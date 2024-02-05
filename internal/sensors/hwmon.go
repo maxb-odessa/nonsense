@@ -52,13 +52,14 @@ func setupSensors(conf *config.Config, dirName string) error {
 	for _, col := range conf.Columns {
 		for _, grp := range col.Groups {
 			for _, sens := range grp.Sensors {
+				sens.SetId(fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))))
 				if setupSingleSensor(sens, dirName) {
-					slog.Info("Configured sensor '%s', device '%s'", sens.Name, sens.Options.Device)
+					slog.Info("Configured sensor '%s', device '%s'", sens.Options.Input, sens.Options.Device)
+				} else {
+					slog.Warn("Invalid sensor '%s', device '%s' - disabled", sens.Options.Input, sens.Options.Device)
 				}
 			}
-			if grp.Id() == "" {
-				grp.SetId(fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))))
-			}
+			grp.SetId(fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))))
 		}
 	}
 
@@ -67,6 +68,11 @@ func setupSensors(conf *config.Config, dirName string) error {
 
 // setup single sensor
 func setupSingleSensor(sens *sensor.Sensor, dir string) bool {
+
+	if sens.Options.Device == "" || sens.Options.Input == "" {
+		slog.Warn("Disabling invalid sensor '%s'", sens.Name)
+		return false
+	}
 
 	// is this really our device?
 	if dev, err := filepath.EvalSymlinks(dir + "device"); err != nil {
@@ -103,8 +109,6 @@ func setupSingleSensor(sens *sensor.Sensor, dir string) bool {
 			slog.Info("Using Max values '%f' for sensor '%s (%s)'", sens.Options.Max, sens.Options.Device, sens.Name)
 		}
 	}
-
-	sens.SetId(fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))))
 
 	return true
 }

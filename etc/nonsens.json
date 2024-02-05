@@ -8,7 +8,6 @@
             "groups": [
                 {
                     "name": "Group: acpitz/temp1",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "acpitz/temp1",
@@ -34,7 +33,6 @@
                 },
                 {
                     "name": "Group: acpitz/temp2",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "acpitz/temp2",
@@ -60,7 +58,6 @@
                 },
                 {
                     "name": "Group: iwlwifi_1/temp1",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "iwlwifi_1/temp1",
@@ -86,7 +83,6 @@
                 },
                 {
                     "name": "BAT0/in0/HP/Primary",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "BAT0/in0/HP/Primary",
@@ -112,7 +108,6 @@
                 },
                 {
                     "name": "BAT0",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "BAT0/device/capacity/HP/Primary",
@@ -138,7 +133,6 @@
                 },
                 {
                     "name": "hdd",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "temp1",
@@ -164,7 +158,6 @@
                 },
                 {
                     "name": "hdd",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "temp1",
@@ -190,7 +183,6 @@
                 },
                 {
                     "name": "SAMSUNG\u0026nbsp;nvme/Sensor\u0026nbsp;1",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "temp2",
@@ -220,10 +212,9 @@
             "groups": [
                 {
                     "name": "Group: nvme/temp3/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 2",
-                    "offline": false,
                     "sensors": [
                         {
-                            "name": "nvme/temp3/SAMSUNG\u0026amp;amp;amp;nbsp;MZVL21T0HCLR-00BH1/Sensor\u0026amp;amp;amp;nbsp;2",
+                            "name": "nvme/temp3/SAMSUNG\u0026amp;amp;amp;amp;nbsp;MZVL21T0HCLR-00BH1/Sensor\u0026amp;amp;amp;amp;nbsp;2",
                             "offline": false,
                             "options": {
                                 "device": "nvme1",
@@ -246,7 +237,6 @@
                 },
                 {
                     "name": "Group: amdgpu/fan1",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/fan1",
@@ -272,7 +262,6 @@
                 },
                 {
                     "name": "Group: amdgpu/freq1/sclk",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/freq1/sclk",
@@ -298,7 +287,6 @@
                 },
                 {
                     "name": "Group: amdgpu/freq2/mclk",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/freq2/mclk",
@@ -324,7 +312,6 @@
                 },
                 {
                     "name": "Group: amdgpu/in0/vddgfx",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/in0/vddgfx",
@@ -350,7 +337,6 @@
                 },
                 {
                     "name": "Group: amdgpu/temp1/edge",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/temp1/edge",
@@ -376,7 +362,6 @@
                 },
                 {
                     "name": "Group: amdgpu/temp2/junction",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/temp2/junction",
@@ -402,7 +387,6 @@
                 },
                 {
                     "name": "Group: amdgpu/temp3/mem",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/temp3/mem",
@@ -432,7 +416,6 @@
             "groups": [
                 {
                     "name": "Group: amdgpu/freq1/sclk",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/freq1/sclk",
@@ -458,7 +441,6 @@
                 },
                 {
                     "name": "Group: amdgpu/in0/vddgfx",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/in0/vddgfx",
@@ -484,7 +466,6 @@
                 },
                 {
                     "name": "Group: amdgpu/in1/vddnb",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/in1/vddnb",
@@ -510,7 +491,6 @@
                 },
                 {
                     "name": "Group: amdgpu/power1/PPT",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/power1/PPT",
@@ -536,7 +516,6 @@
                 },
                 {
                     "name": "Group: amdgpu/temp1/edge",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/temp1/edge",
@@ -562,7 +541,6 @@
                 },
                 {
                     "name": "Group: k10temp/temp1/Tctl",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "k10temp/temp1/Tctl",
@@ -588,7 +566,6 @@
                 },
                 {
                     "name": "Group: hp/fan1",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "hp/fan1",
@@ -614,7 +591,6 @@
                 },
                 {
                     "name": "Group: hp/fan2",
-                    "offline": false,
                     "sensors": [
                         {
                             "name": "hp/fan2",
