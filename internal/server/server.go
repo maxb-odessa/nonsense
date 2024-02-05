@@ -13,9 +13,7 @@ import (
 
 	"github.com/maxb-odessa/nonsens/internal/config"
 	"github.com/maxb-odessa/nonsens/internal/sensors"
-	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
 	"github.com/maxb-odessa/nonsens/internal/tmpl"
-	"github.com/maxb-odessa/nonsens/internal/utils"
 	"github.com/maxb-odessa/slog"
 )
 
@@ -53,7 +51,7 @@ func Run(cf *config.Config) error {
 	//go sendSysinfo(templates)
 
 	// start sensors events listening and processing
-	go processSensors()
+	go sendSensorsData()
 
 	// fire up the server
 	go server()
@@ -105,7 +103,7 @@ func sendSysinfo(templates tmpl.Tmpls) {
 
 }
 
-func processSensors() {
+func sendSensorsData() {
 
 	sensChan := sensors.Chan()
 
@@ -127,7 +125,7 @@ func processSensors() {
 		data, _ := json.Marshal(msg)
 
 		// send data to the client
-		slog.Debug(9, "sending sensor to server: %+v", msg)
+		slog.Debug(5, "sending sensor to server: %+v", msg)
 		select {
 		case toClientCh <- data:
 		default:
@@ -166,14 +164,14 @@ func server() {
 		reader := func() {
 			for {
 				// catch remote connection close
-				mtype, msg, err := conn.ReadMessage()
+				mtype, mdata, err := conn.ReadMessage()
 				if err != nil || mtype == ws.CloseMessage {
 					return
 				}
 				// got a message from the remote
 				if mtype == ws.TextMessage {
-					slog.Debug(5, "Got from remote: %+v", string(msg))
-					processClientMsg(msg)
+					slog.Debug(5, "Got from remote: %+v", string(mdata))
+					processFeedback(mdata)
 				}
 			}
 		}
@@ -225,142 +223,6 @@ func server() {
 	}
 
 	sr.ListenAndServe()
-}
-
-type SensorData sensor.Sensor
-
-type GroupData struct {
-	Name     string `json:"name"`
-	Column   int    `json:"column"`
-	ToTop    bool   `json:"totop"`
-	Disabled bool   `json:"disabled"`
-}
-
-type FromClientMsg struct {
-	Action string      `json:"action"` // waht to do: appply, save. etc
-	Id     string      `json:"id"`     // taget id, group or sensor
-	Sensor *SensorData `json:"sensor"`
-	Group  *GroupData  `json:"group"`
-}
-
-func processClientMsg(msg []byte) {
-	var data FromClientMsg
-	needRefresh := 0
-
-	err := json.Unmarshal(msg, &data)
-	if err != nil {
-		slog.Err("failed to unmarshal json from client: %s", err)
-		return
-	}
-	slog.Info("GOT: %+v", data)
-
-	// modify sensor
-
-	if data.Sensor != nil {
-
-		slog.Info("se: %+v", *data.Sensor)
-
-		se := conf.FindSensorById(data.Id)
-		if se == nil {
-			slog.Warn("sensor '%s' not found", data.Id)
-			return
-		}
-
-		se.Lock()
-
-		// this chnage requires sensor restart
-		restart := false
-		if se.Options.Poll != data.Sensor.Options.Poll {
-			restart = true
-		}
-
-		se.Name = data.Sensor.Name
-		se.Disabled = data.Sensor.Disabled
-		se.Options = data.Sensor.Options
-		se.Widget = data.Sensor.Widget
-
-		if se.Disabled {
-			se.Stop()
-		} else if restart {
-			se.Stop()
-			se.Start(sensors.Chan())
-		}
-
-		se.Unlock()
-		// TODO group placing
-
-		needRefresh++
-	}
-
-	// modify this group
-	if data.Group != nil {
-
-		slog.Info("gr: %+v", *data.Group)
-
-		colIdx, _, gr := conf.FindGroupById(data.Id)
-		if gr == nil {
-			slog.Warn("group '%s' not found", data.Id)
-			return
-		}
-
-		// name changed
-		if data.Group.Name != gr.Name {
-			gr.Name = utils.SafeHTML(data.Group.Name)
-			needRefresh++
-		}
-
-		// column changed
-		if colIdx != data.Group.Column {
-
-			// remove from old column
-			conf.RemoveGroup(gr)
-
-			// create new column if missed
-			for data.Group.Column > len(conf.Columns)-1 {
-				conf.AddColumn()
-				// columns must be monotonic, don't allow change column from 1 to 7, but from 3 to 4 is ok
-				data.Group.Column = len(conf.Columns) - 1
-			}
-
-			// add to new column
-			conf.AddGroup(data.Group.Column, gr)
-
-			// delete all empty columns, etc
-			conf.Sanitize()
-
-			needRefresh++
-		}
-
-		// move this group to column top
-		if data.Group.ToTop {
-			if conf.MoveGroupToTop(data.Id) {
-				needRefresh++
-			}
-		}
-
-		// disable the group and all its sensors
-		if data.Group.Disabled {
-			gr.Disabled = data.Group.Disabled
-			// stop all sensors within the group
-			for _, se := range gr.Sensors {
-				se.Stop()
-			}
-			needRefresh++
-		}
-	}
-
-	if data.Action == "save" {
-		if err := conf.Save(); err != nil {
-			slog.Err("Config file save failed: %s", err)
-		}
-	}
-
-	// rebuild the body and refresh it
-	if needRefresh > 0 {
-		makeBody()
-		sendBody()
-	}
-
 }
 
 func registerChan(ch chan []byte, id string) {

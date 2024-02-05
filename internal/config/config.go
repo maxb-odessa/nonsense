@@ -17,10 +17,9 @@ type Server struct {
 }
 
 type Group struct {
-	id       string
-	Name     string           `json:"name"`
-	Disabled bool             `json:"disabled"`
-	Sensors  []*sensor.Sensor `json:"sensors"`
+	id      string
+	Name    string           `json:"name"`
+	Sensors []*sensor.Sensor `json:"sensors"`
 }
 
 func (g *Group) Id() string {
@@ -88,19 +87,19 @@ func (c *Config) AllSensors() []*sensor.Sensor {
 	return sarr
 }
 
-func (c *Config) FindSensorById(id string) *sensor.Sensor {
+func (c *Config) FindSensorById(id string) (*Group, *sensor.Sensor) {
 
 	for _, c := range c.Columns {
 		for _, g := range c.Groups {
 			for _, s := range g.Sensors {
 				if s.Id() == id {
-					return s
+					return g, s
 				}
 			}
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (c *Config) FindGroupById(id string) (int, int, *Group) {
@@ -119,10 +118,10 @@ func (c *Config) FindGroupById(id string) (int, int, *Group) {
 func (c *Config) RemoveGroup(g *Group) {
 	for _, col := range c.Columns {
 		for gi, grp := range col.Groups {
-			if grp != g {
-				continue
+			if grp == g {
+				col.Groups = append(col.Groups[:gi], col.Groups[gi+1:]...)
+				break
 			}
-			col.Groups = append(col.Groups[:gi], col.Groups[gi+1:]...)
 		}
 	}
 }
@@ -146,9 +145,9 @@ func (c *Config) Sanitize() {
 	}
 }
 
-func (c *Config) MoveGroupToTop(id string) bool {
+func (c *Config) MoveGroupToTop(gid string) bool {
 
-	ci, gi, gr := c.FindGroupById(id)
+	ci, gi, gr := c.FindGroupById(gid)
 
 	// already at top or not found
 	if gi == 0 || gr == nil {
@@ -161,4 +160,25 @@ func (c *Config) MoveGroupToTop(id string) bool {
 	c.Columns[ci].Groups[0] = gr
 
 	return true
+}
+
+func (c *Config) MoveSensorToGroup(se *sensor.Sensor, oldGr *Group, newGid string) {
+	var ci, gi int
+	var grp *Group
+
+	// add to new group
+	ci, gi, grp = c.FindGroupById(newGid)
+	if grp == nil {
+		return
+	}
+	c.Columns[ci].Groups[gi].Sensors = append(c.Columns[ci].Groups[gi].Sensors, se)
+
+	// remove from old group
+	ci, gi, grp = c.FindGroupById(oldGr.Id())
+	for si, s := range c.Columns[ci].Groups[gi].Sensors {
+		if s.Id() == se.Id() {
+			c.Columns[ci].Groups[gi].Sensors = append(c.Columns[ci].Groups[gi].Sensors[:si], c.Columns[ci].Groups[gi].Sensors[si+1:]...)
+			break
+		}
+	}
 }

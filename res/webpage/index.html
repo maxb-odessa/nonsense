@@ -14,13 +14,12 @@
     <tr><td style="font-size: large;">Connecting...</td></tr>
 </table>
 
-<!-- sensor editor -->
+<!-- group editor -->
 <div class="editor" id="group-editor">
     <form id="group-editor-form">
        <fieldset class="editor">
             <legend>Group Editor</legend>
             <input id="group-edit-id" type="hidden">
-            <br>
             <label for="group-edit-name">Name</label>
             <input type="text" id="group-edit-name" minlength="1" maxlength="24">
             <br>
@@ -30,93 +29,75 @@
             <label for="group-edit-totop">Move to column top</label>
             <input type="checkbox" id="group-edit-totop">
             <br>
-            <label for="group-edit-disabled">Disable</label>
-            <input type="checkbox" id="group-edit-disabled" onclick="confirmation('disabled');">
+            <label for="group-edit-remove">Remove</label>
+            <input id="group-edit-remove" type="checkbox" onClick="confirmation('group-edit-remove');">
             <br>
-        </fieldset>
-        <button class="button" onClick="closeGroupEditor('apply');">Apply</button>
-        <button class="button" onClick="closeGroupEditor('cancel');">Cancel</button>
+       </fieldset>
+       <button class="button" onClick="return closeGroupEditor('apply');">Apply</button>
+       <button class="button" onClick="return closeGroupEditor('cancel');">Cancel</button>
     </form>
 </div>
 
 
 <!-- sensor editor -->
 <div class="editor" id="sensor-editor">
-    <p id="sensor-edit-id" hidden></p>
-    <table class="editor">
-        <tr class="editor">
-            <td class="name">Name</td>
-            <td class="input"><input type="text" id="sensor-edit-name" minlength="0" maxlength="24"></input></td>
-            <td class="hint">*sensor name</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Group</td>
-            <td class="input"><input id="sensor-edit-group" minlength="1" maxlength="24"></input></td>
-            <td class="hint">sensor group</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Minimal Value</td>
-            <td class="input"><input type="number" id="sensor-edit-min"></input></td>
-            <td class="hint">minimal sensor value, i.e. 12.7</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Maximal Value</td>
-            <td class="input"><input type="number" id="sensor-edit-max"></input></td>
-            <td class="hint">maximal sensor value, i.e. 3000.0</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Divider</td>
-            <td class="input"><input type="number" id="sensor-edit-divider"></input></td>
-            <td class="hint">sensor value divider, i.e. 1000</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Fractions</td>
-            <td class="input"><input type="number" id="sensor-edit-fractions"></input></td>
-            <td class="hint">value fractions to show, i.e. 2</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Units</td>
-            <td class="input"><input type="text" id="sensor-edit-units" minlength="0" maxlength="12"></input></td>
-            <td class="hint">suffix value with units string, i.e. RPM</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Poll Interval</td>
-            <td class="input"><input type="number" id="sensor-edit-poll"></input></td>
-            <td class="hint">sensor polling interval, seconds, 1.0&lt;i&lt;600.0</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Type</td>
-            <td class="input"><input id="sensor-edit-type"></input></td>
-            <td class="hint">TBD</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Color 0%</td>
-            <td class="input"><input type="color" id="sensor-edit-color0"></input></td>
-            <td class="hint">low sensor value color</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Color 100%</td>
-            <td class="input"><input type="color" id="sensor-edit-color100"></input></td>
-            <td class="hint">high sensor value color</td>
-        </tr>
-        <tr class="editor">
-            <td class="name">Disabled</td>
-            <td class="input"><input id="sensor-edit-disabled" type="checkbox" onclick="confirmation('sensor-edit-disabled');"></input></td>
-            </td>
-            <td class="hint">disable this sensor</td>
-        </tr>
-        <tr class="editor">
-            <td class="button"><button class="button" onClick="closeSensorEditor(1);">Apply</button></td>
-            <td class="button"><button class="button" onClick="closeSensorEditor(3);">Cancel</button></td>
-        </tr>
-    </table>
+    <form id="sensor-editor-form">
+        <fieldset class="editor">
+            <legend>Sensor</legend>
+            <input id="sensor-edit-id" hidden>
+            <label for="sensor-edit-name">Name</label>
+            <input type="text" id="sensor-edit-name" minlength="0" maxlength="24">
+            <br>
+            <label for="sensor-edit-group">Group</label>
+            <select id="sensor-edit-group"></select>
+            <br>
+            <label for="sensor-edit-min">Minimal Value</label>
+            <input type="number" id="sensor-edit-min">
+            <br>
+            <label for="sensor-edit-max">Maximal Value</label>
+            <input type="number" id="sensor-edit-max">
+            <br>
+            <label for="sensor-edit-divider">Divider</label>
+            <input type="number" id="sensor-edit-divider">
+            <br>
+            <label for="sensor-edit-fractions">Fractions</label>
+            <input type="number" id="sensor-edit-fractions">
+            <br>
+            <label for="sensor-edit-units">Units</label>
+            <input type="text" id="sensor-edit-units" minlength="0" maxlength="12">
+            <br>
+            <label for="sensor-edit-poll">Poll Interval</label>
+            <input type="number" id="sensor-edit-poll">
+            <br>
+            <label for="sensor-edit-type">Type</label>
+            <input type="text" id="sensor-edit-type" placeholder="TBD">
+            <br>
+            <label for="sensor-edit-color0">Gauge Color 0%</label>
+            <input type="color" id="sensor-edit-color0">
+            <br>
+            <label for="sensor-edit-color100">Gauge Color 100%</label>
+            <input type="color" id="sensor-edit-color100">
+            <br>
+            <label for="sensor-edit-totop">Move to group top</label>
+            <input type="checkbox" id="sensor-edit-totop">
+            <br>
+            <label for="sensor-edit-offline">Offline</label>
+            <input id="sensor-edit-offline" type="checkbox">
+            <br>
+            <label for="sensor-edit-remove">Remove empty group</label>
+            <input id="sensor-edit-remove" type="checkbox" onClick="confirmation('sensor-edit-remove');">
+            <br>
+        </fieldset>
+        <button class="button" onClick="return closeSensorEditor('apply');">Apply</button>
+        <button class="button" onClick="return closeSensorEditor('cancel');">Cancel</button>
+    </form>
 </div>
 
 <script>
 
 
 function confirmation(id) {
-    let text = "Are you sure?"
+    let text = "Are you sure?";
     if (confirm(text) == true) {
         document.getElementById(id).checked = true;
     } else {
@@ -124,36 +105,49 @@ function confirmation(id) {
     }
 }
 
-function editGroup(id, name, column) {
+function editGroup(id) {
     document.getElementById("group-editor").style.display = 'block';
 
     document.getElementById("group-edit-id").value = id;
-    document.getElementById("group-edit-name").value = name;
+    document.getElementById("group-edit-name").value = document.getElementById(id).getAttribute("data-group-name");
+    document.getElementById("group-edit-totop").checked = false;
 
     // here: delete excess columns from option list
     // leave no more than #columns + 1 (new)
-    var cols = document.getElementById("columns").childElementCount;
-    for (let i = 0; i <= cols; i++) {
-        const op = document.createElement("option")
+    document.getElementById("group-edit-column").innerHTML = ""
+    var colsNum = document.getElementById("columns").getAttribute("data-columns-num");
+    var col = document.getElementById(id).getAttribute("data-column");
+    for (let i = 0; i <= colsNum; i++) {
+        const op = document.createElement("option");
         op.value = i;
-        if (i != cols) {
-            if (i == column) {
-                op.selected = true
+        if (i != colsNum) {
+            if (i == col) {
+                op.selected = true;
             }
             op.innerHTML = i+1;
         } else {
             op.innerHTML = i+1+' (new)';
         }
-        document.getElementById("group-edit-column").appendChild(op)
+        document.getElementById("group-edit-column").appendChild(op);
     } 
+
+    document.getElementById("group-edit-totop").checked = false;
+
+    document.getElementById("group-edit-remove").checked = false;
+    var groupLen = document.getElementById(id).getAttribute("data-sensors-num");
+    if (groupLen > 0) {
+        document.getElementById("group-edit-remove").disabled = "disabled";
+    } 
+
+    return false;
 }
 
 function closeGroupEditor(action) {
     document.getElementById("group-editor").style.display = 'none';
 
     // cancel
-    if (action == "cancel") {
-        return;
+    if (action === "cancel") {
+        return false;
     }
 
     var obj1 = new Object();
@@ -163,73 +157,42 @@ function closeGroupEditor(action) {
 
     obj2.column = Number(document.getElementById("group-edit-column").value);
     obj2.totop = Boolean(document.getElementById("group-edit-totop").checked);
-    obj2.disabled = Boolean(document.getElementById("group-edit-disabled").checked);
 
+    if (document.getElementById("group-edit-remove").checked) {
+        obj1.action = "remove";
+    }
     obj1.id = document.getElementById("group-edit-id").value;
-    obj1.action = "apply";
     obj1.group = obj2;
 
     var js = JSON.stringify(obj1);
 
     socket.send(js);
+
+    return false;
 }
 
-function closeSensorEditor(action) {
-    document.getElementById("sensor-editor").style.display = 'none';
-
-    // cancel
-    if (action == 3) {
-        return;
-    }
-
-    var obj1 = new Object();
-    var obj2 = new Object();
-    obj2.options = new Object()
-    obj2.widget = new Object()
-
-    obj2.name = document.getElementById("sensor-edit-name").value;
-
-    //obj2.group = document.getElementById("sensor-edit-group").value;
-
-    obj2.options.min = Number(document.getElementById("sensor-edit-min").value);
-    obj2.options.max = Number(document.getElementById("sensor-edit-max").value);
-    obj2.options.divider = Number(document.getElementById("sensor-edit-divider").value);
-    obj2.options.poll = Number(document.getElementById("sensor-edit-poll").value);
-
-    obj2.widget.fractions = Number(document.getElementById("sensor-edit-fractions").value);
-    obj2.widget.units = document.getElementById("sensor-edit-units").value;
-    obj2.widget.type = document.getElementById("sensor-edit-type").value;
-    obj2.widget.color0 = document.getElementById("sensor-edit-color0").value;
-    obj2.widget.color100 = document.getElementById("sensor-edit-color100").value;
-
-    obj2.disabled = Boolean(document.getElementById("sensor-edit-disabled").checked);
-
-    if (action == 1) {
-        obj1.action = "apply";
-    } else if (action == 2) {
-        obj1.action = "save";
-    }
-
-    obj1.id = document.getElementById("sensor-edit-id").innerHTML;
-    obj1.sensor = obj2;
-
-    var js = JSON.stringify(obj1);
-
-    socket.send(js);
-};
-
-function editSensor(id, group) {
+function editSensor(id) {
     var jdata = document.getElementById('json-'+id).innerHTML;
     if (jdata == null)
-        return;
+        return false;
 
     var data = JSON.parse(jdata);
 
-    document.getElementById("sensor-edit-id").innerHTML = id;
+    document.getElementById("sensor-edit-id").value = id;
+    document.getElementById("sensor-edit-name").value = document.getElementById(id).getAttribute("data-sensor-name");
+    var groupId = document.getElementById(id).getAttribute("data-group-id");
 
-    document.getElementById("sensor-edit-name").value = data.name;
-
-    document.getElementById("sensor-edit-group").value = group;
+    document.getElementById("sensor-edit-group").innerHTML = "";
+    var groups = document.getElementsByName("group");
+    for (let i = 0; i < groups.length; i++) {
+        const op = document.createElement("option");
+        if (groups[i].value == groupId) {
+            op.selected = true;
+        }
+        op.value = groups[i].Id
+        op.innerHTML = groups[i].getAttribute("data-group-name");
+        document.getElementById("sensor-edit-group").appendChild(op);
+    } 
 
     document.getElementById("sensor-edit-min").value = data.options.min;
     document.getElementById("sensor-edit-max").value = data.options.max;
@@ -240,11 +203,64 @@ function editSensor(id, group) {
     document.getElementById("sensor-edit-fractions").value = data.widget.fractions;
     document.getElementById("sensor-edit-color0").value = data.widget.color0;
     document.getElementById("sensor-edit-color100").value = data.widget.color100;
-    document.getElementById("sensor-edit-disabled").value = data.disabled;
+    document.getElementById("sensor-edit-offline").checked = data.offline;
+    document.getElementById("sensor-edit-totop").checked = false;
 
     document.getElementById("sensor-editor").style.display = 'block';
+
+    return false;
 };
 
+function closeSensorEditor(action) {
+    document.getElementById("sensor-editor").style.display = 'none';
+
+    // cancel
+    if (action === "cancel") {
+        return false;
+    }
+
+    var obj1 = new Object();
+    var obj2 = new Object();
+    var obj3 = new Object();
+
+    obj3.options = new Object();
+    obj3.widget = new Object();
+
+    obj3.name = document.getElementById("sensor-edit-name").value;
+    obj3.options.min = Number(document.getElementById("sensor-edit-min").value);
+    obj3.options.max = Number(document.getElementById("sensor-edit-max").value);
+    obj3.options.divider = Number(document.getElementById("sensor-edit-divider").value);
+    obj3.options.poll = Number(document.getElementById("sensor-edit-poll").value);
+    obj3.widget.fractions = Number(document.getElementById("sensor-edit-fractions").value);
+    obj3.widget.units = document.getElementById("sensor-edit-units").value;
+    //obj3.widget.type = document.getElementById("sensor-edit-type").value;
+    obj3.widget.color0 = document.getElementById("sensor-edit-color0").value;
+    obj3.widget.color100 = document.getElementById("sensor-edit-color100").value;
+    obj3.offline = Boolean(document.getElementById("sensor-edit-offline").checked);
+
+    obj2.sensor = obj3;
+    obj2.groupid = document.getElementById("sensor-edit-group").value;
+    obj2.totop = Boolean(document.getElementById("sensor-edit-totop").checked);
+
+    obj1.id = document.getElementById("sensor-edit-id").value;
+    obj1.sensor = obj2;
+
+    var js = JSON.stringify(obj1);
+
+    socket.send(js);
+
+    return false;
+};
+
+
+function saveConfig() {
+    var obj = new Object();
+    obj.action = "save";
+    var js = JSON.stringify(obj);
+    socket.send(js);
+
+    return false;
+}
 
 function loadCSS() {
     document.getElementsByTagName('head')[0].insertAdjacentHTML(

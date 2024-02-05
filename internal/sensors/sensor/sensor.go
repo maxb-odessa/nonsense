@@ -20,23 +20,23 @@ type Sensor struct {
 	// privat data
 	pvt struct {
 		sync.Mutex
+		active         bool
 		cancelFunc     func()  // ctx cancelling func
 		id             string  // uniq id
 		input          string  // full path to sensor input file, may vary across reboots
 		fractionsRatio float64 // calculated fractions ratio to be shown
-	}
+	} `json:"-"`
 
 	// runtime data, not for save
 	Runtime struct {
-		Offline      bool    // is offline?
 		Value        float64 // current read value
 		Percents     float64 // calculated percents (based on Min and Max)
 		AntiPercents float64 // = (100 - percents) used for gauges
 	} `json:"-"`
 
 	// configured data
-	Name     string `json:"name"`     // name to show
-	Disabled bool   `json:"disabled"` // do not show if true
+	Name    string `json:"name"`    // name to show
+	Offline bool   `json:"offline"` // is offline?
 
 	Options struct {
 		Device  string  `json:"device"`  // device id as in /sys/devices/..., i.e. 0000:09:00.0
@@ -82,8 +82,18 @@ func (s *Sensor) SetInput(i string) {
 	s.pvt.input = i
 }
 
+func (s *Sensor) Active() bool {
+	return s.pvt.active
+}
+
 func (sens *Sensor) Start(sensChan chan *Sensor) error {
 	var err error
+
+	// already running
+	if sens.pvt.active {
+		slog.Warn("sensor '%s' already running", sens.Name)
+		return nil
+	}
 
 	// some params checking
 	if sens.Options.Divider == 0.0 {
@@ -121,7 +131,8 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 				sens.Lock()
 
 				// this senseor is operational
-				sens.Runtime.Offline = false
+				sens.Offline = false
+
 				sens.Runtime.Value = value
 
 				// apply divider if defined
@@ -154,7 +165,7 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 
 		if err != nil {
 			sens.Lock()
-			sens.Runtime.Offline = true
+			sens.Offline = true
 			sens.Unlock()
 		}
 
@@ -169,6 +180,7 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 	go func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		sens.pvt.cancelFunc = cancel
+		sens.pvt.active = true
 
 		interval := time.Duration(sens.Options.Poll)
 		ticker := time.NewTicker(interval * time.Second)
@@ -189,6 +201,7 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 		}
 
 		ticker.Stop()
+		sens.pvt.active = false
 		slog.Info("Stopped sensor '%s/%s'", sens.Name, sens.Options.Device)
 
 	}()
@@ -197,5 +210,7 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 }
 
 func (s *Sensor) Stop() {
-	s.pvt.cancelFunc()
+	if s.pvt.active && s.pvt.cancelFunc != nil {
+		s.pvt.cancelFunc()
+	}
 }

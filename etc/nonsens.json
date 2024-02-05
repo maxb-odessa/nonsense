@@ -8,10 +8,11 @@
             "groups": [
                 {
                     "name": "Group: acpitz/temp1",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "acpitz/temp1",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "thermal_zone0",
                                 "input": "temp1_input",
@@ -33,10 +34,11 @@
                 },
                 {
                     "name": "Group: acpitz/temp2",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "acpitz/temp2",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "thermal_zone0",
                                 "input": "temp2_input",
@@ -58,10 +60,11 @@
                 },
                 {
                     "name": "Group: iwlwifi_1/temp1",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "iwlwifi_1/temp1",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "thermal_zone2",
                                 "input": "temp1_input",
@@ -83,10 +86,11 @@
                 },
                 {
                     "name": "BAT0/in0/HP/Primary",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "BAT0/in0/HP/Primary",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "BAT0",
                                 "input": "in0_input",
@@ -108,10 +112,11 @@
                 },
                 {
                     "name": "BAT0",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "BAT0/device/capacity/HP/Primary",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "BAT0",
                                 "input": "device/capacity",
@@ -133,10 +138,11 @@
                 },
                 {
                     "name": "hdd",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "temp1",
-                            "disabled": true,
+                            "offline": true,
                             "options": {
                                 "device": "",
                                 "input": "",
@@ -158,10 +164,11 @@
                 },
                 {
                     "name": "hdd",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "temp1",
-                            "disabled": true,
+                            "offline": true,
                             "options": {
                                 "device": "",
                                 "input": "",
@@ -183,10 +190,11 @@
                 },
                 {
                     "name": "SAMSUNG\u0026nbsp;nvme/Sensor\u0026nbsp;1",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "temp2",
-                            "disabled": true,
+                            "offline": true,
                             "options": {
                                 "device": "",
                                 "input": "",
@@ -212,10 +220,11 @@
             "groups": [
                 {
                     "name": "Group: nvme/temp3/SAMSUNG MZVL21T0HCLR-00BH1/Sensor 2",
+                    "offline": false,
                     "sensors": [
                         {
-                            "name": "nvme/temp3/SAMSUNG\u0026amp;amp;nbsp;MZVL21T0HCLR-00BH1/Sensor\u0026amp;amp;nbsp;2",
-                            "disabled": false,
+                            "name": "nvme/temp3/SAMSUNG\u0026amp;amp;amp;nbsp;MZVL21T0HCLR-00BH1/Sensor\u0026amp;amp;amp;nbsp;2",
+                            "offline": false,
                             "options": {
                                 "device": "nvme1",
                                 "input": "temp3_input",
@@ -237,10 +246,11 @@
                 },
                 {
                     "name": "Group: amdgpu/fan1",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/fan1",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "0000:03:00.0",
                                 "input": "fan1_input",
@@ -262,10 +272,11 @@
                 },
                 {
                     "name": "Group: amdgpu/freq1/sclk",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/freq1/sclk",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "0000:03:00.0",
                                 "input": "freq1_input",
@@ -287,10 +298,11 @@
                 },
                 {
                     "name": "Group: amdgpu/freq2/mclk",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/freq2/mclk",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "0000:03:00.0",
                                 "input": "freq2_input",
@@ -312,10 +324,11 @@
                 },
                 {
                     "name": "Group: amdgpu/in0/vddgfx",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/in0/vddgfx",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "0000:03:00.0",
                                 "input": "in0_input",
@@ -337,10 +350,11 @@
                 },
                 {
                     "name": "Group: amdgpu/temp1/edge",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/temp1/edge",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "0000:03:00.0",
                                 "input": "temp1_input",
@@ -362,10 +376,11 @@
                 },
                 {
                     "name": "Group: amdgpu/temp2/junction",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/temp2/junction",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "0000:03:00.0",
                                 "input": "temp2_input",
@@ -387,10 +402,11 @@
                 },
                 {
                     "name": "Group: amdgpu/temp3/mem",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/temp3/mem",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "0000:03:00.0",
                                 "input": "temp3_input",
@@ -416,10 +432,11 @@
             "groups": [
                 {
                     "name": "Group: amdgpu/freq1/sclk",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/freq1/sclk",
-                            "disabled": true,
+                            "offline": true,
                             "options": {
                                 "device": "",
                                 "input": "",
@@ -441,10 +458,11 @@
                 },
                 {
                     "name": "Group: amdgpu/in0/vddgfx",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/in0/vddgfx",
-                            "disabled": true,
+                            "offline": true,
                             "options": {
                                 "device": "",
                                 "input": "",
@@ -466,10 +484,11 @@
                 },
                 {
                     "name": "Group: amdgpu/in1/vddnb",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/in1/vddnb",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "0000:09:00.0",
                                 "input": "in1_input",
@@ -491,10 +510,11 @@
                 },
                 {
                     "name": "Group: amdgpu/power1/PPT",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/power1/PPT",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "0000:09:00.0",
                                 "input": "power1_input",
@@ -516,10 +536,11 @@
                 },
                 {
                     "name": "Group: amdgpu/temp1/edge",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "amdgpu/temp1/edge",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "0000:09:00.0",
                                 "input": "temp1_input",
@@ -541,10 +562,11 @@
                 },
                 {
                     "name": "Group: k10temp/temp1/Tctl",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "k10temp/temp1/Tctl",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "0000:00:18.3",
                                 "input": "temp1_input",
@@ -566,10 +588,11 @@
                 },
                 {
                     "name": "Group: hp/fan1",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "hp/fan1",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "hp-wmi",
                                 "input": "fan1_input",
@@ -591,10 +614,11 @@
                 },
                 {
                     "name": "Group: hp/fan2",
+                    "offline": false,
                     "sensors": [
                         {
                             "name": "hp/fan2",
-                            "disabled": false,
+                            "offline": false,
                             "options": {
                                 "device": "hp-wmi",
                                 "input": "fan2_input",
