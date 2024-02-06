@@ -29,7 +29,7 @@
             <label for="group-edit-totop">Move to column top</label>
             <input type="checkbox" id="group-edit-totop">
             <br>
-            <label for="group-edit-remove">Remove</label>
+            <label for="group-edit-remove">Remove empty group</label>
             <input id="group-edit-remove" type="checkbox" onClick="confirmation('group-edit-remove');">
             <br>
        </fieldset>
@@ -81,7 +81,7 @@
             <label for="sensor-edit-totop">Move to group top</label>
             <input type="checkbox" id="sensor-edit-totop">
             <br>
-            <label for="sensor-edit-remove">Remove empty group</label>
+            <label for="sensor-edit-remove">Remove sensor</label>
             <input id="sensor-edit-remove" type="checkbox" onClick="confirmation('sensor-edit-remove');">
             <br>
         </fieldset>
@@ -131,10 +131,12 @@ function editGroup(id) {
     document.getElementById("group-edit-totop").checked = false;
 
     document.getElementById("group-edit-remove").checked = false;
-    var groupLen = document.getElementById(id).getAttribute("data-sensors-num");
+    var groupLen = Number(document.getElementById(id).getAttribute("data-sensors-num"));
     if (groupLen > 0) {
         document.getElementById("group-edit-remove").disabled = "disabled";
-    } 
+    } else {
+        document.getElementById("group-edit-remove").removeAttribute("disabled");
+    }
 
     return false;
 }
@@ -201,6 +203,7 @@ function editSensor(id) {
     document.getElementById("sensor-edit-color0").value = data.widget.color0;
     document.getElementById("sensor-edit-color100").value = data.widget.color100;
     document.getElementById("sensor-edit-totop").checked = false;
+    document.getElementById("sensor-edit-remove").checked = false;
 
     document.getElementById("sensor-editor").style.display = 'block';
 
@@ -237,6 +240,9 @@ function closeSensorEditor(action) {
     obj2.groupid = document.getElementById("sensor-edit-group").value;
     obj2.totop = Boolean(document.getElementById("sensor-edit-totop").checked);
 
+    if (document.getElementById("sensor-edit-remove").checked) {
+        obj1.action = "remove"
+    }
     obj1.id = document.getElementById("sensor-edit-id").value;
     obj1.sensor = obj2;
 

@@ -5,7 +5,7 @@
 {{ end }}
     <i>{{ .Name }}</i>
     <div class="gauge_text">{{ .Runtime.Value }}&nbsp;{{ .Widget.Units }}
-        <div class="gauge" style="clip-path: inset(0 {{ .Runtime.AntiPercents }}% 0 0);">
+        <div class="gauge" style="clip-path: inset(0 {{ .Runtime.AntiPercents }}% 0 0); background: linear-gradient(90deg, {{ .Widget.Color0 }}, {{ .Widget.Color100 }});">
             <div class="gauge_text">{{ .Runtime.Value }}&nbsp;{{ .Widget.Units }}
             </div>
         </div>

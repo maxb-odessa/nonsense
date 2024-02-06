@@ -73,32 +73,38 @@ func processFeedback(data []byte) {
 }
 
 func modifySensor(id string, action string, sData *SensorData) bool {
-	restart := false
 
 	gr, se := conf.FindSensorById(id)
 	if se == nil {
-		slog.Warn("sensor '%s' not found", id)
+		slog.Warn("sensor id '%s' not found", id)
 		return false
 	}
 
 	// assume the sensor is always modified
 
 	if action == "remove" {
-		// remove sensor TODO
 		se.Stop()
-		// del from group TODO
+		conf.RemoveSensor(se)
+		slog.Info("Removed sensor '%s' '%s' '%s'", se.Name, se.Options.Device, se.Options.Input)
 		return true
 	}
 
 	se.Lock()
+	defer se.Unlock()
 
-	// this change requires sensor restart
-	if se.Options.Poll != sData.Sensor.Options.Poll {
-		restart = true
+	if action == "new" {
+		// TODO add new sensor
+		se.Options.Device = sData.Sensor.Options.Device
+		se.Options.Input = sData.Sensor.Options.Input
 	}
 
 	se.Name = sData.Sensor.Name
-	se.Options = sData.Sensor.Options
+
+	se.Options.Min = sData.Sensor.Options.Min
+	se.Options.Max = sData.Sensor.Options.Max
+	se.Options.Divider = sData.Sensor.Options.Divider
+	se.Options.Poll = sData.Sensor.Options.Poll
+
 	se.Widget = sData.Sensor.Widget
 
 	// group changed
@@ -106,12 +112,13 @@ func modifySensor(id string, action string, sData *SensorData) bool {
 		conf.MoveSensorToGroup(se, gr, sData.GroupId)
 	}
 
-	if restart {
-		se.Stop()
-		se.Start(sensors.Chan())
+	// move sensor to group top
+	if sData.ToTop {
+		conf.MoveSensorToGroupTop(se)
 	}
 
-	se.Unlock()
+	se.Stop()
+	se.Start(sensors.Chan())
 
 	return true
 }
@@ -126,8 +133,12 @@ func modifyGroup(id string, action string, gData *GroupData) bool {
 	}
 
 	if action == "remove" {
-		// TODO remove group, must be empty
-		modified = true
+		if len(gr.Sensors) == 0 {
+			conf.RemoveGroup(gr)
+			slog.Info("Removed empty group '%s'", gr.Name)
+			return true
+		}
+		return false
 	}
 
 	// name changed

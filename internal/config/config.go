@@ -182,3 +182,39 @@ func (c *Config) MoveSensorToGroup(se *sensor.Sensor, oldGr *Group, newGid strin
 		}
 	}
 }
+
+func (c *Config) RemoveSensor(s *sensor.Sensor) {
+
+	for ci, col := range c.Columns {
+		for gi, grp := range col.Groups {
+			for si, sen := range grp.Sensors {
+				if sen == s {
+					c.Columns[ci].Groups[gi].Sensors = append(c.Columns[ci].Groups[gi].Sensors[:si], c.Columns[ci].Groups[gi].Sensors[si+1:]...)
+					break
+				}
+			}
+		}
+	}
+}
+
+func (c *Config) MoveSensorToGroupTop(s *sensor.Sensor) bool {
+
+	for ci, col := range c.Columns {
+		for gi, grp := range col.Groups {
+			for si, sen := range grp.Sensors {
+				if sen == s {
+					if si == 0 {
+						return false
+					}
+					for i := si; i > 0; i-- {
+						c.Columns[ci].Groups[gi].Sensors[i] = c.Columns[ci].Groups[gi].Sensors[i-1]
+					}
+					c.Columns[ci].Groups[gi].Sensors[0] = s
+					return true
+				}
+			}
+		}
+	}
+
+	return false
+}

@@ -2,7 +2,9 @@ package sensor
 
 import (
 	"context"
+	"crypto/md5"
 	"encoding/json"
+	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -21,10 +23,11 @@ type Sensor struct {
 	pvt struct {
 		sync.Mutex
 		active         bool
-		cancelFunc     func()  // ctx cancelling func
-		id             string  // uniq id
-		input          string  // full path to sensor input file, may vary across reboots
-		fractionsRatio float64 // calculated fractions ratio to be shown
+		done           chan bool // sensor is done
+		cancelFunc     func()    // ctx cancelling func
+		id             string    // uniq id
+		input          string    // full path to sensor input file, may vary across reboots
+		fractionsRatio float64   // calculated fractions ratio to be shown
 	} `json:"-"`
 
 	// runtime data, not for save
@@ -84,6 +87,11 @@ func (s *Sensor) SetInput(i string) {
 
 func (s *Sensor) Active() bool {
 	return s.pvt.active
+}
+
+func (s *Sensor) Prepare() {
+	s.pvt.id = fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String())))
+	s.pvt.done = make(chan bool, 0)
 }
 
 func (sens *Sensor) Start(sensChan chan *Sensor) error {
@@ -181,11 +189,17 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 		ctx, cancel := context.WithCancel(context.Background())
 		sens.pvt.cancelFunc = cancel
 		sens.pvt.active = true
-
 		interval := time.Duration(sens.Options.Poll)
 		ticker := time.NewTicker(interval * time.Second)
 
-		slog.Info("Started sensor '%s/%s'", sens.Name, sens.Options.Device)
+		defer func() {
+			slog.Info("Stopped sensor '%s/%s/%s'", sens.Name, sens.Options.Device, sens.Options.Input)
+			ticker.Stop()
+			sens.pvt.active = false
+			sens.pvt.done <- true
+		}()
+
+		slog.Info("Started sensor '%s/%s/%s'", sens.Name, sens.Options.Device, sens.Options.Input)
 
 		updater() // to collect initial data
 
@@ -200,10 +214,6 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 			}
 		}
 
-		ticker.Stop()
-		sens.pvt.active = false
-		slog.Info("Stopped sensor '%s/%s'", sens.Name, sens.Options.Device)
-
 	}()
 
 	return nil
@@ -212,5 +222,7 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 func (s *Sensor) Stop() {
 	if s.pvt.active && s.pvt.cancelFunc != nil {
 		s.pvt.cancelFunc()
+		// wait for sensor to finish its job
+		<-s.pvt.done
 	}
 }

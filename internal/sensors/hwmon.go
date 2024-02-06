@@ -52,11 +52,9 @@ func setupSensors(conf *config.Config, dirName string) error {
 	for _, col := range conf.Columns {
 		for _, grp := range col.Groups {
 			for _, sens := range grp.Sensors {
-				sens.SetId(fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))))
+				sens.Prepare()
 				if setupSingleSensor(sens, dirName) {
 					slog.Info("Configured sensor '%s', device '%s'", sens.Options.Input, sens.Options.Device)
-				} else {
-					slog.Warn("Invalid sensor '%s', device '%s' - disabled", sens.Options.Input, sens.Options.Device)
 				}
 			}
 			grp.SetId(fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))))
@@ -70,7 +68,7 @@ func setupSensors(conf *config.Config, dirName string) error {
 func setupSingleSensor(sens *sensor.Sensor, dir string) bool {
 
 	if sens.Options.Device == "" || sens.Options.Input == "" {
-		slog.Warn("Disabling invalid sensor '%s'", sens.Name)
+		slog.Warn("Ignoring invalid sensor '%s' '%s' %s'", sens.Name, sens.Options.Device, sens.Options.Input)
 		return false
 	}
 

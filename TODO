@@ -1,4 +1,4 @@
 - add new sensors
-- move sensors between groups
-- limit sensor name and group name to... 32 chars?
-- page input fields validation, disable sensor
+- rescan
+- show dev/input in edit sensor
+- more widgets
