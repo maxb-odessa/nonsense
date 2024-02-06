@@ -1,4 +1,5 @@
 - add new sensors
 - rescan
 - show dev/input in edit sensor
-- more widgets
+- more widget types
+- system info: mem, date, uptime, la

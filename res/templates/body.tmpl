@@ -33,7 +33,7 @@
                     title="click to edit or move this group">
 
                     <legend onClick="editGroup('{{ $group.Id }}');">
-                        [&nbsp;{{ $group.Name }}&nbsp;]
+                        {{ $group.Name }}
                     </legend>
 
                     {{ range $si, $sensor := $group.Sensors }}

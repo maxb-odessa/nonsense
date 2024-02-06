@@ -35,6 +35,7 @@ table.main {
 td.column {
     vertical-align: top;
     width: auto;
+    margin: 10px;
 }
 
 fieldset.group {
@@ -54,9 +55,10 @@ div.sensor {
     width: 100%;
     text-align: left;
     color: gray;
+    margin-bottom: 10px;
 }
 
-div.gauge {
+div.widget {
     top: 0;
     left: 0;
     position: absolute;
@@ -68,7 +70,7 @@ div.gauge {
     height: 100%;
 }
 
-div.gauge_text {
+div.widget_text {
     position: relative;
     border-radius: 6px;
     border: solid 1px gray;
@@ -85,62 +87,45 @@ div.gauge_text {
 }
 
 div.editor {
+    width: 50%;
     display: none;
     position: fixed;
     top: 50%;
-    left: 15%;
-    width: 70%;
-    transform: translate(-0%, -50%);
+    left: 50%;
+    /*width: 70%;*/
+    transform: translate(-50%, -50%);
     background: rgba(90, 90, 90, 0.95);
     z-index: 99;
     border: 1px white solid;
     border-radius: 8px;
     box-shadow: 20px 20px 5px 5px rgba(0, 0, 0, 0.7);
     padding: 5px;
-    margin: 5px;
+    margin: 0 auto;
 }
 
-table.editor {
-    border: 0;
+div.editor fieldset {
+    width: auto;
 }
 
-tr.editor {
-    border: 0;
-    padding: 5px;
-    margin: 5px;
-}
-
-td.name {
-    border: 1px solid black;
-    border-radius: 6px;
-    width: 30%;
-}
-
-td.input {
-    border: 1px solid black;
-    border-radius: 6px;
-    color: black;
-    width: 30%;
-}
-
-td.input > input,
-td.input > select {
-    padding: 2px;
-    margin: 2px;
-}
-
-td.hint {
-    border: 1px solid black;
-    border-radius: 6px;
-    color: gray;    
-    font-style: italic;
-    font-size: smaller; 
-    width: 40%;
-}
-
-td.button {
+div.editor .buttons {
+    position: relative;
     text-align: center;
-    display: inline;
+}
+
+div.editor label {
+    display: inline-block;
+    width: 40%;
+    text-align: right;
+    margin: 3px;
+    font-style: italic;
+}
+
+div.editor input,
+div.editor select {
+    display: inline-block;
+    text-align: left;
+    border: 0;
+    border-radius: 4px;
 }
 
 

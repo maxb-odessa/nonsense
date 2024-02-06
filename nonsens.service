@@ -1,16 +1,16 @@
-# Simple systemd scenario for edpad2
+# Simple systemd scenario for NonSENS
 # - put it in @HOME@/.config/systemd/user/
 # - run: systemd --user reload-daemon
-# - use: systemctl --user <status|start|stop> edpad2
+# - use: systemctl --user <status|start|stop> nonsens
 ###########################################################
 
 [Unit]
-Description = Web ED Pad: an Elite Dangerous companion
+Description = NonSENS: yet another sensors monitor
 
 [Service]
 Type = simple
 StandardOutput = journal
-ExecStart = %h/.local/bin/wedpad -d 9 -c %h/.local/etc/wedpad.conf
+ExecStart = %h/.local/bin/nonsens -d 9 -c %h/.local/etc/nonsens.json
 
 [Install]
 WantedBy=default.target

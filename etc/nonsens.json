@@ -1,7 +1,7 @@
 {
     "server": {
         "listen": ":12345",
-        "resources": "res"
+        "resources": "$HOME/.local/share/nonsens"
     },
     "columns": [
         {

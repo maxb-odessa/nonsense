@@ -18,7 +18,7 @@ install:
 	mkdir -p ${SHAREDIR}
 	cp -a res/* ${SHAREDIR}
 	mkdir -p ${CONFDIR}
-	cp -a conf/nonsens.conf ${CONFDIR}
+	cp -a etc/nonsens.json ${CONFDIR}
 	cp -a nonsens.service ${HOME}/.config/systemd/user/
 	systemctl --user daemon-reload
 
