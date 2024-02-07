@@ -52,9 +52,10 @@ div.group {
 }
 
 legend.group-name {
-    border: 1px solid white;
-    border-radius: 10px;
-    background: black;
+    border: 0px solid white;
+    border-radius: 6px;
+    background: #606060;
+    box-shadow: 5px 5px 3px 3px rgba(0, 0, 0, 0.7);
 }
 
 div.sensor {
@@ -93,7 +94,7 @@ div.widget_text {
 }
 
 div.editor {
-    width: 50%;
+    width: 40%;
     display: none;
     position: fixed;
     top: 50%;
