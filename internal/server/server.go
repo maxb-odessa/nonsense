@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"mime"
 	"net/http"
 	"os"
@@ -10,6 +11,8 @@ import (
 
 	"github.com/gorilla/mux"
 	ws "github.com/gorilla/websocket"
+
+	"github.com/rafacas/sysstats"
 
 	"github.com/maxb-odessa/nonsens/internal/config"
 	"github.com/maxb-odessa/nonsens/internal/sensors"
@@ -47,8 +50,8 @@ func Run(cf *config.Config) error {
 		return err
 	}
 
-	// start sending sysinfo TODO
-	//go sendSysinfo(templates)
+	// start sending sysinfo
+	go sendSysinfo()
 
 	// start sensors events listening and processing
 	go sendSensorsData()
@@ -86,14 +89,58 @@ func sendBody() {
 	toClientCh <- data
 }
 
-// TODO
-func sendSysinfo(templates tmpl.Tmpls) {
-	ticker := time.NewTicker(1 * time.Second)
+func sendSysinfo() {
+	var msg *ToClientMsg
+	var data []byte
+
+	if conf.SysinfoPoll <= 0 {
+		conf.SysinfoPoll = 10
+		slog.Warn("Invalid 'sysinfo poll' value, using 10 seconds")
+	}
 
 	sinfo := func() {
 
+		// send current time
+		msg = &ToClientMsg{
+			Target: "sysinfo-time",
+			Data:   time.Now().Format("2006-01-02 15:04:05"),
+		}
+		data, _ = json.Marshal(msg)
+
+		select {
+		case toClientCh <- data:
+		default:
+		}
+
+		// send load averages
+		la, _ := sysstats.GetLoadAvg()
+		msg = &ToClientMsg{
+			Target: "sysinfo-la",
+			Data:   fmt.Sprintf("LoadAvg: %.2f, %.2f, %.2f", la.Avg1, la.Avg5, la.Avg15),
+		}
+		data, _ = json.Marshal(msg)
+
+		select {
+		case toClientCh <- data:
+		default:
+		}
+
+		// send mem stats
+		mem, _ := sysstats.GetMemStats()
+		msg = &ToClientMsg{
+			Target: "sysinfo-mem",
+			Data:   fmt.Sprintf("RAM used %d of %d MB", (mem["memused"]-mem["cached"]-mem["buffers"])/1024, mem["memtotal"]/1024),
+		}
+		data, _ = json.Marshal(msg)
+
+		select {
+		case toClientCh <- data:
+		default:
+		}
+
 	}
 
+	ticker := time.NewTicker(time.Duration(conf.SysinfoPoll) * time.Second)
 	for {
 		select {
 		case <-ticker.C:

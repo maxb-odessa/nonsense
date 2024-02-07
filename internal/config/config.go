@@ -35,8 +35,9 @@ type Column struct {
 }
 
 type Config struct {
-	Server  *Server   `json:"server"`  // server config
-	Columns []*Column `json:"columns"` // sensors config: columns->groups->sensors
+	Server      *Server   `json:"server"`       // server config
+	SysinfoPoll int       `json:"sysinfo poll"` // sysinfo ticket poll interval
+	Columns     []*Column `json:"columns"`      // sensors config: columns->groups->sensors
 }
 
 func (c *Config) Load(path string) error {

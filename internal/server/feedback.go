@@ -103,6 +103,7 @@ func modifySensor(id string, action string, sData *SensorData) bool {
 	}
 
 	se.Name = utils.SafeHTML(sData.Sensor.Name)
+	//se.Name = sData.Sensor.Name
 
 	se.Options = sData.Sensor.Options
 	se.Widget = sData.Sensor.Widget

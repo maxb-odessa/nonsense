@@ -1,7 +1,8 @@
 {
     "server": {
         "listen": ":12345",
-        "resources": "$HOME/.local/share/nonsens"
+        "resources": "$HOME/.local/share/nonsens",
+        "sysinfo poll" : 10
     },
     "columns": [
         {
@@ -18,7 +19,7 @@
                                 "min": 0,
                                 "max": 100,
                                 "divider": 1000,
-                                "poll": 1.5
+                                "poll": 1500
                             },
                             "widget": {
                                 "type": "",
@@ -38,7 +39,7 @@
                                 "min": 0,
                                 "max": 5500,
                                 "divider": 1,
-                                "poll": 1.5
+                                "poll": 1500
                             },
                             "widget": {
                                 "type": "",
@@ -63,7 +64,7 @@
                                 "min": 0,
                                 "max": 100,
                                 "divider": 1,
-                                "poll": 1
+                                "poll": 1000
                             },
                             "widget": {
                                 "type": "",
@@ -83,7 +84,7 @@
                                 "min": 15.4,
                                 "max": 17.5,
                                 "divider": 1000,
-                                "poll": 1
+                                "poll": 1000
                             },
                             "widget": {
                                 "type": "",
@@ -112,7 +113,7 @@
                                 "min": 0,
                                 "max": 100,
                                 "divider": 1000,
-                                "poll": 1.5
+                                "poll": 1500
                             },
                             "widget": {
                                 "type": "",
@@ -132,7 +133,7 @@
                                 "min": 0,
                                 "max": 5500,
                                 "divider": 1,
-                                "poll": 1.5
+                                "poll": 1500
                             },
                             "widget": {
                                 "type": "",
@@ -152,7 +153,7 @@
                                 "min": 0,
                                 "max": 120,
                                 "divider": 1000000,
-                                "poll": 3
+                                "poll": 3000
                             },
                             "widget": {
                                 "type": "",
@@ -169,7 +170,7 @@
                     "name": "WiFi Module",
                     "sensors": [
                         {
-                            "name": "temperature\u0026lt;p\u0026gt;",
+                            "name": "temperature",
                             "offline": false,
                             "options": {
                                 "device": "thermal_zone2",
@@ -177,7 +178,7 @@
                                 "min": 0,
                                 "max": 100,
                                 "divider": 1000,
-                                "poll": 5
+                                "poll": 5000
                             },
                             "widget": {
                                 "type": "",

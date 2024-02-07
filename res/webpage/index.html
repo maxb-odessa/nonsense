@@ -10,8 +10,8 @@
 </head>
 
 <body>
+
 <table class="main" id="main">
-    <tr><td style="font-size: large;">Connecting...</td></tr>
 </table>
 
 <!-- group editor -->
@@ -137,12 +137,14 @@
                 id="sensor-edit-poll"
                 required
                 min="0.5"
-                max="600.0"
-                step="0.01">
+                max="3600.0"
+                step="0.5">
             <br>
+            <!--
             <label for="sensor-edit-type">Widget type</label>
             <input type="text" id="sensor-edit-type" placeholder="TBD">
             <br>
+            -->
             <label for="sensor-edit-color0">Widget color at 0%</label>
             <input type="color" id="sensor-edit-color0">
             <br>
@@ -166,8 +168,7 @@
 </div>
 
 
-<div class="info-window">
-</div>
+<div class="info-window" id="info-window"></div>
 
 
 <!--------------------- SCRIPTS ---------------------->
@@ -278,8 +279,8 @@ function editSensor(id) {
     document.getElementById("sensor-edit-min").value = data.options.min;
     document.getElementById("sensor-edit-max").value = data.options.max;
     document.getElementById("sensor-edit-divider").value = data.options.divider;
-    document.getElementById("sensor-edit-poll").value = data.options.poll;
-    document.getElementById("sensor-edit-type").value = data.widget.type;
+    document.getElementById("sensor-edit-poll").value = data.options.poll / 1000.0;
+    //document.getElementById("sensor-edit-type").value = data.widget.type;
     document.getElementById("sensor-edit-units").value = data.widget.units;
     document.getElementById("sensor-edit-fractions").value = data.widget.fractions;
     document.getElementById("sensor-edit-color0").value = data.widget.color0;
@@ -313,7 +314,7 @@ function closeSensorEditor(action) {
     obj3.options.min = Number(document.getElementById("sensor-edit-min").value);
     obj3.options.max = Number(document.getElementById("sensor-edit-max").value);
     obj3.options.divider = Number(document.getElementById("sensor-edit-divider").value);
-    obj3.options.poll = Number(document.getElementById("sensor-edit-poll").value);
+    obj3.options.poll = Number(document.getElementById("sensor-edit-poll").value) * 1000;
     obj3.widget.fractions = Number(document.getElementById("sensor-edit-fractions").value);
     obj3.widget.units = document.getElementById("sensor-edit-units").value;
     //obj3.widget.type = document.getElementById("sensor-edit-type").value;
@@ -359,9 +360,21 @@ window.onload = function () {
 
 var wsUrl = "ws://" + window.location.hostname + ":" + window.location.port + "/ws";
 
+showInfo("Connecting...");
 loop();
 
 var socket;
+
+function showInfo(text, on) {
+    var output = document.getElementById("info-window");
+    output.innerHTML = text;
+    if (on) {
+        output.style.display = "block";
+    } else {
+        output.style.display = "none";
+    }
+}
+
 
 async function loop() {
 
@@ -371,6 +384,7 @@ async function loop() {
         socket = new WebSocket(wsUrl);
 
         socket.onopen = function() {
+            showInfo("", false);
             //socket.send("{}");
             reconnect = false;
         };
@@ -386,8 +400,7 @@ async function loop() {
         };
 
         socket.onclose = function(ev) {
-            var output = document.getElementById("main");
-            output.innerHTML = '<tr><td style="font-size: large;">Reconnecting...</td></tr>';
+            showInfo("Reconnecting...", true);
             reconnect = true;
         };
 

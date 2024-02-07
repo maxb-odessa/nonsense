@@ -12,7 +12,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/maxb-odessa/nonsens/internal/utils"
 	"github.com/maxb-odessa/slog"
 )
 
@@ -47,7 +46,7 @@ type Sensor struct {
 		Min     float64 `json:"min"`     // min value
 		Max     float64 `json:"max"`     // max value
 		Divider float64 `json:"divider"` // value divider, i.e. 1000 for temperature values like 42123 which 42.123 deg
-		Poll    float64 `json:"poll"`    // poll interval, in seconds
+		Poll    int     `json:"poll"`    // poll interval, in milliseconds
 	} `json:"options"`
 
 	Widget struct {
@@ -108,9 +107,9 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 		sens.Options.Divider = 1.0
 	}
 
-	if sens.Options.Poll < 0.5 {
-		slog.Info("forcing sensor '%s' poll interval to 1.0", sens.Name)
-		sens.Options.Poll = 1.0
+	if sens.Options.Poll < 500 {
+		slog.Info("forcing sensor '%s' poll interval to 1 second", sens.Name)
+		sens.Options.Poll = 1000
 	}
 
 	if sens.Widget.Fractions < 0 || sens.Widget.Fractions > 8 {
@@ -125,7 +124,7 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 		sens.Options.Min = sens.Options.Max
 	}
 
-	sens.Name = utils.SafeHTML(sens.Name)
+	//sens.Name = utils.SafeHTML(sens.Name)
 
 	updater := func() {
 
@@ -190,7 +189,7 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 		sens.pvt.cancelFunc = cancel
 		sens.pvt.active = true
 		interval := time.Duration(sens.Options.Poll)
-		ticker := time.NewTicker(interval * time.Second)
+		ticker := time.NewTicker(interval * time.Millisecond)
 
 		defer func() {
 			slog.Info("Stopped sensor '%s/%s/%s'", sens.Name, sens.Options.Device, sens.Options.Input)

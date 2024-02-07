@@ -2,12 +2,12 @@
     <tr>
         <td class="sysinfo" colspan="{{ len .Columns }}">
             <div style="display: inline-grid; grid-template-columns: 33% 33% 34%; grid-template-rows: 50% 50%; width: 100%;">
-                <div style="border: 1px black solid;">1</div>
-                <div style="border: 1px black solid;">2</div>
-                <div style="border: 1px black solid;">3</div>
-                <div style="border: 1px black solid;">4</div>
-                <div style="border: 1px black solid;">5</div>
-                <div style="border: 1px black solid;"><button onClick="return saveConfig();">Save</button></div>
+                <div class="sysinfo-time" id="sysinfo-time"></div>
+                <div class="sysinfo-mem" id="sysinfo-mem">mem here</div>
+                <div class="sysinfo-mem" id="sysinfo-mem">something here</div>
+                <div class="sysinfo-la" id="sysinfo-la"></div>
+                <div class="sysinfo-mem" id="sysinfo-mem">dunno #1</div>
+                <div class="sysinfo-buttons"><button onClick="return saveConfig();">Save</button></div>
             </div>
         </td>
     </tr>

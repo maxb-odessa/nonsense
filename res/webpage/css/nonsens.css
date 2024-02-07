@@ -55,7 +55,7 @@ legend.group-name {
     border: 0px solid white;
     border-radius: 6px;
     background: #606060;
-    box-shadow: 5px 5px 3px 3px rgba(0, 0, 0, 0.7);
+    box-shadow: 3px 3px 1px 1px rgba(0, 0, 0, 0.7);
 }
 
 div.sensor {
@@ -90,11 +90,10 @@ div.widget_text {
 }
 
 .sysinfo {
-    border: solid 1px white;
 }
 
 div.editor {
-    width: 40%;
+    width: 50%;
     display: none;
     position: fixed;
     top: 50%;
@@ -121,7 +120,7 @@ div.editor .buttons {
 
 div.editor label {
     display: inline-block;
-    width: 40%;
+    width: 50%;
     text-align: right;
     margin: 3px;
     font-style: italic;
@@ -135,4 +134,53 @@ div.editor select {
     border-radius: 4px;
 }
 
+div.info-window {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    border: 1px solid white;
+    border-radius: 5px;
+    box-shadow: 10px 10px 5px 5px rgba(0, 0, 0, 0.7);
+    padding: 25px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(180, 180, 10, 0.95);
+    color: black;
+}
 
+div.sysinfo-time {
+    border: 1px outset white;
+    border-radius: 5px;
+    color: #9090ff;
+    background: #303030;
+    margin: 3px;
+    text-align: center;
+}
+
+div.sysinfo-la {
+    border: 1px outset white;
+    border-radius: 6px;
+    color: #ff9090;
+    background: #303030;
+    margin: 3px;
+    text-align: center;
+}
+
+div.sysinfo-mem {
+    border: 1px outset white;
+    border-radius: 6px;
+    color: #90ff90;
+    background: #303030;
+    margin: 3px;
+    text-align: center;
+}
+
+div.sysinfo-buttons {
+    border: 1px outset white;
+    border-radius: 6px;
+    color: #909090;
+    background: #303030;
+    margin: 3px;
+    text-align: center;
+}
