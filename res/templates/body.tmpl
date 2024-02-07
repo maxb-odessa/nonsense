@@ -32,8 +32,8 @@
                     data-column="{{ $ci }}"
                     title="click to edit or move this group">
 
-                    <legend onClick="editGroup('{{ $group.Id }}');">
-                        {{ $group.Name }}
+                    <legend onClick="editGroup('{{ $group.Id }}');" class="group-name">
+                        &nbsp;{{ $group.Name }}&nbsp;
                     </legend>
 
                     {{ range $si, $sensor := $group.Sensors }}

@@ -16,12 +16,18 @@
 
 <!-- group editor -->
 <div class="editor" id="group-editor">
-    <form id="group-editor-form">
+    <form id="group-editor-form" onSubmit="return closeGroupEditor('apply');">
        <fieldset class="editor">
             <legend>Group Editor</legend>
             <param id="group-edit-id" type="hidden">
             <label for="group-edit-name">Name</label>
-            <input type="text" id="group-edit-name" minlength="1" maxlength="28">
+            <input
+                type="text"
+                id="group-edit-name"
+                minlength="0"
+                maxlength="28"
+                pattern="[^\<\>\&]{0,27}"
+                title="0 to 28 chars excluding [\<\>\&] starting with alpha-num">
             <br>
             <label for="group-edit-column">Column number</label>
             <select id="group-edit-column"></select>
@@ -36,7 +42,7 @@
        </fieldset>
        <br>
         <div class="buttons">
-       <button class="button" onClick="return closeGroupEditor('apply');">Apply</button>
+       <button class="button">Apply</button>
        <button class="button" onClick="return closeGroupEditor('cancel');">Cancel</button>
         </div>
     </form>
@@ -45,15 +51,41 @@
 
 <!-- sensor editor -->
 <div class="editor" id="sensor-editor">
-    <form id="sensor-editor-form">
+    <form id="sensor-editor-form" onSubmit="return closeSensorEditor('apply');">
         <fieldset class="editor">
             <legend>Sensor Editor</legend>
             <param id="sensor-edit-id" hidden></param>
             <label for="sensor-edit-name">Name</label>
-            <input type="text" id="sensor-edit-name" minlength="0" maxlength="28">
+            <input
+                type="text"
+                id="sensor-edit-name"
+                minlength="0"
+                maxlength="28"
+                pattern="[^\<\>\&].{0,28}"
+                title="0 to 28 chars excluding [\<\>\&]">
             <br>
             <label for="sensor-edit-group">Group</label>
             <select id="sensor-edit-group"></select>
+            <br>
+            <label for="sensor-edit-device">Sensor device</label>
+            <input
+                type="text"
+                id="sensor-edit-device"
+                required
+                minlength="1"
+                maxlength="28"
+                pattern="[0-9a-zA-Z]{1}[\-0-9a-zA-Z:_.]{0,27}"
+                title="1 to 28 chars of [0-9a-zA-Z:_.] starting with alpha-num">
+            <br>
+            <label for="sensor-edit-input">Sensor input</label>
+            <input
+                type="text"
+                id="sensor-edit-input"
+                required
+                minlength="1"
+                maxlength="28"
+                pattern="[0-9a-zA-Z]{1}[\-0-9a-zA-Z:_.]{0,27}"
+                title="1 to 28 chars of [0-9a-zA-Z:_.] starting with alpha-num">
             <br>
             <label for="sensor-edit-min">Minimal Value</label>
             <input type="number" id="sensor-edit-min">
@@ -78,7 +110,14 @@
             </select>
             <br>
             <label for="sensor-edit-units">Units</label>
-            <input type="text" id="sensor-edit-units" minlength="0" maxlength="12">
+            <input
+                type="text"
+                id="sensor-edit-units"
+                required
+                minlength="0"
+                maxlength="14"
+                pattern="[^\<\>]{0,14}"
+                title="0 to 14 chars excluding [\<\>]">
             <br>
             <label for="sensor-edit-poll">Poll Interval</label>
             <input type="number" id="sensor-edit-poll">
@@ -102,14 +141,19 @@
         </fieldset>
         <br>
         <div class="buttons">
-        <button class="button" onClick="return closeSensorEditor('apply');">Apply</button>
+        <button class="button">Apply</button>
         <button class="button" onClick="return closeSensorEditor('cancel');">Cancel</button>
         </div>
     </form>
 </div>
 
-<script>
 
+<div class="info-window">
+</div>
+
+
+<!--------------------- SCRIPTS ---------------------->
+<script>
 
 function confirmation(id) {
     let text = "Are you sure?";
@@ -211,6 +255,8 @@ function editSensor(id) {
         document.getElementById("sensor-edit-group").appendChild(op);
     } 
 
+    document.getElementById("sensor-edit-device").value = data.options.device;
+    document.getElementById("sensor-edit-input").value = data.options.input;
     document.getElementById("sensor-edit-min").value = data.options.min;
     document.getElementById("sensor-edit-max").value = data.options.max;
     document.getElementById("sensor-edit-divider").value = data.options.divider;
@@ -244,6 +290,8 @@ function closeSensorEditor(action) {
     obj3.widget = new Object();
 
     obj3.name = document.getElementById("sensor-edit-name").value;
+    obj3.options.device = document.getElementById("sensor-edit-device").value;
+    obj3.options.input = document.getElementById("sensor-edit-input").value;
     obj3.options.min = Number(document.getElementById("sensor-edit-min").value);
     obj3.options.max = Number(document.getElementById("sensor-edit-max").value);
     obj3.options.divider = Number(document.getElementById("sensor-edit-divider").value);

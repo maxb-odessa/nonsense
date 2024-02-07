@@ -43,12 +43,18 @@ fieldset.group {
     border-radius: 8px;
     margin-top: 3%;
     padding: 10px;
-    background: #202020;
+    background: #303030;
 }
 
 div.group {
     text-align: left;
     width: 100%;
+}
+
+legend.group-name {
+    border: 1px solid white;
+    border-radius: 10px;
+    background: black;
 }
 
 div.sensor {

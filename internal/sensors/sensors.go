@@ -14,7 +14,7 @@ func Chan() chan *sensor.Sensor {
 func Run(conf *config.Config) error {
 
 	// configure sensors via hwmon kernel subsystem
-	if err := hwmonConfig(conf); err != nil {
+	if err := setupAllSensors(conf); err != nil {
 		return err
 	}
 
@@ -22,11 +22,7 @@ func Run(conf *config.Config) error {
 
 	// start sensors
 	for _, sens := range conf.AllSensors() {
-
-		if err := sens.Start(sensChan); err != nil {
-			return err
-		}
-
+		sens.Start(sensChan)
 	}
 
 	return nil

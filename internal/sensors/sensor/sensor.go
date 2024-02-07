@@ -95,7 +95,6 @@ func (s *Sensor) Prepare() {
 }
 
 func (sens *Sensor) Start(sensChan chan *Sensor) error {
-	var err error
 
 	// already running
 	if sens.pvt.active {
@@ -130,11 +129,18 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 
 	updater := func() {
 
-		if data, err := os.ReadFile(sens.pvt.input); err == nil {
+		// misconfigured sensor?
+		if sens.pvt.input == "" {
+			sens.Offline = true
+		} else if data, err := os.ReadFile(sens.pvt.input); err != nil {
+			sens.Offline = true
+		} else {
 
 			s := strings.TrimSpace(string(data))
 
-			if value, err := strconv.ParseFloat(s, 64); err == nil {
+			if value, err := strconv.ParseFloat(s, 64); err != nil {
+				sens.Offline = true
+			} else {
 
 				sens.Lock()
 
@@ -169,12 +175,6 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 
 				slog.Debug(5, "sensor '%s' value=%f percents=%f", sens.Name, sens.Runtime.Value, sens.Runtime.Percents)
 			}
-		}
-
-		if err != nil {
-			sens.Lock()
-			sens.Offline = true
-			sens.Unlock()
 		}
 
 		select {

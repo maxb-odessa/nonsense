@@ -73,6 +73,7 @@ func processFeedback(data []byte) {
 }
 
 func modifySensor(id string, action string, sData *SensorData) bool {
+	var needReconfig bool
 
 	gr, se := conf.FindSensorById(id)
 	if se == nil {
@@ -94,17 +95,16 @@ func modifySensor(id string, action string, sData *SensorData) bool {
 
 	if action == "new" {
 		// TODO add new sensor
-		se.Options.Device = sData.Sensor.Options.Device
-		se.Options.Input = sData.Sensor.Options.Input
 	}
 
-	se.Name = sData.Sensor.Name
+	// device or input file changed - reconfig sensors
+	if se.Options.Device != sData.Sensor.Options.Device || se.Options.Input != sData.Sensor.Options.Input {
+		needReconfig = true
+	}
 
-	se.Options.Min = sData.Sensor.Options.Min
-	se.Options.Max = sData.Sensor.Options.Max
-	se.Options.Divider = sData.Sensor.Options.Divider
-	se.Options.Poll = sData.Sensor.Options.Poll
+	se.Name = utils.SafeHTML(sData.Sensor.Name)
 
+	se.Options = sData.Sensor.Options
 	se.Widget = sData.Sensor.Widget
 
 	// group changed
@@ -118,6 +118,11 @@ func modifySensor(id string, action string, sData *SensorData) bool {
 	}
 
 	se.Stop()
+
+	if needReconfig {
+		sensors.SetupSensor(se)
+	}
+
 	se.Start(sensors.Chan())
 
 	return true

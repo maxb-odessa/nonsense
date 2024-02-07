@@ -20,10 +20,10 @@ const (
 	HWMON_PATH = "/sys/class/hwmon"
 )
 
-// scan hwmon dirs, read required files, config appropriate sensors
-func hwmonConfig(conf *config.Config) error {
+// find device real dir under /sys
+func findSensorDir(device string) string {
 
-	// dirty trik, but this is much easier than call WalkDir()
+	// dirty trick, but this is much easier than call WalkDir()
 	for i := 0; i < 100; i++ {
 
 		// compose dir path
@@ -31,29 +31,30 @@ func hwmonConfig(conf *config.Config) error {
 
 		// stop if dir doesn't exist
 		if !utils.IsDir(dirName) {
-			slog.Debug(9, "'%s' is not a dir", dirName)
 			break
 		}
 
-		// setup sensor with data, it is ok if we fail
-		if err := setupSensors(conf, dirName); err != nil {
-			slog.Warn("Failed to setup sensor '%s': %s", dirName, err)
+		// is this really our device?
+		if dev, err := filepath.EvalSymlinks(dirName + "device"); err != nil {
+			slog.Warn("Could not resolve '%s': %s", dirName+"device", err)
+		} else if filepath.Base(dev) == device {
+			return dirName
 		}
 
 	}
 
-	return nil
+	return ""
 }
 
 // find matching sensor and setup it
-func setupSensors(conf *config.Config, dirName string) error {
+func setupAllSensors(conf *config.Config) error {
 
 	// find named sensor and setup it
 	for _, col := range conf.Columns {
 		for _, grp := range col.Groups {
 			for _, sens := range grp.Sensors {
 				sens.Prepare()
-				if setupSingleSensor(sens, dirName) {
+				if SetupSensor(sens) {
 					slog.Info("Configured sensor '%s', device '%s'", sens.Options.Input, sens.Options.Device)
 				}
 			}
@@ -65,20 +66,30 @@ func setupSensors(conf *config.Config, dirName string) error {
 }
 
 // setup single sensor
-func setupSingleSensor(sens *sensor.Sensor, dir string) bool {
+func SetupSensor(sens *sensor.Sensor) bool {
 
 	if sens.Options.Device == "" || sens.Options.Input == "" {
 		slog.Warn("Ignoring invalid sensor '%s' '%s' %s'", sens.Name, sens.Options.Device, sens.Options.Input)
+		sens.SetInput("")
+		return false
+	}
+
+	dir := findSensorDir(sens.Options.Device)
+	if dir == "" {
+		slog.Warn("Failed to find sensor '%s/%/%s' dir", sens.Name, sens.Options.Device, sens.Options.Input)
+		sens.SetInput("")
 		return false
 	}
 
 	// is this really our device?
 	if dev, err := filepath.EvalSymlinks(dir + "device"); err != nil {
 		slog.Warn("Could not resolve '%s': %s", dir+"device", err)
+		sens.SetInput("")
 		return false
 	} else {
 		// this is not our device
 		if filepath.Base(dev) != sens.Options.Device {
+			sens.SetInput("")
 			return false
 		}
 	}
