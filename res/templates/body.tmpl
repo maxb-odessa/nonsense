@@ -1,13 +1,11 @@
 <thead>
     <tr>
         <td class="sysinfo" colspan="{{ len .Columns }}">
-            <div style="display: inline-grid; grid-template-columns: 33% 33% 34%; grid-template-rows: 50% 50%; width: 100%;">
+            <div style="display: inline-grid; grid-template-columns: 30% 30% 30% auto; grid-template-rows: 100%; width: 100%;">
                 <div class="sysinfo-time" id="sysinfo-time"></div>
-                <div class="sysinfo-mem" id="sysinfo-mem">mem here</div>
-                <div class="sysinfo-mem" id="sysinfo-mem">something here</div>
                 <div class="sysinfo-la" id="sysinfo-la"></div>
-                <div class="sysinfo-mem" id="sysinfo-mem">dunno #1</div>
-                <div class="sysinfo-buttons"><button onClick="return saveConfig();">Save</button></div>
+                <div class="sysinfo-mem" id="sysinfo-mem"></div>
+                <div class="sysinfo-settings"><button class="settings" onClick="return settings();">Settings</button></div>
             </div>
         </td>
     </tr>

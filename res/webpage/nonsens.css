@@ -35,14 +35,18 @@ table.main {
 td.column {
     vertical-align: top;
     width: auto;
-    margin: 10px;
+    /*margin: 10px;*/
 }
 
 fieldset.group {
     border: 1px solid white;
     border-radius: 8px;
-    margin-top: 3%;
-    padding: 10px;
+    margin-top: 1%;
+    margin-bottom: 3%;
+/*
+    padding-top: 5px;
+    padding-bottom: 5px;
+*/
     background: #303030;
 }
 
@@ -152,7 +156,7 @@ div.info-window {
 div.sysinfo-time {
     border: 1px outset white;
     border-radius: 5px;
-    color: #9090ff;
+    color: white;
     background: #303030;
     margin: 3px;
     text-align: center;
@@ -161,7 +165,7 @@ div.sysinfo-time {
 div.sysinfo-la {
     border: 1px outset white;
     border-radius: 6px;
-    color: #ff9090;
+    color: white;
     background: #303030;
     margin: 3px;
     text-align: center;
@@ -170,17 +174,21 @@ div.sysinfo-la {
 div.sysinfo-mem {
     border: 1px outset white;
     border-radius: 6px;
-    color: #90ff90;
+    color: white;
     background: #303030;
     margin: 3px;
     text-align: center;
 }
 
-div.sysinfo-buttons {
-    border: 1px outset white;
-    border-radius: 6px;
-    color: #909090;
-    background: #303030;
-    margin: 3px;
+div.sysinfo-settings {
     text-align: center;
 }
+
+button.settings {
+    border: 1px outset white;
+    border-radius: 6px;
+    margin: 3px;
+    background: #707070;
+    color: white;
+}
+

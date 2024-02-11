@@ -84,8 +84,8 @@
                 required
                 minlength="1"
                 maxlength="28"
-                pattern="[0-9a-zA-Z]{1}[\-0-9a-zA-Z:_.]{0,27}"
-                title="1 to 28 chars of [0-9a-zA-Z:_.] starting with alpha-num">
+                pattern="[0-9a-zA-Z]{1}[\-0-9a-zA-Z:_.\/]{0,27}"
+                title="1 to 28 chars of [0-9a-zA-Z:_.\/] starting with alpha-num">
             <br>
             <label for="sensor-edit-min">Minimal value</label>
             <input
@@ -167,12 +167,48 @@
     </form>
 </div>
 
-
+<!-- informational window -->
 <div class="info-window" id="info-window"></div>
+
+<!-- settings form -->
+<div class="editor" id="settings-editor">
+    <form id="settings-editor-form">
+       <fieldset class="editor">
+            <legend>Settings</legend>
+            <label for="settings-scan">Scan for sensors</label>
+            <input id="settings-scan" type="button" value="Scan">
+            <br>
+            <label for="settings-restore">Restore prev config</label>
+            <input id="settings-restore" type="button" value="Restore">
+            <br>
+            <label for="settings-save">Save configuration</label>
+            <input id="settings-save" type="button" value="Save" onClick="return saveConfig();">
+            <br>
+
+       </fieldset>
+       <br>
+        <div class="buttons">
+       <button class="button" onClick="return closeSettings('cancel');">Close</button>
+        </div>
+    </form>
+</div>
+
+
 
 
 <!--------------------- SCRIPTS ---------------------->
 <script>
+
+function settings() {
+    document.getElementById("settings-editor").style.display = 'block';
+
+    return false;
+}
+
+function closeSettings(action) {
+    document.getElementById("settings-editor").style.display = 'none';
+    return false;
+}
 
 function confirmation(id) {
     let text = "Are you sure?";
@@ -344,14 +380,14 @@ function saveConfig() {
     obj.action = "save";
     var js = JSON.stringify(obj);
     socket.send(js);
-
+    showInfo("Saved!", true,  1000);
     return false;
 }
 
 function loadCSS() {
     document.getElementsByTagName('head')[0].insertAdjacentHTML(
         'beforeend',
-        '<link rel="stylesheet" type="text/css" href="/css/nonsens.css?'+Date.now()+'" />');
+        '<link rel="stylesheet" type="text/css" href="/nonsens.css?'+Date.now()+'" />');
 };
 
 window.onload = function () {
@@ -360,16 +396,22 @@ window.onload = function () {
 
 var wsUrl = "ws://" + window.location.hostname + ":" + window.location.port + "/ws";
 
-showInfo("Connecting...");
+showInfo("Connecting...", true);
 loop();
 
 var socket;
 
-function showInfo(text, on) {
+function showInfo(text, show, timeOut) {
     var output = document.getElementById("info-window");
     output.innerHTML = text;
-    if (on) {
+    if (show) {
         output.style.display = "block";
+        if (timeOut > 0) {
+            let hideMe = function() {
+                output.style.display = "none";
+            }
+            setTimeout(hideMe, timeOut);
+        }
     } else {
         output.style.display = "none";
     }

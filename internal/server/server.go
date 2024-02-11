@@ -103,7 +103,7 @@ func sendSysinfo() {
 		// send current time
 		msg = &ToClientMsg{
 			Target: "sysinfo-time",
-			Data:   time.Now().Format("2006-01-02 15:04:05"),
+			Data:   time.Now().Format("Date: 2006-01-02 15:04:05"),
 		}
 		data, _ = json.Marshal(msg)
 
@@ -116,7 +116,7 @@ func sendSysinfo() {
 		la, _ := sysstats.GetLoadAvg()
 		msg = &ToClientMsg{
 			Target: "sysinfo-la",
-			Data:   fmt.Sprintf("LoadAvg: %.2f, %.2f, %.2f", la.Avg1, la.Avg5, la.Avg15),
+			Data:   fmt.Sprintf("LA: %.2f, %.2f, %.2f", la.Avg1, la.Avg5, la.Avg15),
 		}
 		data, _ = json.Marshal(msg)
 
@@ -129,7 +129,7 @@ func sendSysinfo() {
 		mem, _ := sysstats.GetMemStats()
 		msg = &ToClientMsg{
 			Target: "sysinfo-mem",
-			Data:   fmt.Sprintf("RAM used %d of %d MB", (mem["memused"]-mem["cached"]-mem["buffers"])/1024, mem["memtotal"]/1024),
+			Data:   fmt.Sprintf("Free: %d of %d MBytes", (mem["memused"]-mem["cached"]-mem["buffers"])/1024, mem["memtotal"]/1024),
 		}
 		data, _ = json.Marshal(msg)
 
