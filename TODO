@@ -1,7 +1,10 @@
 - config button
-- add new sensors
 - rescan
 - more widget types
 - system info: mem, date, uptime, la
 - safe html bugz
 - why second connected browser restarts on ws ops?
+- new group
+- restore prev config
+- config files location?
+- sensor edir/create preview

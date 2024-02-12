@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/maxb-odessa/nonsens/internal/sensors"
 	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
@@ -39,23 +40,28 @@ func processFeedback(data []byte) {
 	}
 	slog.Info("GOT: %+v", msg)
 
-	// modify sensor
 	if msg.Sensor != nil {
+		// modify sensor
 		needRefresh = modifySensor(msg.Id, msg.Action, msg.Sensor)
 	} else if msg.Group != nil {
+		// modify group
 		needRefresh = modifyGroup(msg.Id, msg.Action, msg.Group)
 	} else {
+		// settings command, not related to group or sensor
 		switch msg.Action {
+		// save config
 		case "save":
 			if err := conf.Save(); err != nil {
-				slog.Err("Config file save failed: %s", err)
+				errMsg := fmt.Sprintf("Config file save failed: %s", err)
+				slog.Err(errMsg)
+				sendInfo(errMsg)
+			} else {
+				sendInfo("Config saved")
 			}
-		case "rescan":
-			// TODO rescan all sensors
+		// TODO scan for sensors
+		case "scan":
+		// TODO reload config
 		case "reload":
-			// TODO reload config
-		case "new":
-			// new sensor, also make a group for it
 		default:
 			slog.Err("undefined feedback action '%s'", msg.Action)
 			return
@@ -75,13 +81,23 @@ func processFeedback(data []byte) {
 func modifySensor(id string, action string, sData *SensorData) bool {
 	var needReconfig bool
 
+	// add new sensor
+	if action == "new" {
+		sData.Sensor.Prepare()
+		_, _, gr := conf.FindGroupById(sData.GroupId)
+		conf.AddSensor(sData.Sensor, gr)
+		sensors.SetupSensor(sData.Sensor)
+		sData.Sensor.Start(sensors.Chan())
+		return true
+	}
+
+	// assume the sensor is always modified
+
 	gr, se := conf.FindSensorById(id)
 	if se == nil {
 		slog.Warn("sensor id '%s' not found", id)
 		return false
 	}
-
-	// assume the sensor is always modified
 
 	if action == "remove" {
 		se.Stop()
@@ -92,10 +108,6 @@ func modifySensor(id string, action string, sData *SensorData) bool {
 
 	se.Lock()
 	defer se.Unlock()
-
-	if action == "new" {
-		// TODO add new sensor
-	}
 
 	// device or input file changed - reconfig sensors
 	if se.Options.Device != sData.Sensor.Options.Device || se.Options.Input != sData.Sensor.Options.Input {

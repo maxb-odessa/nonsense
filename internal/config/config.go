@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
+	"github.com/maxb-odessa/nonsens/internal/utils"
 	"github.com/maxb-odessa/slog"
 )
 
@@ -28,6 +29,10 @@ func (g *Group) Id() string {
 
 func (g *Group) SetId(id string) {
 	g.id = id
+}
+
+func (g *Group) SetName(name string) {
+	g.Name = name
 }
 
 type Column struct {
@@ -218,4 +223,21 @@ func (c *Config) MoveSensorToGroupTop(s *sensor.Sensor) bool {
 	}
 
 	return false
+}
+
+func (c *Config) AddSensor(se *sensor.Sensor, gr *Group) {
+	var g *Group
+
+	// make new group if not specified
+	if gr == nil {
+		g = new(Group)
+		g.SetId(utils.MakeUID())
+		g.SetName(se.Name)
+		g.Sensors = make([]*sensor.Sensor, 0)
+		c.AddGroup(0, g) // add new group to column 0
+	} else {
+		g = gr
+	}
+
+	g.Sensors = append(g.Sensors, se)
 }

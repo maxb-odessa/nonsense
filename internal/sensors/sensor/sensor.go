@@ -2,9 +2,7 @@ package sensor
 
 import (
 	"context"
-	"crypto/md5"
 	"encoding/json"
-	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -12,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/maxb-odessa/nonsens/internal/utils"
 	"github.com/maxb-odessa/slog"
 )
 
@@ -55,6 +54,7 @@ type Sensor struct {
 		Fractions int    `json:"fractions"` // show only this number of value fractions, i.e. 2 = 1.23 for 1.23456 value
 		Color     string `json:"color"`     // text color
 		Color0    string `json:"color0"`    // min value color (at 0%)
+		ColorN    string `json:"colorN"`    // min value color (at 0%)
 		Color100  string `json:"color100"`  // max value color (at 100%)
 	} `json:"widget"`
 }
@@ -89,7 +89,7 @@ func (s *Sensor) Active() bool {
 }
 
 func (s *Sensor) Prepare() {
-	s.pvt.id = fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String())))
+	s.pvt.id = utils.MakeUID()
 	s.pvt.done = make(chan bool, 0)
 }
 

@@ -1,14 +1,13 @@
 package sensors
 
 import (
-	"crypto/md5"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
+	"github.com/danwakefield/fnmatch"
 	"github.com/maxb-odessa/nonsens/internal/config"
 	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
 	"github.com/maxb-odessa/nonsens/internal/utils"
@@ -58,7 +57,7 @@ func setupAllSensors(conf *config.Config) error {
 					slog.Info("Configured sensor '%s', device '%s'", sens.Options.Input, sens.Options.Device)
 				}
 			}
-			grp.SetId(fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))))
+			grp.SetId(utils.MakeUID())
 		}
 	}
 
@@ -120,4 +119,75 @@ func SetupSensor(sens *sensor.Sensor) bool {
 	}
 
 	return true
+}
+
+// scan /sys/class/hwmon/hwmonX dirs and extract all the sensors found
+func ScanAllSensors() []*config.Column {
+
+	// make a list of all hwmon devices
+	devices := make(map[string][]string, 0)
+	for i := 0; i < 100; i++ {
+		dirName := fmt.Sprintf("%s/hwmon%d/", HWMON_PATH, i)
+		if !utils.IsDir(dirName) {
+			break
+		}
+		if dev, err := filepath.EvalSymlinks(dirName + "device"); err != nil {
+			slog.Warn("Could not resolve '%s': %s", dirName+"device", err)
+		} else {
+			devName := filepath.Base(dev)
+			if files, err := getDeviceInputs(dirName); err == nil {
+				devices[devName] = files
+			}
+		}
+	}
+
+	// setupp all found sensors
+	for device, inputs := range devices {
+
+		// make a group
+
+		for _, input := range inputs {
+
+			// make a sensor
+
+			se := new(sensor.Sensor)
+
+			se.Options.Device = device
+			se.Options.Input = input
+
+			if SetupSensor(se) {
+				se.Prepare()
+				// TODO add sensor to group
+			}
+		}
+
+		// add group to columns
+
+	}
+
+	return nil
+}
+
+func getDeviceInputs(dir string) ([]string, error) {
+
+	inputs := make([]string, 0)
+
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return inputs, err
+	}
+
+	// possible file names that provide sensor data
+	inputPatterns := []string{"*_input", "*_raw", "capacity", "device/capacity"}
+
+	// extract all sensors within each device
+	for _, file := range files {
+		for _, input := range inputPatterns {
+			if fnmatch.Match(input, file.Name(), fnmatch.FNM_PATHNAME) {
+				inputs = append(inputs, file.Name())
+			}
+		}
+	}
+
+	return inputs, nil
 }

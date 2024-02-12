@@ -24,11 +24,8 @@ var toClientCh chan []byte
 var wsChans map[string]chan []byte
 var wsChansLock sync.Mutex
 var templates tmpl.Tmpls
-var bodyData string
+var mainPageData string
 var conf *config.Config
-
-// uniq body id
-const BODYID = "main"
 
 func Run(cf *config.Config) error {
 	var err error
@@ -62,10 +59,10 @@ func Run(cf *config.Config) error {
 	return nil
 }
 
-// prepare the body with all groups and sensors placed
+// prepare the main page with all groups and sensors placed
 func makeBody() error {
 	var err error
-	bodyData, err = tmpl.ApplyByName("body", templates, conf)
+	mainPageData, err = tmpl.ApplyByName("main", templates, conf)
 	return err
 }
 
@@ -74,18 +71,35 @@ type ToClientMsg struct {
 	Data   string `json:"data"`
 }
 
-func sendBody() {
-
+func sendInfo(text string) {
 	msg := &ToClientMsg{
-		Target: BODYID,
-		Data:   bodyData,
+		Target: "info",
+		Data:   text,
 	}
 
 	data, _ := json.Marshal(msg)
 
-	slog.Debug(1, "sending body to server: %+v", msg)
+	slog.Debug(9, "sending info to server: %+v", msg)
 
-	// can't skip this message - it's a body!
+	select {
+	case toClientCh <- data:
+	default:
+		slog.Warn("server chan is full, discarding info message")
+	}
+}
+
+func sendBody() {
+
+	msg := &ToClientMsg{
+		Target: "main",
+		Data:   mainPageData,
+	}
+
+	data, _ := json.Marshal(msg)
+
+	slog.Debug(9, "sending main page to server: %+v", msg)
+
+	// can't skip this message - it's a main page
 	toClientCh <- data
 }
 
@@ -172,7 +186,7 @@ func sendSensorsData() {
 		data, _ := json.Marshal(msg)
 
 		// send data to the client
-		slog.Debug(5, "sending sensor to server: %+v", msg)
+		slog.Debug(9, "sending sensor to server: %+v", msg)
 		select {
 		case toClientCh <- data:
 		default:
