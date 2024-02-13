@@ -1,10 +1,8 @@
-- config button
-- rescan
-- more widget types
+- rescan - IN PROG
 - system info: mem, date, uptime, la
 - safe html bugz
 - why second connected browser restarts on ws ops?
 - new group
 - restore prev config
 - config files location?
-- sensor edir/create preview
+- use readdir() instead of fori=0, i< 100)...

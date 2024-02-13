@@ -144,20 +144,36 @@
                 max="3600.0"
                 step="0.5">
             <br>
-            <!--
-            <label for="sensor-edit-type">Widget type</label>
-            <input type="text" id="sensor-edit-type" placeholder="TBD">
-            <br>
-            -->
-            <label for="sensor-edit-color0">Widget color at 0%</label>
-            <input type="color" id="sensor-edit-color0">
-            <br>
-            <label for="sensor-edit-color100">Widget color at 100%</label>
-            <input type="color" id="sensor-edit-color100">
+            <fieldset class="widget-color-maker">
+                <legend>Widget Color</legend>
+                <div style="display: inline-block; float: left;">
+                <input id="sensor-edit-widget-color0" type="color" class="color-picker" onChange="return makeGradient();">
+                </div>
+                <input id="sensor-edit-widget-colorN" type="color" class="color-picker" onChange="return makeGradient();">
+                <div style="display: inline-block; float: right;">
+                <input id="sensor-edit-widget-color100" type="color" class="color-picker" onChange="return makeGradient();">
+                </div>
+                <br>
+                <input list="sensor-edit-widget-color-percents"
+                    class="sensor-edit-widget-color-slider"
+                    id="sensor-edit-widget-color-slider"
+                    type="range"
+                    step="1"
+                    min="0"
+                    max="100"
+                    value="50"
+                    onInput="return makeGradient();" />
+                <datalist id="sensor-edit-widget-color-percents" style="display: flex; justify-content: space-between;">
+                    <option value="0" label="0%"></option>
+                    <option value="25" label="25%"></option>
+                    <option value="50" label="50%"></option>
+                    <option value="75" label="75%"></option>
+                    <option value="100" label="100%"></option>
+                </datalist>
+            </fieldset>
             <br>
             <label for="sensor-edit-totop">Move to group top</label>
             <input type="checkbox" id="sensor-edit-totop">
-            <br>
             <br>
             <label for="sensor-edit-remove" style="color: #ff5050;">Remove sensor</label>
             <input id="sensor-edit-remove" type="checkbox" onClick="confirmation('sensor-edit-remove');">
@@ -169,57 +185,7 @@
         <button class="button" onClick="return closeSensorEditor(false);">Cancel</button>
         </div>
     </form>
-    <div>
-        SENSOR PREVIEW (TBD)
-<!--
-<div>
-    <form onSubmit="return genGradient();">
-        <fieldset>
-            <legend>Gradient Generator</legend>
-            <input id="color0" type="color" value="green">
-            <input id="colorN" type="color" value="green">
-            <input id="color100" type="color" value="green">
-            <br>
-            <input list="percents" id="slider" type="range" step="1" min="0" max="100" value="50" onInput="return genGradient();">
-            <datalist id="percents" style="display: flex; justify-content: space-between;">
-                <option value="0" label="0"></option>
-                <option value="25" label="25"></option>
-                <option value="50" label="50"></option>
-                <option value="75" label="75"></option>
-                <option value="100" label="100"></option>
-            </datalist>
-            <div id="preview"></div>
-        </fieldset>
-        <button>Ok</button>
-    </form>
 </div>
-
-<script>
-
-function genGradient() {
-    
-    var color0 = document.getElementById("color0").value;
-    var colorN = document.getElementById("colorN").value;
-    var color100 = document.getElementById("color100").value;
-    var atN = document.getElementById("slider").value;
-
-    var grad = 'background-image: linear-gradient(to right,' +color0 + ', ' + colorN + ' ' + atN +'% , ' + color100 + ');';
-console.log(grad);
-
-    var preview = document.getElementById("slider");
-
-    preview.style.cssText = 'width: 50%; height: 100px; border: 1px solid black;  -webkit-appearance: none; ';
-    preview.style.cssText += grad;
-
-    return false;
-}
-
-</script>
--->
-    </div>
-</div>
-
-
 
 <!-- settings form -->
 <div class="editor" style="z-index: 50;" id="settings-editor">
@@ -257,6 +223,22 @@ console.log(grad);
 <!--------------------- SCRIPTS ---------------------->
 <script>
 
+function makeGradient() {
+    
+    var color0 = document.getElementById("sensor-edit-widget-color0").value;
+    var colorN = document.getElementById("sensor-edit-widget-colorN").value;
+    var color100 = document.getElementById("sensor-edit-widget-color100").value;
+    var atN = document.getElementById("sensor-edit-widget-color-slider").value;
+
+    var grad = 'background-image: linear-gradient(to right,' +color0 + ', ' + colorN + ' ' + atN +'%, ' + color100 + ');';
+
+    var slider = document.getElementById("sensor-edit-widget-color-slider");
+
+    slider.style.cssText = grad;
+
+    return false;
+}
+
 function saveConfig() {
     var obj = new Object();
     obj.action = "save";
@@ -292,10 +274,14 @@ function newSensor() {
     document.getElementById("sensor-edit-poll").value = 1000.0 / 1000.0; // just to not make a mistake
     document.getElementById("sensor-edit-units").value = "Units"
     document.getElementById("sensor-edit-fractions").value = 1.0;
-    document.getElementById("sensor-edit-color0").value = "#00FF00";
-    document.getElementById("sensor-edit-color100").value = "FF0000";
+    document.getElementById("sensor-edit-widget-color0").value = "#00FF00";
+    document.getElementById("sensor-edit-widget-colorN").value = "#0000FF";
+    document.getElementById("sensor-edit-widget-color100").value = "#FF0000";
+    document.getElementById("sensor-edit-widget-color-slider").value = "50";
     document.getElementById("sensor-edit-totop").checked = false;
     document.getElementById("sensor-edit-remove").disabled = true;
+
+    makeGradient();
 
     document.getElementById("sensor-editor").style.display = 'block';
 
@@ -423,10 +409,14 @@ function editSensor(id) {
     //document.getElementById("sensor-edit-type").value = data.widget.type;
     document.getElementById("sensor-edit-units").value = data.widget.units;
     document.getElementById("sensor-edit-fractions").value = data.widget.fractions;
-    document.getElementById("sensor-edit-color0").value = data.widget.color0;
-    document.getElementById("sensor-edit-color100").value = data.widget.color100;
+    document.getElementById("sensor-edit-widget-color0").value = data.widget.color0;
+    document.getElementById("sensor-edit-widget-colorN").value = data.widget.colorn;
+    document.getElementById("sensor-edit-widget-color100").value = data.widget.color100;
+    document.getElementById("sensor-edit-widget-color-slider").value = data.widget.colornp;
     document.getElementById("sensor-edit-totop").checked = false;
     document.getElementById("sensor-edit-remove").checked = false;
+
+    makeGradient();
 
     document.getElementById("sensor-editor").style.display = 'block';
 
@@ -457,9 +447,10 @@ function closeSensorEditor(isOk) {
     obj3.options.poll = Number(document.getElementById("sensor-edit-poll").value) * 1000;
     obj3.widget.fractions = Number(document.getElementById("sensor-edit-fractions").value);
     obj3.widget.units = document.getElementById("sensor-edit-units").value;
-    //obj3.widget.type = document.getElementById("sensor-edit-type").value;
-    obj3.widget.color0 = document.getElementById("sensor-edit-color0").value;
-    obj3.widget.color100 = document.getElementById("sensor-edit-color100").value;
+    obj3.widget.color0 = document.getElementById("sensor-edit-widget-color0").value;
+    obj3.widget.colorn = document.getElementById("sensor-edit-widget-colorN").value;
+    obj3.widget.color100 = document.getElementById("sensor-edit-widget-color100").value;
+    obj3.widget.colornp = Number(document.getElementById("sensor-edit-widget-color-slider").value);
 
     obj2.sensor = obj3;
     obj2.groupid = document.getElementById("sensor-edit-group").value;

@@ -54,8 +54,9 @@ type Sensor struct {
 		Fractions int    `json:"fractions"` // show only this number of value fractions, i.e. 2 = 1.23 for 1.23456 value
 		Color     string `json:"color"`     // text color
 		Color0    string `json:"color0"`    // min value color (at 0%)
-		ColorN    string `json:"colorN"`    // min value color (at 0%)
+		ColorN    string `json:"colorn"`    // min value color (at N%)
 		Color100  string `json:"color100"`  // max value color (at 100%)
+		ColorNP   int    `json:"colornp"`   // colorN percents position
 	} `json:"widget"`
 }
 
