@@ -10,7 +10,7 @@ Description = NonSENS: yet another sensors monitor
 [Service]
 Type = simple
 StandardOutput = journal
-ExecStart = %h/.local/bin/nonsens -d 9 -c %h/.local/etc/nonsens.json
+ExecStart = %h/.local/bin/nonsens -c %h/.local/etc/nonsens.json
 
 [Install]
 WantedBy=default.target

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/maxb-odessa/nonsens/internal/config"
 	"github.com/maxb-odessa/nonsens/internal/sensors"
 	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
 	"github.com/maxb-odessa/nonsens/internal/utils"
@@ -143,6 +144,15 @@ func modifySensor(id string, action string, sData *SensorData) bool {
 
 func modifyGroup(id string, action string, gData *GroupData) bool {
 	modified := false
+
+	// add new sensor
+	if action == "new" {
+		gr := new(config.Group)
+		gr.SetName(gData.Name)
+		gr.SetId(utils.MakeUID())
+		conf.AddGroup(gData.Column, gr)
+		return true
+	}
 
 	ci, _, gr := conf.FindGroupById(id)
 	if gr == nil {

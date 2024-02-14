@@ -1,7 +1,6 @@
 package sensors
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -19,27 +18,25 @@ const (
 	HWMON_PATH = "/sys/class/hwmon"
 )
 
+// TODO duplicate code!
+
 // find device real dir under /sys
 func findSensorDir(device string) string {
 
-	// dirty trick, but this is much easier than call WalkDir()
-	for i := 0; i < 100; i++ {
+	dirs, err := os.ReadDir(HWMON_PATH)
+	if err != nil {
+		slog.Err("scan of '%s' failed: %s", err)
+		return ""
+	}
 
-		// compose dir path
-		dirName := fmt.Sprintf("%s/hwmon%d/", HWMON_PATH, i)
-
-		// stop if dir doesn't exist
-		if !utils.IsDir(dirName) {
-			break
-		}
-
+	for _, dir := range dirs {
 		// is this really our device?
+		dirName := HWMON_PATH + "/" + dir.Name() + "/"
 		if dev, err := filepath.EvalSymlinks(dirName + "device"); err != nil {
 			slog.Warn("Could not resolve '%s': %s", dirName+"device", err)
 		} else if filepath.Base(dev) == device {
 			return dirName
 		}
-
 	}
 
 	return ""
@@ -75,7 +72,7 @@ func SetupSensor(sens *sensor.Sensor) bool {
 
 	dir := findSensorDir(sens.Options.Device)
 	if dir == "" {
-		slog.Warn("Failed to find sensor '%s/%/%s' dir", sens.Name, sens.Options.Device, sens.Options.Input)
+		slog.Warn("Failed to find sensor '%s/%s/%s' dir", sens.Name, sens.Options.Device, sens.Options.Input)
 		sens.SetInput("")
 		return false
 	}
@@ -126,11 +123,15 @@ func ScanAllSensors() []*config.Column {
 
 	// make a list of all hwmon devices
 	devices := make(map[string][]string, 0)
-	for i := 0; i < 100; i++ {
-		dirName := fmt.Sprintf("%s/hwmon%d/", HWMON_PATH, i)
-		if !utils.IsDir(dirName) {
-			break
-		}
+
+	dirs, err := os.ReadDir(HWMON_PATH)
+	if err != nil {
+		slog.Err("scan of '%s' failed: %s", err)
+		return nil
+	}
+
+	for _, dir := range dirs {
+		dirName := HWMON_PATH + "/" + dir.Name() + "/"
 		if dev, err := filepath.EvalSymlinks(dirName + "device"); err != nil {
 			slog.Warn("Could not resolve '%s': %s", dirName+"device", err)
 		} else {
@@ -161,7 +162,7 @@ func ScanAllSensors() []*config.Column {
 			}
 		}
 
-		// add group to columns
+		// add group to columns if not empty
 
 	}
 

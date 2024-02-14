@@ -2,7 +2,5 @@
 - system info: mem, date, uptime, la
 - safe html bugz
 - why second connected browser restarts on ws ops?
-- new group
 - restore prev config
 - config files location?
-- use readdir() instead of fori=0, i< 100)...

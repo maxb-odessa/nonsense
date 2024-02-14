@@ -1,9 +1,9 @@
 {
     "server": {
         "listen": ":12345",
-        "resources": "$HOME/.local/share/nonsens",
-        "sysinfo poll" : 10
+        "resources": "$HOME/.local/share/nonsens"
     },
+    "sysinfo poll": 10,
     "columns": [
         {
             "groups": [
@@ -27,11 +27,13 @@
                                 "fractions": 0,
                                 "color": "",
                                 "color0": "#1a5fb4",
-                                "color100": "#ff0000"
+                                "colorn": "#99c1f1",
+                                "color100": "#ff0000",
+                                "colornp": 60
                             }
                         },
                         {
-                            "name": "fan\u0026nbsp;speed",
+                            "name": "fan speed",
                             "offline": false,
                             "options": {
                                 "device": "hp-wmi",
@@ -46,8 +48,32 @@
                                 "units": "rpm",
                                 "fractions": 0,
                                 "color": "",
-                                "color0": "#8ff0a4",
-                                "color100": "#ff7800"
+                                "color0": "#000000",
+                                "colorn": "#000000",
+                                "color100": "#ff0000",
+                                "colornp": 47
+                            }
+                        },
+                        {
+                            "name": "iGPU power",
+                            "offline": false,
+                            "options": {
+                                "device": "0000:09:00.0",
+                                "input": "power1_input",
+                                "min": 0,
+                                "max": 120,
+                                "divider": 1000000,
+                                "poll": 1500
+                            },
+                            "widget": {
+                                "type": "",
+                                "units": "Watts",
+                                "fractions": 0,
+                                "color": "",
+                                "color0": "#040620",
+                                "colorn": "#9a9996",
+                                "color100": "#efd611",
+                                "colornp": 46
                             }
                         }
                     ]
@@ -71,8 +97,10 @@
                                 "units": "%",
                                 "fractions": 0,
                                 "color": "",
-                                "color0": "#c64600",
-                                "color100": "#00ff00"
+                                "color0": "#ff0000",
+                                "colorn": "#efd611",
+                                "color100": "#00ff00",
+                                "colornp": 23
                             }
                         },
                         {
@@ -91,8 +119,10 @@
                                 "units": "Volts",
                                 "fractions": 1,
                                 "color": "",
-                                "color0": "#c64600",
-                                "color100": "#00ff00"
+                                "color0": "#ff0000",
+                                "colorn": "#d0dc1a",
+                                "color100": "#00ff00",
+                                "colornp": 23
                             }
                         }
                     ]
@@ -121,11 +151,13 @@
                                 "fractions": 0,
                                 "color": "",
                                 "color0": "#1a5fb4",
-                                "color100": "#ff0000"
+                                "colorn": "#99c1f1",
+                                "color100": "#ff0000",
+                                "colornp": 59
                             }
                         },
                         {
-                            "name": "fan\u0026nbsp;speed",
+                            "name": "fan speed",
                             "offline": false,
                             "options": {
                                 "device": "hp-wmi",
@@ -140,8 +172,10 @@
                                 "units": "rpm",
                                 "fractions": 0,
                                 "color": "",
-                                "color0": "#8ff0a4",
-                                "color100": "#ff7800"
+                                "color0": "#000000",
+                                "colorn": "#000000",
+                                "color100": "#ff0000",
+                                "colornp": 50
                             }
                         },
                         {
@@ -160,8 +194,10 @@
                                 "units": "Watts",
                                 "fractions": 0,
                                 "color": "",
-                                "color0": "#33d17a",
-                                "color100": "#ff0000"
+                                "color0": "#040620",
+                                "colorn": "#9a9996",
+                                "color100": "#efd611",
+                                "colornp": 47
                             }
                         }
                     ]
@@ -185,8 +221,10 @@
                                 "units": "\u0026deg;C",
                                 "fractions": 0,
                                 "color": "",
-                                "color0": "#1a5fb4",
-                                "color100": "#ff0000"
+                                "color0": "#0a64f5",
+                                "colorn": "#99c1f1",
+                                "color100": "#ff0000",
+                                "colornp": 64
                             }
                         }
                     ]

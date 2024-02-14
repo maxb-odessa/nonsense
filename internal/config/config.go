@@ -139,6 +139,10 @@ func (c *Config) AddColumn() {
 }
 
 func (c *Config) AddGroup(ci int, gr *Group) {
+	if len(c.Columns) <= ci {
+		c.AddColumn()
+		ci = len(c.Columns) - 1 // to prevent overflow (i.e. column #7 was request when we have only 2)
+	}
 	c.Columns[ci].Groups = append(c.Columns[ci].Groups, gr)
 }
 
