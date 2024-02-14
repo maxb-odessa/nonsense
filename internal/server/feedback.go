@@ -73,8 +73,8 @@ func processFeedback(data []byte) {
 	if needRefresh {
 		// delete all empty columns, etc
 		conf.Sanitize()
-		makeBody()
-		sendBody()
+		makeMainPage()
+		sendMainPage()
 	}
 
 }

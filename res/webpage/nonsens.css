@@ -11,6 +11,7 @@ body {
     background-image: url('bg-gray.jpg');
     background-repeat: no-repeat;
     background-size: cover;
+    background-size: 100vw 100vh;
     /*background-attachment: fixed;*/
     height: 100vh; /* Fallback for browsers that do not support Custom Properties */
     height: calc(var(--vh, 1vh) * 100);
@@ -92,9 +93,6 @@ div.widget_text {
     background: transparent;
 }
 
-.sysinfo {
-}
-
 div.editor {
     width: 50%;
     display: none;
@@ -166,8 +164,18 @@ div.info-window {
     color: black;
 }
 
+div.sysinfo-hostname {
+    border: 2px outset white;
+    border-radius: 5px;
+    color: white;
+    background: rgba(50, 50, 50, 0.9);
+    margin: 3px;
+    text-align: center;
+}
+
+
 div.sysinfo-time {
-    border: 1px outset white;
+    border: 2px outset white;
     border-radius: 5px;
     color: white;
     background: rgba(50, 50, 50, 0.9);
@@ -176,7 +184,7 @@ div.sysinfo-time {
 }
 
 div.sysinfo-la {
-    border: 1px outset white;
+    border: 2px outset white;
     border-radius: 6px;
     color: white;
     background: rgba(50, 50, 50, 0.9);
@@ -185,7 +193,7 @@ div.sysinfo-la {
 }
 
 div.sysinfo-mem {
-    border: 1px outset white;
+    border: 2px outset white;
     border-radius: 6px;
     color: white;
     background: rgba(50, 50, 50, 0.9);
@@ -194,22 +202,21 @@ div.sysinfo-mem {
 }
 
 div.sysinfo-settings {
-    text-align: center;
-    display: inline-block;
-    margin: 0;
-    padding: 0;
+    background: transparent;
+    width: 100%;
+    height: 100%;
 }
 
-button.settings {
-    border: 1px outset white;
-    border-radius: 6px;
-    margin: 3px;
-    /*background: rgba(100, 100, 100, 0.9);*/
-    display: inline-block;
-    width: 90%;
+input.settings {
+    padding: 0;
+    border: 0;
+    float: right;
+    width: 100%;
+    height: 100%;
     background: url('/gear.png');
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size: contain;
+    background-position: center right;
 }
 
 fieldset.widget-color-maker {

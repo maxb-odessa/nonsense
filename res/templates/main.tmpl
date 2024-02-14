@@ -1,19 +1,20 @@
 <thead>
     <tr>
-        <td class="sysinfo" colspan="{{ len .Columns }}">
-            <div style="display: inline-grid; grid-template-columns: 32% 32% 32% auto; grid-template-rows: 100%; width: 100%; height: 5%;">
+        <td class="sysinfo" colspan="{{ len .Config.Columns }}">
+            <div style="display: inline-grid; grid-template-columns: 24% 24% 24% 24% auto; grid-template-rows: 100%; width: 100%; height: 5%;">
+                <div class="sysinfo-hostname" id="sysinfo-hostname">{{ .HostName }}</div>
                 <div class="sysinfo-time" id="sysinfo-time"></div>
                 <div class="sysinfo-la" id="sysinfo-la"></div>
                 <div class="sysinfo-mem" id="sysinfo-mem"></div>
-                <div class="sysinfo-settings"><button class="settings" onClick="return showSettings();" alt="Settings">&nbsp;</button></div>
-            </div>
+                <div class="sysinfo-settings"><input type="button" class="settings" onClick="return showSettings();" title="Settings"></div>
+            <div>
         </td>
     </tr>
 </thead>
 
 <tbody>
-    <tr id="columns" data-columns-num="{{ len .Columns }}">
-    {{ range $ci, $column := .Columns }}
+    <tr id="columns" data-columns-num="{{ len .Config.Columns }}">
+    {{ range $ci, $column := .Config.Columns }}
 
         <td
             class="column"
@@ -42,7 +43,7 @@
                             name="sensor"
                             data-sensor-name="{{ $sensor.Name }}"
                             data-group-id="{{ $group.Id }}"
-                            title="click to edit this sensor"
+                            title="click to edit or move this sensor"
                             onClick="editSensor('{{ $sensor.Id }}');">
                         </div>
                     {{ end }}

@@ -220,6 +220,11 @@
 <script>
 
 function scanSensors() {
+    showInfo("Scanning for existing sensors...", true, 2000);
+    var obj = new Object();
+    obj.action = "scan";
+    var js = JSON.stringify(obj);
+    socket.send(js);
     return false;
 }
 

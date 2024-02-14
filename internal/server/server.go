@@ -6,6 +6,7 @@ import (
 	"mime"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -43,7 +44,7 @@ func Run(cf *config.Config) error {
 		return err
 	}
 
-	if err = makeBody(); err != nil {
+	if err = makeMainPage(); err != nil {
 		return err
 	}
 
@@ -60,9 +61,28 @@ func Run(cf *config.Config) error {
 }
 
 // prepare the main page with all groups and sensors placed
-func makeBody() error {
+func makeMainPage() error {
 	var err error
-	mainPageData, err = tmpl.ApplyByName("main", templates, conf)
+
+	type PageData struct {
+		HostName string
+		Config   *config.Config
+	}
+
+	hostName, err := os.Hostname()
+	if err != nil {
+		if hostName = os.Getenv("HOSTNAME"); hostName == "" {
+			hostName = "(unknown)"
+		}
+	}
+
+	data := PageData{
+		HostName: strings.ToUpper(hostName),
+		Config:   conf,
+	}
+
+	mainPageData, err = tmpl.ApplyByName("main", templates, data)
+
 	return err
 }
 
@@ -88,7 +108,11 @@ func sendInfo(text string) {
 	}
 }
 
-func sendBody() {
+func GetHostName() string {
+	return "HostName Here"
+}
+
+func sendMainPage() {
 
 	msg := &ToClientMsg{
 		Target: "main",
@@ -239,7 +263,7 @@ func server() {
 
 		go reader()
 
-		go sendBody() // this blocks if chan is full
+		go sendMainPage() // this blocks if chan is full
 
 		for {
 			select {
