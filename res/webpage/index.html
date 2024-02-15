@@ -91,6 +91,13 @@
                 pattern="[0-9a-zA-Z]{1}[\-0-9a-zA-Z:_.\/]{0,27}"
                 title="1 to 28 chars of [0-9a-zA-Z:_.\/] starting with alpha-num">
             <br>
+            <label for="sensor-edit-divider">Input value divider</label>
+            <input
+                type="number"
+                id="sensor-edit-divider"
+                required
+                step="0.00000001">
+            <br>
             <label for="sensor-edit-min">Minimal value</label>
             <input
                 type="number"
@@ -102,13 +109,6 @@
             <input
                 type="number"
                 id="sensor-edit-max"
-                required
-                step="0.00000001">
-            <br>
-            <label for="sensor-edit-divider">Value divider</label>
-            <input
-                type="number"
-                id="sensor-edit-divider"
                 required
                 step="0.00000001">
             <br>

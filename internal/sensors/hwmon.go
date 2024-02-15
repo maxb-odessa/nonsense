@@ -195,6 +195,9 @@ func guessSensorOptions(sens *sensor.Sensor) {
 		}
 	}
 
+	sens.Options.Min /= sens.Options.Divider
+	sens.Options.Max /= sens.Options.Divider
+
 }
 
 func getDeviceInputs(dir string) []string {

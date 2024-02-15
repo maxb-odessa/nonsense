@@ -26,11 +26,11 @@ type Sensor struct {
 		id             string    // uniq id
 		input          string    // full path to sensor input file, may vary across reboots
 		fractionsRatio float64   // calculated fractions ratio to be shown
+		percentier     float64   // calculated (max - min ) * 100
 	} `json:"-"`
 
 	// runtime data, not for save
 	Runtime struct {
-		Min, Max     float64 // min and max values adjusted by divider
 		Dir          string  // full path to sensor dir (may change over boot so it's not persistent)
 		Value        float64 // current read value
 		Percents     float64 // calculated percents (based on Value and Min/Max)
@@ -132,13 +132,12 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 		sens.pvt.fractionsRatio = math.Pow(10, float64(sens.Widget.Fractions))
 	}
 
-	if sens.Options.Min > sens.Options.Max {
-		slog.Info("forcing sensor '%s' min/max to %f", sens.Name, sens.Options.Max)
-		sens.Options.Min = sens.Options.Max
+	if sens.Options.Min >= sens.Options.Max {
+		sens.Options.Max = sens.Options.Min + 1
+		slog.Info("forcing sensor '%s' min/max to %f/%f", sens.Name, sens.Options.Min, sens.Options.Max)
 	}
 
-	sens.Runtime.Min = sens.Options.Min / sens.Options.Divider
-	sens.Runtime.Max = sens.Options.Max / sens.Options.Divider
+	sens.pvt.percentier = (sens.Options.Max - sens.Options.Min) / 100.0
 
 	//sens.Name = utils.SafeHTML(sens.Name)
 
@@ -162,11 +161,11 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 				// this senseor is operational
 				sens.Offline = false
 
-				sens.Runtime.Value = value
-
 				// apply divider if defined
 				if sens.Options.Divider != 1.0 {
 					sens.Runtime.Value = value / sens.Options.Divider
+				} else {
+					sens.Runtime.Value = value
 				}
 
 				// round to fractions if defined
@@ -175,16 +174,15 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 				} else {
 					sens.Runtime.Value = math.Round(sens.Runtime.Value)
 				}
-				// calc percents if we can
-				if sens.Runtime.Min != sens.Runtime.Max {
-					sens.Runtime.Percents = sens.Runtime.Value / (sens.Runtime.Max - sens.Runtime.Min) * 100.0
-					if sens.Runtime.Percents > 100.0 {
-						sens.Runtime.Percents = 100.0
-						slog.Warn("Max value for sensor '%s' is too low (%f < %f)", sens.Name, sens.Options.Max, sens.Runtime.Value)
-						// TODO auto adjust Max limit?
-					}
-					sens.Runtime.AntiPercents = 100.0 - sens.Runtime.Percents
+
+				// calc percents
+				sens.Runtime.Percents = (sens.Runtime.Value - sens.Options.Min) / sens.pvt.percentier
+				if sens.Runtime.Percents > 100.0 {
+					sens.Runtime.Percents = 100.0
+					//slog.Warn("Max value for sensor '%s' is too low: value=%f, max=%f)", sens.Name, sens.Runtime.Value, sens.Options.Max)
+					// TODO auto adjust Max limit?
 				}
+				sens.Runtime.AntiPercents = 100.0 - sens.Runtime.Percents
 
 				sens.Unlock()
 

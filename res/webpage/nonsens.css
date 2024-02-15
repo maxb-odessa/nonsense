@@ -144,7 +144,7 @@ div.editor select {
 }
 
 #settings-editor {
-    width: 20%;
+    width: auto;
     justify-content: center;
 }
 
