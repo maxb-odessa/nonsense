@@ -13,17 +13,26 @@ func Chan() chan *sensor.Sensor {
 
 func Run(conf *config.Config) error {
 
+	sensChan = make(chan *sensor.Sensor, 64)
+
 	// configure sensors via hwmon kernel subsystem
 	if err := setupAllSensors(conf); err != nil {
 		return err
 	}
 
-	sensChan = make(chan *sensor.Sensor, 64)
+	StartAllSensors(conf)
 
-	// start sensors
+	return nil
+}
+
+func StartAllSensors(conf *config.Config) {
 	for _, sens := range conf.AllSensors() {
 		sens.Start(sensChan)
 	}
+}
 
-	return nil
+func StopAllSensors(conf *config.Config) {
+	for _, sens := range conf.AllSensors() {
+		sens.Stop()
+	}
 }

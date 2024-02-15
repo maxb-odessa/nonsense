@@ -24,7 +24,7 @@ type GroupData struct {
 }
 
 type FeedbackMsg struct {
-	Action string      `json:"action"` // what to do: appply, save, show disabled, etc.
+	Action string      `json:"action"` // what to do: appply, save, scan, etc.
 	Id     string      `json:"id"`     // taget id, group or sensor
 	Sensor *SensorData `json:"sensor"`
 	Group  *GroupData  `json:"group"`
@@ -57,12 +57,31 @@ func processFeedback(data []byte) {
 				slog.Err(errMsg)
 				sendInfo(errMsg)
 			} else {
-				sendInfo("Config saved")
+				confBackup = conf
+				sendInfo("Configuration applied and saved")
 			}
-		// TODO scan for sensors
+		// scan for sensors
 		case "scan":
-		// TODO reload config
-		case "reload":
+			sendInfo("Scanning for sernsors...")
+			newConf := sensors.ScanAllSensors()
+			if newConf != nil {
+				sensors.StopAllSensors(conf)
+				newConf.ImportServerData(conf)
+				conf = newConf
+				sensors.StartAllSensors(conf)
+				needRefresh = true
+				sendInfo("Scan complete!")
+			} else {
+				sendInfo("Scan failed...")
+			}
+		case "restore":
+			if conf != confBackup {
+				conf = confBackup
+				needRefresh = true
+				sendInfo("Configuration restored!")
+			} else {
+				sendInfo("No recent changes")
+			}
 		default:
 			slog.Err("undefined feedback action '%s'", msg.Action)
 			return

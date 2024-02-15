@@ -1,6 +1,7 @@
-- rescan - IN PROG
 - system info: mem, date, uptime, la
 - safe html bugz
 - why second connected browser restarts on ws ops?
-- restore prev config
-- config files location?
+- config files location? SPLIT CONFIG AND SENSORS DATA JSON
+- more accurate divider and units prediction
+- help page
+- more info popups (after scan with hints, value too large, etc)

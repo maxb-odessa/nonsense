@@ -27,11 +27,13 @@ var wsChansLock sync.Mutex
 var templates tmpl.Tmpls
 var mainPageData string
 var conf *config.Config
+var confBackup *config.Config
 
 func Run(cf *config.Config) error {
 	var err error
 
 	conf = cf
+	confBackup = conf
 
 	mime.AddExtensionType(".css", "text/css")
 	toClientCh = make(chan []byte, 32)

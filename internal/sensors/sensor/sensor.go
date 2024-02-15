@@ -30,8 +30,10 @@ type Sensor struct {
 
 	// runtime data, not for save
 	Runtime struct {
+		Min, Max     float64 // min and max values adjusted by divider
+		Dir          string  // full path to sensor dir (may change over boot so it's not persistent)
 		Value        float64 // current read value
-		Percents     float64 // calculated percents (based on Min and Max)
+		Percents     float64 // calculated percents (based on Value and Min/Max)
 		AntiPercents float64 // = (100 - percents) used for gauges
 	} `json:"-"`
 
@@ -49,7 +51,6 @@ type Sensor struct {
 	} `json:"options"`
 
 	Widget struct {
-		Type      string `json:"type"`      // gauge, static, text, blink, etc (TBD)
 		Units     string `json:"units"`     // suffix shown value with units string
 		Fractions int    `json:"fractions"` // show only this number of value fractions, i.e. 2 = 1.23 for 1.23456 value
 		Color     string `json:"color"`     // text color
@@ -94,6 +95,17 @@ func (s *Sensor) Prepare() {
 	s.pvt.done = make(chan bool, 0)
 }
 
+func (s *Sensor) SetDefaults() {
+	s.Options.Divider = 1.0
+	s.Options.Poll = 1000
+	s.Widget.Units = "units"
+	s.Widget.Fractions = 1
+	s.Widget.Color0 = "#00FF00"
+	s.Widget.ColorN = "#FFFF00"
+	s.Widget.Color100 = "#FF0000"
+	s.Widget.ColorNP = 50
+}
+
 func (sens *Sensor) Start(sensChan chan *Sensor) error {
 
 	// already running
@@ -124,6 +136,9 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 		slog.Info("forcing sensor '%s' min/max to %f", sens.Name, sens.Options.Max)
 		sens.Options.Min = sens.Options.Max
 	}
+
+	sens.Runtime.Min = sens.Options.Min / sens.Options.Divider
+	sens.Runtime.Max = sens.Options.Max / sens.Options.Divider
 
 	//sens.Name = utils.SafeHTML(sens.Name)
 
@@ -161,8 +176,8 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 					sens.Runtime.Value = math.Round(sens.Runtime.Value)
 				}
 				// calc percents if we can
-				if sens.Options.Min != sens.Options.Max {
-					sens.Runtime.Percents = sens.Runtime.Value / sens.Options.Max * 100.0
+				if sens.Runtime.Min != sens.Runtime.Max {
+					sens.Runtime.Percents = sens.Runtime.Value / (sens.Runtime.Max - sens.Runtime.Min) * 100.0
 					if sens.Runtime.Percents > 100.0 {
 						sens.Runtime.Percents = 100.0
 						slog.Warn("Max value for sensor '%s' is too low (%f < %f)", sens.Name, sens.Options.Max, sens.Runtime.Value)

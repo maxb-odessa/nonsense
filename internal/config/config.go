@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"time"
 
@@ -53,9 +54,18 @@ func (c *Config) Load(path string) error {
 		return err
 	}
 
+	if c.Server == nil {
+		return fmt.Errorf("Missing 'server' section in config file")
+	}
+
 	configFile = path
 
 	return nil
+}
+
+func (c *Config) ImportServerData(c2 *Config) {
+	c.Server = c2.Server
+	c.SysinfoPoll = c2.SysinfoPoll
 }
 
 func (c *Config) Save() error {
