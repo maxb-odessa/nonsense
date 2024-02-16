@@ -200,8 +200,9 @@
             <br>
             <input id="settings-restore" type="button" value="Restore prev configuration" onClick="return confirm('\tAre you sure?\n\nThis will restore prev sensors config (if exists) overwriting currently configured sensors.') && restoreConfig();">
             <br>
-            <input id="settings-save" type="button" value="Save current configuration" onClick="return confirm('\tAre you sure?\n\nThis wil replace all prev configured sensors.\nNew config file will be written.\nYou will not be able to restore prev config anymore.') && saveConfig();">
+            <input id="settings-save" type="button" value="Save current configuration" onClick="return confirm('\tAre you sure?\n\nThis will replace all prev configured sensors.\nNew config file will be written.\nYou will not be able to restore prev config anymore.') && saveConfig();">
             <br>
+            <input id="settings-help" type="button" value="Read help" onClick="return showHelpPage(true);">
        </fieldset>
        <br>
         <div class="buttons">
@@ -210,11 +211,25 @@
     </form>
 </div>
 
-
+<div id="help-page" style="display: none;" class="help-page">
+    <button class="button" style="margin: 2px; float: right;" onClick="return showHelpPage(false);">Close</button>
+    <br>
+    <object width="100%" height="100%" type="text/html" data="/help.html"</object>
+    <br>
+</div>
 
 
 <!--------------------- SCRIPTS ---------------------->
 <script>
+
+function showHelpPage(show) {
+    if (show) {
+        document.getElementById("help-page").style.display = 'block';
+    } else {
+        document.getElementById("help-page").style.display = 'none';
+    }
+    return false;
+}
 
 function scanSensors() {
     showInfo("Scanning for existing sensors...", true, 2000);
@@ -283,7 +298,7 @@ function newSensor() {
     document.getElementById("sensor-edit-min").value = 0;
     document.getElementById("sensor-edit-max").value = 99999.0;
     document.getElementById("sensor-edit-divider").value = 1.0;
-    document.getElementById("sensor-edit-poll").value = 1000.0 / 1000.0; // just to not make a mistake
+    document.getElementById("sensor-edit-poll").value = 1000.0 / 1000.0; // just to not make a mistake (value in mSec)
     document.getElementById("sensor-edit-units").value = "Units"
     document.getElementById("sensor-edit-fractions").value = 1.0;
     document.getElementById("sensor-edit-widget-color0").value = "#00FF00";
