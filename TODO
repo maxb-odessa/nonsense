@@ -1,7 +1,20 @@
+
+TUNE
 - system info: mem, date, uptime, la
-- safe html bugz
-- why second connected browser restarts on ws ops?
-- config files location? SPLIT CONFIG AND SENSORS DATA JSON
-- more accurate divider and units prediction
-- help page
+- more accurate divider and units prediction for inputs
 - more info popups (after scan with hints, value too large, etc)
+
+BUGZ
+- why second connected browser restarts on ws ops?
+- no `first scan` events on sensor start
+
+TODO
+- help page
+- advanced sensor creation: specify input file (full path) directly, i.e. 
+    /sys/devices/0020:1022:0001.0001/HID-SENSOR-200041.1.auto/iio:device0/in_illuminance_raw
+
+V2
+- config files location? SPLIT CONFIG AND SENSORS DATA JSON
+- add `execute' sensor type, to read input data from stdout of executed binary?
+- look into amdgpu/device: many many sensors we didn't detect on scan
+- dran-n-drop for groups and sensors?! css+js can do that!
