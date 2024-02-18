@@ -1,2 +1,2 @@
 # nonsens
-New Or Net Sensors monitoring tool
+New Or Not SENSors monitoring tool

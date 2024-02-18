@@ -1,4 +1,7 @@
 
+V1
+---------
+
 TUNE
 - system info: mem, date, uptime, la
 - more accurate divider and units prediction for inputs
@@ -14,7 +17,12 @@ TODO
     /sys/devices/0020:1022:0001.0001/HID-SENSOR-200041.1.auto/iio:device0/in_illuminance_raw
 
 V2
+---------
+
+TODO
 - config files location? SPLIT CONFIG AND SENSORS DATA JSON
 - add `execute' sensor type, to read input data from stdout of executed binary?
 - look into amdgpu/device: many many sensors we didn't detect on scan
-- dran-n-drop for groups and sensors?! css+js can do that!
+- dran-n-drop for groups and sensors? css+js can do that!
+- css selector: light theme, for slow browsers, etc...
+- background colors for groups
