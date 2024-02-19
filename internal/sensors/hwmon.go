@@ -129,18 +129,25 @@ func ScanAllSensors() *config.Config {
 
 func guessGroupOptions(dir string, gr *config.Group) {
 
+	namePatterns := []string{
+		"name",
+		"device/manufacturer",
+		"device/model_name",
+		"device/model",
+	}
+
 	// guess group name
-	grName := make([]string, 0)
-	for _, file := range []string{"device/manufacturer", "device/model_name", "device/model", "name"} {
+	grNames := make([]string, 0)
+	for _, file := range namePatterns {
 		if name, err := os.ReadFile(dir + file); err == nil {
-			grName = append(grName, strings.TrimSpace(string(name)))
+			grNames = append(grNames, strings.TrimSpace(string(name)))
 		}
 	}
 
-	if len(grName) > 0 {
-		gr.Name = strings.Join(grName, "/")
-		if len(gr.Name) > 24 {
-			gr.Name = gr.Name[0:24] // don't make group name too long
+	if len(grNames) > 0 {
+		gr.Name = strings.Join(grNames, "/")
+		if len(gr.Name) > 30 {
+			gr.Name = gr.Name[0:30] // don't make group name too long
 		}
 	}
 
@@ -158,45 +165,66 @@ func guessSensorOptions(sens *sensor.Sensor) {
 	}
 
 	// guess units
-	if len(sens.Options.Input) > 3 && sens.Options.Input[0:3] == "fan" {
+	inName := sens.Options.Input
+	if fparts := strings.Split(inName, "/"); len(fparts) > 1 {
+		inName = fparts[1]
+	}
+
+	if strings.HasPrefix(inName, "fan") {
 		sens.Widget.Units = "rpm"
-	} else if len(sens.Options.Input) > 4 && sens.Options.Input[0:4] == "temp" {
+	} else if strings.HasPrefix(inName, "temp") {
 		sens.Options.Divider = 1_000.0
 		sens.Widget.Units = `&deg;C`
-	} else if len(sens.Options.Input) > 4 && sens.Options.Input[0:4] == "freq" {
-		sens.Options.Divider = 1_000_000_000.
-		sens.Widget.Fractions = 3
-		sens.Widget.Units = "GHz"
-	} else if len(sens.Options.Input) > 5 && sens.Options.Input[0:5] == "power" {
+	} else if strings.HasPrefix(inName, "freq") {
 		sens.Options.Divider = 1_000_000.0
+		sens.Widget.Fractions = 2
+		sens.Widget.Units = "MHz"
+	} else if strings.HasPrefix(inName, "mem") {
+		sens.Options.Divider = 1_000_000.0
+		sens.Widget.Fractions = 2
+		sens.Widget.Units = "MBytes"
+	} else if strings.HasPrefix(inName, "power") {
+		sens.Options.Divider = 1_000_000.0
+		sens.Widget.Fractions = 1
 		sens.Widget.Units = "Watts"
-	} else if len(sens.Options.Input) > 2 && sens.Options.Input[0:2] == "in" {
+	} else if strings.HasPrefix(inName, "in") {
 		sens.Options.Divider = 1_000.0
 		sens.Widget.Fractions = 3
 		sens.Widget.Units = "Volts"
-	} else if sens.Options.Input == "device/capacity" {
+	} else if strings.HasPrefix(inName, "voltage") {
+		sens.Options.Divider = 1_000_000.0
+		sens.Widget.Fractions = 3
+		sens.Widget.Units = "Volts"
+	} else if strings.HasPrefix(inName, "capacity") {
 		sens.Widget.Fractions = 1
 		sens.Widget.Units = "%"
+	} else if strings.HasPrefix(inName, "energy") {
+		sens.Options.Divider = 1_000_000.0
+		sens.Widget.Fractions = 1
+		sens.Widget.Units = "Wh"
 	} else {
 		sens.Widget.Units = "units"
 	}
 
 	// guess sensor min/max value
 	if sens.Options.Min == 0.0 && sens.Options.Max == 0.0 {
+
 		minFile := sens.Runtime.Dir + inPrefix + "_min"
 		if min, err := os.ReadFile(minFile); err == nil {
 			sens.Options.Min, _ = strconv.ParseFloat(strings.TrimSpace(string(min)), 64) // TODO: check error
 			slog.Info("Using Min value '%f' for sensor '%s (%s)'", sens.Options.Min, sens.Options.Device, sens.Name)
 		}
+
 		maxFile := sens.Runtime.Dir + inPrefix + "_max"
 		if max, err := os.ReadFile(maxFile); err == nil {
 			sens.Options.Max, _ = strconv.ParseFloat(strings.TrimSpace(string(max)), 64) // TODO: check error
 			slog.Info("Using Max values '%f' for sensor '%s (%s)'", sens.Options.Max, sens.Options.Device, sens.Name)
 		}
-	}
 
-	sens.Options.Min /= sens.Options.Divider
-	sens.Options.Max /= sens.Options.Divider
+		sens.Options.Min /= sens.Options.Divider
+		sens.Options.Max /= sens.Options.Divider
+
+	}
 
 }
 
@@ -207,8 +235,12 @@ func getDeviceInputs(dir string) []string {
 		"*_in",
 		"*_input",
 		"*_raw",
-		"capacity",
+		"*capacity",
 		"*_now",
+		"*_used",
+		"*_use",
+		"*_average",
+		"*_avg",
 	}
 
 	inputs := make([]string, 0)
@@ -220,10 +252,12 @@ func getDeviceInputs(dir string) []string {
 	}
 
 	for _, file := range files {
+
 		for _, input := range inputPatterns {
 			if fnmatch.Match(input, file.Name(), fnmatch.FNM_PATHNAME) {
 				inputs = append(inputs, file.Name())
 			}
+
 		}
 	}
 
@@ -233,11 +267,13 @@ func getDeviceInputs(dir string) []string {
 	}
 
 	for _, file := range files2 {
+
 		for _, input := range inputPatterns {
 			if fnmatch.Match(input, file.Name(), fnmatch.FNM_PATHNAME) {
 				inputs = append(inputs, "device/"+file.Name())
 			}
 		}
+
 	}
 
 	return inputs
@@ -253,6 +289,7 @@ func findSensorDir(device string) string {
 	}
 
 	for _, dir := range dirs {
+
 		// is this really our device?
 		dirName := HWMON_PATH + "/" + dir.Name() + "/"
 		if dev, err := filepath.EvalSymlinks(dirName + "device"); err != nil {
@@ -260,6 +297,7 @@ func findSensorDir(device string) string {
 		} else if filepath.Base(dev) == device {
 			return dirName
 		}
+
 	}
 
 	return ""

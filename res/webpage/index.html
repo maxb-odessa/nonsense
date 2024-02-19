@@ -235,28 +235,28 @@ function showHelpPage(show) {
     return false;
 }
 
+// gloablly defined WS socket
+var socket;
+
 function scanSensors() {
     showInfo("Scanning for existing sensors...", true, 2000);
-    var obj = new Object();
+    let obj = new Object();
     obj.action = "scan";
-    var js = JSON.stringify(obj);
-    socket.send(js);
+    socket.send(JSON.stringify(obj));
     return false;
 }
 
 function saveConfig() {
-    var obj = new Object();
+    let obj = new Object();
     obj.action = "save";
-    var js = JSON.stringify(obj);
-    socket.send(js);
+    socket.send(JSON.stringify(obj));
     return false;
 }
 
 function restoreConfig() {
-    var obj = new Object();
+    let obj = new Object();
     obj.action = "restore";
-    var js = JSON.stringify(obj);
-    socket.send(js);
+    socket.send(JSON.stringify(obj));
     return false;
 }
 
@@ -264,14 +264,14 @@ function restoreConfig() {
 
 function makeGradient() {
     
-    var color0 = document.getElementById("sensor-edit-widget-color0").value;
-    var colorN = document.getElementById("sensor-edit-widget-colorN").value;
-    var color100 = document.getElementById("sensor-edit-widget-color100").value;
-    var atN = document.getElementById("sensor-edit-widget-color-slider").value;
+    let color0 = document.getElementById("sensor-edit-widget-color0").value;
+    let colorN = document.getElementById("sensor-edit-widget-colorN").value;
+    let color100 = document.getElementById("sensor-edit-widget-color100").value;
+    let atN = document.getElementById("sensor-edit-widget-color-slider").value;
 
-    var grad = 'background-image: linear-gradient(to right,' +color0 + ', ' + colorN + ' ' + atN +'%, ' + color100 + ');';
+    let grad = 'background-image: linear-gradient(to right,' +color0 + ', ' + colorN + ' ' + atN +'%, ' + color100 + ');';
 
-    var slider = document.getElementById("sensor-edit-widget-color-slider");
+    let slider = document.getElementById("sensor-edit-widget-color-slider");
 
     slider.style.cssText = grad;
 
@@ -285,7 +285,7 @@ function newSensor(inGroup) {
     document.getElementById("sensor-edit-new").value = "new";
 
     document.getElementById("sensor-edit-group").innerHTML = "";
-    var groups = document.getElementsByName("group");
+    let groups = document.getElementsByName("group");
     const zeroOp = document.createElement("option");
     if (inGroup) {
         zeroOp.value = document.getElementById("group-edit-id").value;
@@ -356,7 +356,7 @@ function newGroup() {
     // here: delete excess columns from option list
     // leave no more than #columns + 1 (new)
     document.getElementById("group-edit-column").innerHTML = ""
-    var colsNum = document.getElementById("columns").getAttribute("data-columns-num");
+    let colsNum = document.getElementById("columns").getAttribute("data-columns-num");
     for (let i = 0; i <= colsNum; i++) {
         const op = document.createElement("option");
         op.value = i;
@@ -386,8 +386,8 @@ function editGroup(id) {
     // here: delete excess columns from option list
     // leave no more than #columns + 1 (new)
     document.getElementById("group-edit-column").innerHTML = ""
-    var colsNum = document.getElementById("columns").getAttribute("data-columns-num");
-    var col = document.getElementById(id).getAttribute("data-column");
+    let colsNum = document.getElementById("columns").getAttribute("data-columns-num");
+    let col = document.getElementById(id).getAttribute("data-column");
     for (let i = 0; i <= colsNum; i++) {
         const op = document.createElement("option");
         op.value = i;
@@ -405,7 +405,7 @@ function editGroup(id) {
     document.getElementById("group-edit-totop").checked = false;
 
     document.getElementById("group-edit-remove").checked = false;
-    var groupLen = Number(document.getElementById(id).getAttribute("data-sensors-num"));
+    let groupLen = Number(document.getElementById(id).getAttribute("data-sensors-num"));
     if (groupLen > 0) {
         document.getElementById("group-edit-remove").disabled = "disabled";
     } else {
@@ -423,8 +423,8 @@ function closeGroupEditor(action) {
         return false;
     }
 
-    var obj1 = new Object();
-    var obj2 = new Object();
+    let obj1 = new Object();
+    let obj2 = new Object();
 
     obj2.name = document.getElementById("group-edit-name").value;
 
@@ -442,27 +442,25 @@ function closeGroupEditor(action) {
     obj1.id = document.getElementById("group-edit-id").value;
     obj1.group = obj2;
 
-    var js = JSON.stringify(obj1);
-
-    socket.send(js);
+    socket.send(JSON.stringify(obj1));
 
     return false;
 }
 
 function editSensor(id) {
-    var jdata = document.getElementById('json-'+id).innerHTML;
+    let jdata = document.getElementById('json-'+id).innerHTML;
     if (jdata == null)
         return false;
 
-    var data = JSON.parse(jdata);
+    let data = JSON.parse(jdata);
 
     document.getElementById("sensor-edit-id").value = id;
     document.getElementById("sensor-edit-new").value = "";
     document.getElementById("sensor-edit-name").value = document.getElementById(id).getAttribute("data-sensor-name");
-    var groupId = document.getElementById(id).getAttribute("data-group-id");
+    let groupId = document.getElementById(id).getAttribute("data-group-id");
 
     document.getElementById("sensor-edit-group").innerHTML = "";
-    var groups = document.getElementsByName("group");
+    let groups = document.getElementsByName("group");
     for (let i = 0; i < groups.length; i++) {
         const op = document.createElement("option");
         op.value = groups[i].getAttribute("id");
@@ -503,9 +501,9 @@ function closeSensorEditor(isOk) {
         return false;
     }
 
-    var obj1 = new Object();
-    var obj2 = new Object();
-    var obj3 = new Object();
+    let obj1 = new Object();
+    let obj2 = new Object();
+    let obj3 = new Object();
 
     obj3.options = new Object();
     obj3.widget = new Object();
@@ -540,9 +538,7 @@ function closeSensorEditor(isOk) {
     obj1.id = document.getElementById("sensor-edit-id").value;
     obj1.sensor = obj2;
 
-    var js = JSON.stringify(obj1);
-
-    socket.send(js);
+    socket.send(JSON.stringify(obj1));
 
     return false;
 };
@@ -558,17 +554,16 @@ window.onload = function () {
     loadCSS();
 };
 
-var wsUrl = "ws://" + window.location.hostname + ":" + window.location.port + "/ws";
+const wsUrl = "ws://" + window.location.hostname + ":" + window.location.port + "/ws";
 
 showInfo("Connecting...", true);
-loop();
 
-var socket;
+loop();
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 async function showInfo(text, show, timeOut) {
-    var output = document.getElementById("info-window");
+    let output = document.getElementById("info-window");
 
     if (show) {
         output.innerHTML = text;
@@ -585,9 +580,12 @@ async function showInfo(text, show, timeOut) {
 
 async function loop() {
 
+
     while (1) {
 
-        var reconnect = false;
+        let reconnect = false;
+
+        socket = {};
         socket = new WebSocket(wsUrl);
 
         socket.onopen = function() {
@@ -597,18 +595,22 @@ async function loop() {
 
         socket.onmessage = function(msg) {
             const obj = JSON.parse(msg.data);
-            var target = obj.target;
-            var data = obj.data;
+            let target = obj.target;
+            let data = obj.data;
             // informational message
             if (target === "info") {
                 showInfo(data, true, 3000);
             } else {
-                var output = document.getElementById(target);
+                let output = document.getElementById(target);
                 if (output !== null) {
                     output.innerHTML = data;
                 }
             }
         };
+
+        socket.onerror = function(ev) {
+            showInfo("WS error", true, 1000);
+        }
 
         socket.onclose = function(ev) {
             showInfo("Reconnecting...", true);
