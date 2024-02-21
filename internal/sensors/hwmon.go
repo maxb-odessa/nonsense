@@ -40,13 +40,13 @@ func setupAllSensors(conf *config.Config) error {
 func SetupSensor(sens *sensor.Sensor) bool {
 
 	if sens.Options.Device == "" || sens.Options.Input == "" {
-		slog.Warn("Ignoring invalid sensor '%s' '%s' %s'", sens.Name, sens.Options.Device, sens.Options.Input)
+		slog.Warn("Ignoring invalid sensor '%s/%s'", sens.Options.Device, sens.Options.Input)
 		return false
 	}
 
 	// update sensor dir
 	if dir := findSensorDir(sens.Options.Device); dir == "" {
-		slog.Warn("Failed to find sensor '%s/%s/%s' dir", sens.Name, sens.Options.Device, sens.Options.Input)
+		slog.Warn("Failed to find sensor '%s/%s' dir", sens.Options.Device, sens.Options.Input)
 		return false
 	} else {
 		sens.Runtime.Dir = dir
@@ -68,14 +68,14 @@ func ScanAllSensors() *config.Config {
 
 	dirs, err := os.ReadDir(HWMON_PATH)
 	if err != nil {
-		slog.Err("scan of '%s' failed: %s", err)
+		slog.Err("Scan of '%s' failed: %s", err)
 		return nil
 	}
 
 	for _, dir := range dirs {
 		dirName := HWMON_PATH + "/" + dir.Name() + "/"
 		if dev, err := filepath.EvalSymlinks(dirName + "device"); err != nil {
-			slog.Warn("Could not resolve '%s': %s", dirName+"device", err)
+			slog.Warn("Could not resolve path '%s': %s", dirName+"device", err)
 		} else {
 			devName := filepath.Base(dev)
 			if files := getDeviceInputs(dirName); len(files) > 0 {
@@ -159,9 +159,9 @@ func guessSensorOptions(sens *sensor.Sensor) {
 
 	// guess sensor name
 	if label, err := os.ReadFile(sens.Runtime.Dir + inPrefix + "_label"); err == nil {
-		sens.Name = strings.TrimSpace(string(label))
+		sens.Widget.Name = strings.TrimSpace(string(label))
 	} else {
-		sens.Name = sens.Options.Input
+		sens.Widget.Name = sens.Options.Input
 	}
 
 	// guess units
@@ -212,13 +212,13 @@ func guessSensorOptions(sens *sensor.Sensor) {
 		minFile := sens.Runtime.Dir + inPrefix + "_min"
 		if min, err := os.ReadFile(minFile); err == nil {
 			sens.Options.Min, _ = strconv.ParseFloat(strings.TrimSpace(string(min)), 64) // TODO: check error
-			slog.Info("Using Min value '%f' for sensor '%s (%s)'", sens.Options.Min, sens.Options.Device, sens.Name)
+			slog.Info("Using Min value '%f' for sensor '%s/%s'", sens.Options.Min, sens.Options.Device, sens.Options.Input)
 		}
 
 		maxFile := sens.Runtime.Dir + inPrefix + "_max"
 		if max, err := os.ReadFile(maxFile); err == nil {
 			sens.Options.Max, _ = strconv.ParseFloat(strings.TrimSpace(string(max)), 64) // TODO: check error
-			slog.Info("Using Max values '%f' for sensor '%s (%s)'", sens.Options.Max, sens.Options.Device, sens.Name)
+			slog.Info("Using Max value '%f' for sensor '%s/%s'", sens.Options.Max, sens.Options.Device, sens.Options.Input)
 		}
 
 		sens.Options.Min /= sens.Options.Divider
@@ -284,7 +284,7 @@ func findSensorDir(device string) string {
 
 	dirs, err := os.ReadDir(HWMON_PATH)
 	if err != nil {
-		slog.Err("scan of '%s' failed: %s", err)
+		slog.Err("Scan of '%s' failed: %s", err)
 		return ""
 	}
 
@@ -293,7 +293,7 @@ func findSensorDir(device string) string {
 		// is this really our device?
 		dirName := HWMON_PATH + "/" + dir.Name() + "/"
 		if dev, err := filepath.EvalSymlinks(dirName + "device"); err != nil {
-			slog.Warn("Could not resolve '%s': %s", dirName+"device", err)
+			slog.Warn("Could not resolve path '%s': %s", dirName+"device", err)
 		} else if filepath.Base(dev) == device {
 			return dirName
 		}

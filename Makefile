@@ -20,4 +20,6 @@ install:
 	cp -a etc/nonsens.json ${CONFDIR}
 	cp -a nonsens.service ${HOME}/.config/systemd/user/
 	systemctl --user daemon-reload
+	systemctl --user enable nonsens
+	systemctl --user restart nonsens
 

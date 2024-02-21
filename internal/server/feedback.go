@@ -36,10 +36,10 @@ func processFeedback(data []byte) {
 
 	err := json.Unmarshal(data, &msg)
 	if err != nil {
-		slog.Err("failed to unmarshal feedback json: %s", err)
+		slog.Err("Failed to unmarshal feedback data: %s", err)
 		return
 	}
-	slog.Info("GOT: %+v", msg)
+	slog.Debug(9, "GOT MSG: %+v", msg)
 
 	if msg.Sensor != nil {
 		// modify sensor
@@ -83,7 +83,7 @@ func processFeedback(data []byte) {
 				sendInfo("No recent changes")
 			}
 		default:
-			slog.Err("undefined feedback action '%s'", msg.Action)
+			slog.Err("Undefined feedback action '%s'", msg.Action)
 			return
 		}
 	}
@@ -115,14 +115,14 @@ func modifySensor(id string, action string, sData *SensorData) bool {
 
 	gr, se := conf.FindSensorById(id)
 	if se == nil {
-		slog.Warn("sensor id '%s' not found", id)
+		slog.Warn("Sensor id '%s' not found", id)
 		return false
 	}
 
 	if action == "remove" {
 		se.Stop()
 		conf.RemoveSensor(se)
-		slog.Info("Removed sensor '%s' '%s' '%s'", se.Name, se.Options.Device, se.Options.Input)
+		slog.Info("Removed sensor '%s'", se.Name)
 		return true
 	}
 
@@ -134,7 +134,7 @@ func modifySensor(id string, action string, sData *SensorData) bool {
 		needReconfig = true
 	}
 
-	se.Name = utils.SafeHTML(sData.Sensor.Name)
+	se.Widget.Name = utils.SafeHTML(sData.Sensor.Widget.Name)
 	//se.Name = sData.Sensor.Name
 
 	se.Options = sData.Sensor.Options
@@ -175,7 +175,7 @@ func modifyGroup(id string, action string, gData *GroupData) bool {
 
 	ci, _, gr := conf.FindGroupById(id)
 	if gr == nil {
-		slog.Warn("group '%s' not found", id)
+		slog.Warn("Group id '%s' not found", id)
 		return false
 	}
 

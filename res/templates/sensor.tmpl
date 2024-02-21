@@ -3,7 +3,7 @@
 {{ else }}
 <div class="sensor">
 {{ end }}
-    <i>{{ .Name }}</i>
+    <i>{{ .Widget.Name }}</i>
     <div class="widget_text">{{ .Runtime.Value }}&nbsp;{{ .Widget.Units }}
         <div class="widget" style="clip-path: inset(0 {{ .Runtime.AntiPercents }}% 0 0); background: linear-gradient(to right, {{ .Widget.Color0 }}, {{ .Widget.ColorN }} {{ .Widget.ColorNP }}%, {{ .Widget.Color100 }});">
             <div class="widget_text">{{ .Runtime.Value }}&nbsp;{{ .Widget.Units }}

@@ -21,13 +21,15 @@ import (
 	"github.com/maxb-odessa/slog"
 )
 
-var toClientCh chan []byte
-var wsChans map[string]chan []byte
-var wsChansLock sync.Mutex
-var templates tmpl.Tmpls
-var mainPageData string
-var conf *config.Config
-var confBackup *config.Config
+var (
+	toClientCh   chan []byte
+	wsChans      map[string]chan []byte
+	wsChansLock  sync.Mutex
+	templates    tmpl.Tmpls
+	mainPageData string
+	conf         *config.Config
+	confBackup   *config.Config
+)
 
 func Run(cf *config.Config) error {
 	var err error
@@ -106,7 +108,7 @@ func sendInfo(text string) {
 	select {
 	case toClientCh <- data:
 	default:
-		slog.Warn("server chan is full, discarding info message")
+		slog.Warn("Server chan is full, discarding info message")
 	}
 }
 
@@ -201,7 +203,7 @@ func sendSensorsData() {
 		body, err := tmpl.ApplyByName("sensor", templates, sens)
 		sens.Unlock()
 		if err != nil {
-			slog.Warn("templating sensor failed: %s", err)
+			slog.Warn("Templating sensor failed: %s", err)
 			continue
 		}
 
@@ -250,13 +252,17 @@ func server() {
 
 		reader := func() {
 			for {
-				// catch remote connection close
 				mtype, mdata, err := conn.ReadMessage()
-				if err != nil || mtype == ws.CloseMessage {
+
+				if err != nil {
+					slog.Err("Websocket error: %s", err)
 					return
 				}
-				// got a message from the remote
-				if mtype == ws.TextMessage {
+
+				switch mtype {
+				case ws.CloseMessage:
+					return
+				case ws.TextMessage:
 					slog.Debug(5, "Got from remote: %+v", string(mdata))
 					processFeedback(mdata)
 				}
@@ -286,14 +292,10 @@ func server() {
 	router.HandleFunc("/ws", wsHandler)
 
 	pageDir := os.ExpandEnv(conf.Server.Resources + "/webpage")
-	slog.Debug(9, "Serving HTTP dir: %s", pageDir)
+	slog.Info("Serving HTTP dir: %s", pageDir)
+
 	// NB: that odd "nosniff" thingie
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir(pageDir))))
-	/*
-		router.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(pageDir+"/"))))
-		router.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir(pageDir+"/img"))))
-		router.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir(pageDir+"/css"))))
-	*/
 
 	listen := conf.Server.Listen
 	if listen == "" {
@@ -302,9 +304,8 @@ func server() {
 	slog.Info("Listening at %s", listen)
 
 	sr := &http.Server{
-		Handler: router,
-		Addr:    listen,
-		// Good practice: enforce timeouts for servers you create!
+		Handler:      router,
+		Addr:         listen,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}

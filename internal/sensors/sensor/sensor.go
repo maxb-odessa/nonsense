@@ -38,7 +38,7 @@ type Sensor struct {
 	} `json:"-"`
 
 	// configured data
-	Name    string `json:"name"`    // name to show
+	Name    string `json:"name"`    // full sensor name (for logging mostly)
 	Offline bool   `json:"offline"` // is offline?
 
 	Options struct {
@@ -51,6 +51,7 @@ type Sensor struct {
 	} `json:"options"`
 
 	Widget struct {
+		Name      string `json:"name"`      // visible sensor name
 		Units     string `json:"units"`     // suffix shown value with units string
 		Fractions int    `json:"fractions"` // show only this number of value fractions, i.e. 2 = 1.23 for 1.23456 value
 		Color     string `json:"color"`     // text color
@@ -110,23 +111,23 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 
 	// already running
 	if sens.pvt.active {
-		slog.Warn("sensor '%s' already running", sens.Name)
+		slog.Warn("Sensor '%s' already running", sens.Name)
 		return nil
 	}
 
 	// some params checking
 	if sens.Options.Divider == 0.0 {
-		slog.Info("forcing sensor '%s' divider to 1.0", sens.Name)
+		slog.Info("Forcing sensor '%s' divider to 1.0", sens.Name)
 		sens.Options.Divider = 1.0
 	}
 
 	if sens.Options.Poll < 500 {
-		slog.Info("forcing sensor '%s' poll interval to 1 second", sens.Name)
+		slog.Info("Forcing sensor '%s' poll interval to 1 second", sens.Name)
 		sens.Options.Poll = 1000
 	}
 
 	if sens.Widget.Fractions < 0 || sens.Widget.Fractions > 8 {
-		slog.Info("forcing sensor '%s' fractions to 0", sens.Name)
+		slog.Info("Forcing sensor '%s' fractions to 0", sens.Name)
 		sens.Widget.Fractions = 0
 	} else {
 		sens.pvt.fractionsRatio = math.Pow(10, float64(sens.Widget.Fractions))
@@ -134,12 +135,12 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 
 	if sens.Options.Min >= sens.Options.Max {
 		sens.Options.Max = sens.Options.Min + 1
-		slog.Info("forcing sensor '%s' min/max to %f/%f", sens.Name, sens.Options.Min, sens.Options.Max)
+		slog.Info("Forcing sensor '%s' min/max to %f/%f", sens.Name, sens.Options.Min, sens.Options.Max)
 	}
 
 	sens.pvt.percentier = (sens.Options.Max - sens.Options.Min) / 100.0
 
-	//sens.Name = utils.SafeHTML(sens.Name)
+	sens.Name = sens.Options.Device + "/" + sens.Options.Input
 
 	updater := func() {
 
@@ -175,13 +176,21 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 					sens.Runtime.Value = math.Round(sens.Runtime.Value)
 				}
 
+				// auto-adjust min/max values
+				if sens.Runtime.Value > sens.Options.Max {
+					slog.Warn("Max value for sensor '%s' is too low: value=%f, max=%f), adjusting", sens.Name, sens.Runtime.Value, sens.Options.Max)
+					sens.Options.Max = sens.Runtime.Value
+					sens.pvt.percentier = (sens.Options.Max - sens.Options.Min) / 100.0
+				}
+
+				if sens.Runtime.Value < sens.Options.Min {
+					slog.Warn("Min value for sensor '%s' is too high: value=%f, min=%f), adjusting", sens.Name, sens.Runtime.Value, sens.Options.Min)
+					sens.Options.Min = sens.Runtime.Value
+					sens.pvt.percentier = (sens.Options.Max - sens.Options.Min) / 100.0
+				}
+
 				// calc percents
 				sens.Runtime.Percents = (sens.Runtime.Value - sens.Options.Min) / sens.pvt.percentier
-				if sens.Runtime.Percents > 100.0 {
-					sens.Runtime.Percents = 100.0
-					//slog.Warn("Max value for sensor '%s' is too low: value=%f, max=%f)", sens.Name, sens.Runtime.Value, sens.Options.Max)
-					// TODO auto adjust Max limit?
-				}
 				sens.Runtime.AntiPercents = 100.0 - sens.Runtime.Percents
 
 				sens.Unlock()
@@ -206,13 +215,13 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 		ticker := time.NewTicker(interval * time.Millisecond)
 
 		defer func() {
-			slog.Info("Stopped sensor '%s/%s/%s'", sens.Name, sens.Options.Device, sens.Options.Input)
+			slog.Info("Stopped sensor '%s'", sens.Name)
 			ticker.Stop()
 			sens.pvt.active = false
 			sens.pvt.done <- true
 		}()
 
-		slog.Info("Started sensor '%s/%s/%s'", sens.Name, sens.Options.Device, sens.Options.Input)
+		slog.Info("Started sensor '%s'", sens.Name)
 
 		updater() // to collect initial data
 

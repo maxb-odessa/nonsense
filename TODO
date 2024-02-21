@@ -7,22 +7,25 @@ TUNE
 - more info popups (after scan with hints, value too large, etc)
 
 BUGZ
-- why does the first browser reload the page if another browsers connects to the server?
-- no `first scan` events on sensor start, why?
+- all clients got page update upon new client connection
+- plenty yet to find
 
 TODO
-- cleanup/review logging
-- help page
-- advanced sensor creation: specify input file (full path) directly, i.e. 
-    /sys/devices/0020:1022:0001.0001/HID-SENSOR-200041.1.auto/iio:device0/in_illuminance_raw
+- help page, README.md, screenshots
+
 
 V2
 ---------
 
 TODO
-- config files location? SPLIT CONFIG AND SENSORS DATA JSON
+- more widget types
+- config files location? SPLIT CONFIG AND SENSORS DATA FILES
 - add `execute' sensor type, to read input data from stdout of executed binary?
-- look into amdgpu/device: many many sensors we didn't detect on scan
 - dran-n-drop for groups and sensors? css+js can do that!
-- css selector: light theme, for slow browsers, etc...
+- css chooser: light theme, for slow browsers, etc...
 - background colors for groups
+- auth, roles, RO mode, https? decide with that
+- advanced sensor creation: specify input file (full path) directly, i.e. 
+    /sys/devices/0020:1022:0001.0001/HID-SENSOR-200041.1.auto/iio:device0/in_illuminance_raw
+
+

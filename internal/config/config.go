@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
 	"github.com/maxb-odessa/nonsens/internal/utils"
@@ -70,11 +69,8 @@ func (c *Config) ImportServerData(c2 *Config) {
 
 func (c *Config) Save() error {
 
-	t := time.Now()
-	oldConfigFile := configFile + "-" + t.Format("20060102150405")
-
-	slog.Info("Moving config file '%s' to '%s'", configFile, oldConfigFile)
-	if err := os.Rename(configFile, oldConfigFile); err != nil {
+	slog.Info("Moving config file '%[1]s' to '%[1]s-'", configFile)
+	if err := os.Rename(configFile, configFile+"-"); err != nil {
 		return err
 	}
 

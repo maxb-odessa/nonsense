@@ -69,8 +69,8 @@
                 id="sensor-edit-name"
                 minlength="0"
                 maxlength="30"
-                pattern="[^\<\>\&].{0,28}"
-                title="0 to 28 chars excluding [\<\>\&]">
+                pattern="[^\<\>\&].{0,30}"
+                title="0 to 30 chars excluding [\<\>\&]">
             <br>
             <label for="sensor-edit-group">Group</label>
             <select id="sensor-edit-group"></select>
@@ -81,9 +81,9 @@
                 id="sensor-edit-device"
                 required
                 minlength="1"
-                maxlength="30"
-                pattern="[0-9a-zA-Z]{1}[\-0-9a-zA-Z:_.]{0,27}"
-                title="1 to 28 chars of [0-9a-zA-Z:_.] starting with alpha-num">
+                maxlength="128"
+                pattern="[0-9a-zA-Z]{1}[\-0-9a-zA-Z:_.]{0,128}"
+                title="1 to 128 chars of [0-9a-zA-Z:_.] starting with alpha-num">
             <br>
             <label for="sensor-edit-input">Sensor input file</label>
             <input
@@ -91,9 +91,9 @@
                 id="sensor-edit-input"
                 required
                 minlength="1"
-                maxlength="30"
-                pattern="[0-9a-zA-Z]{1}[\-0-9a-zA-Z:_.\/]{0,27}"
-                title="1 to 28 chars of [0-9a-zA-Z:_.\/] starting with alpha-num">
+                maxlength="128"
+                pattern="[0-9a-zA-Z]{1}[\-0-9a-zA-Z:_.\/]{0,128}"
+                title="1 to 128 chars of [0-9a-zA-Z:_.\/] starting with alpha-num">
             <br>
             <label for="sensor-edit-divider">Input value divider</label>
             <input
@@ -235,28 +235,28 @@ function showHelpPage(show) {
     return false;
 }
 
-// gloablly defined WS socket
-var socket;
+// gloablly defined WS wsocket
+var wsocket;
 
 function scanSensors() {
     showInfo("Scanning for existing sensors...", true, 2000);
     let obj = new Object();
     obj.action = "scan";
-    socket.send(JSON.stringify(obj));
+    wsocket.send(JSON.stringify(obj));
     return false;
 }
 
 function saveConfig() {
     let obj = new Object();
     obj.action = "save";
-    socket.send(JSON.stringify(obj));
+    wsocket.send(JSON.stringify(obj));
     return false;
 }
 
 function restoreConfig() {
     let obj = new Object();
     obj.action = "restore";
-    socket.send(JSON.stringify(obj));
+    wsocket.send(JSON.stringify(obj));
     return false;
 }
 
@@ -442,7 +442,7 @@ function closeGroupEditor(action) {
     obj1.id = document.getElementById("group-edit-id").value;
     obj1.group = obj2;
 
-    socket.send(JSON.stringify(obj1));
+    wsocket.send(JSON.stringify(obj1));
 
     return false;
 }
@@ -508,13 +508,13 @@ function closeSensorEditor(isOk) {
     obj3.options = new Object();
     obj3.widget = new Object();
 
-    obj3.name = document.getElementById("sensor-edit-name").value;
     obj3.options.device = document.getElementById("sensor-edit-device").value;
     obj3.options.input = document.getElementById("sensor-edit-input").value;
     obj3.options.min = Number(document.getElementById("sensor-edit-min").value);
     obj3.options.max = Number(document.getElementById("sensor-edit-max").value);
     obj3.options.divider = Number(document.getElementById("sensor-edit-divider").value);
     obj3.options.poll = Number(document.getElementById("sensor-edit-poll").value) * 1000;
+    obj3.widget.name = document.getElementById("sensor-edit-name").value;
     obj3.widget.fractions = Number(document.getElementById("sensor-edit-fractions").value);
     obj3.widget.units = document.getElementById("sensor-edit-units").value;
     obj3.widget.color0 = document.getElementById("sensor-edit-widget-color0").value;
@@ -538,7 +538,7 @@ function closeSensorEditor(isOk) {
     obj1.id = document.getElementById("sensor-edit-id").value;
     obj1.sensor = obj2;
 
-    socket.send(JSON.stringify(obj1));
+    wsocket.send(JSON.stringify(obj1));
 
     return false;
 };
@@ -585,15 +585,15 @@ async function loop() {
 
         let reconnect = false;
 
-        socket = {};
-        socket = new WebSocket(wsUrl);
+        wsocket = {};
+        wsocket = new WebSocket(wsUrl);
 
-        socket.onopen = function() {
+        wsocket.onopen = function() {
             showInfo("", false);
             reconnect = false;
         };
 
-        socket.onmessage = function(msg) {
+        wsocket.onmessage = function(msg) {
             const obj = JSON.parse(msg.data);
             let target = obj.target;
             let data = obj.data;
@@ -608,11 +608,11 @@ async function loop() {
             }
         };
 
-        socket.onerror = function(ev) {
-            showInfo("WS error", true, 1000);
+        wsocket.onerror = function(ev) {
+            reconnect = true;
         }
 
-        socket.onclose = function(ev) {
+        wsocket.onclose = function(ev) {
             showInfo("Reconnecting...", true);
             reconnect = true;
         };
