@@ -7,7 +7,8 @@ TUNE
 - more info popups (after scan with hints, value too large, etc)
 
 BUGZ
-- all clients got page update upon new client connection
+- all connected clients got main page update upon new client connection
+- sensors with large poll values don't show at start
 - plenty yet to find
 
 TODO
