@@ -19,6 +19,7 @@ V2
 ---------
 
 TODO
+- move sensor widget to static page; send only percents and value - update via js
 - more widget types
 - config files location? SPLIT CONFIG AND SENSORS DATA FILES
 - add `execute' sensor type, to read input data from stdout of executed binary?

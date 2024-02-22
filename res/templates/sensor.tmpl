@@ -4,10 +4,8 @@
 <div class="sensor">
 {{ end }}
     <i>{{ .Widget.Name }}</i>
-    <div class="widget_text">{{ .Runtime.Value }}&nbsp;{{ .Widget.Units }}
-        <div class="widget" style="clip-path: inset(0 {{ .Runtime.AntiPercents }}% 0 0); background: linear-gradient(to right, {{ .Widget.Color0 }}, {{ .Widget.ColorN }} {{ .Widget.ColorNP }}%, {{ .Widget.Color100 }});">
-            <div class="widget_text">{{ .Runtime.Value }}&nbsp;{{ .Widget.Units }}
-            </div>
-        </div>
+    <div class="widget_container">
+        <div class="widget" style="clip-path: inset(0 {{ .Runtime.AntiPercents }}% 0 0); background: linear-gradient(to right, {{ .Widget.Color0 }}, {{ .Widget.ColorN }} {{ .Widget.ColorNP }}%, {{ .Widget.Color100 }});"></div>
+        <div class="widget_text">{{ .Runtime.Value }}{{ .Widget.Units }}</div>
     </div>
 </div>

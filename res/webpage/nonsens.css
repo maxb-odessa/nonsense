@@ -70,29 +70,43 @@ div.sensor {
     margin-bottom: 10px;
 }
 
+div.widget_container {
+    display: inline-block;
+    position: relative;
+    background: transparent;
+    border: solid 1px gray;
+    border-radius: 6px;
+    height: 1.35em;
+    width: 100%
+}
+
 div.widget {
-    top: 0;
-    left: 0;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
     position: absolute;
     border-radius: 6px;
-    border: solid 0px white;
+    border: 0;
     text-align: center;
-    background: linear-gradient(90deg, #00FF00, #FF0000);
     width: 100%;
     height: 100%;
+    z-index: 9;
 }
 
 div.widget_text {
-    position: relative;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    position: absolute;
+    border: 0;
     border-radius: 6px;
-    border: solid 1px gray;
     color: white; /* default */
-    mix-blend-mode: difference;
-    z-index: 10;
+    text-shadow: 0 0 20px black, 0 0 20px black, 0 0 20px black;
     text-align: center;
     width: 100%;
     height: 100%;
     background: transparent;
+    z-index: 10;
     /*text-shadow: -1px 0 #202020, 0 1px #202020, 1px 0 #202020, 0 -1px #202020;*/
 }
 
