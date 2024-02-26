@@ -150,6 +150,7 @@
             <br>
             <fieldset class="widget-color-maker">
                 <legend>Widget gradient colors</legend>
+                <br>
                 <div style="display: inline-block; float: left;">
                 <input id="sensor-edit-widget-color0" type="color" class="color-picker" onChange="return makeGradient();">
                 </div>
@@ -174,6 +175,10 @@
                     <option value="75" label="75%"></option>
                     <option value="100" label="100%"></option>
                 </datalist>
+                <div style="display: inline-block; float: left; width: 100%; text-align: left;">
+                <label for="sensor-edit-widget-show-gradient">Show full gradient on gauge</label>
+                <input type="checkbox" id="sensor-edit-widget-show-gradient">
+                </div>
             </fieldset>
             <br>
             <label for="sensor-edit-totop">Move to group top</label>
@@ -316,6 +321,7 @@ function newSensor(inGroup) {
     document.getElementById("sensor-edit-widget-colorN").value = "#0000FF";
     document.getElementById("sensor-edit-widget-color100").value = "#FF0000";
     document.getElementById("sensor-edit-widget-color-slider").value = "50";
+    document.getElementById("sensor-edit-widget-show-gradient").checked = false;
     document.getElementById("sensor-edit-totop").checked = false;
     document.getElementById("sensor-edit-remove").disabled = true;
 
@@ -483,6 +489,7 @@ function editSensor(id) {
     document.getElementById("sensor-edit-widget-colorN").value = data.widget.colorn;
     document.getElementById("sensor-edit-widget-color100").value = data.widget.color100;
     document.getElementById("sensor-edit-widget-color-slider").value = data.widget.colornp;
+    document.getElementById("sensor-edit-widget-show-gradient").checked = data.widget.gradient;
     document.getElementById("sensor-edit-totop").checked = false;
     document.getElementById("sensor-edit-remove").checked = false;
 
@@ -521,6 +528,7 @@ function closeSensorEditor(isOk) {
     obj3.widget.colorn = document.getElementById("sensor-edit-widget-colorN").value;
     obj3.widget.color100 = document.getElementById("sensor-edit-widget-color100").value;
     obj3.widget.colornp = Number(document.getElementById("sensor-edit-widget-color-slider").value);
+    obj3.widget.gradient = Boolean(document.getElementById("sensor-edit-widget-show-gradient").checked);
 
     obj2.sensor = obj3;
     obj2.groupid = document.getElementById("sensor-edit-group").value;

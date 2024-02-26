@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/maxb-odessa/nonsens/internal/gradient"
 	"github.com/maxb-odessa/nonsens/internal/utils"
 	"github.com/maxb-odessa/slog"
 )
@@ -31,10 +32,12 @@ type Sensor struct {
 
 	// runtime data, not for save
 	Runtime struct {
-		Dir          string  // full path to sensor dir (may change over boot so it's not persistent)
-		Value        float64 // current read value
-		Percents     float64 // calculated percents (based on Value and Min/Max)
-		AntiPercents float64 // = (100 - percents) used for gauges
+		Dir          string              // full path to sensor dir (may change over boot so it's not persistent)
+		Value        float64             // current read value
+		Percents     float64             // calculated percents (based on Value and Min/Max)
+		AntiPercents float64             // = (100 - percents) used for gauges
+		Color        string              // widget gradient color at this percent value
+		Gradient     *gradient.Gradient3 // prepared widget gradient data
 	} `json:"-"`
 
 	// configured data
@@ -51,14 +54,15 @@ type Sensor struct {
 	} `json:"options"`
 
 	Widget struct {
-		Name      string `json:"name"`      // visible sensor name
-		Units     string `json:"units"`     // suffix shown value with units string
-		Fractions int    `json:"fractions"` // show only this number of value fractions, i.e. 2 = 1.23 for 1.23456 value
-		Color     string `json:"color"`     // text color
-		Color0    string `json:"color0"`    // min value color (at 0%)
-		ColorN    string `json:"colorn"`    // min value color (at N%)
-		Color100  string `json:"color100"`  // max value color (at 100%)
-		ColorNP   int    `json:"colornp"`   // colorN percents position
+		Name         string  `json:"name"`      // visible sensor name
+		Units        string  `json:"units"`     // suffix shown value with units string
+		Fractions    int     `json:"fractions"` // show only this number of value fractions, i.e. 2 = 1.23 for 1.23456 valuea
+		Color        string  `json:"color"`     // text color
+		Color0       string  `json:"color0"`    // min value color (at 0%)
+		ColorN       string  `json:"colorn"`    // min value color (at N%)
+		Color100     string  `json:"color100"`  // max value color (at 100%)
+		ColorNP      float64 `json:"colornp"`   // colorN percents position
+		ShowGradient bool    `json:"gradient"`  // show gradient over gauge?
 	} `json:"widget"`
 }
 
@@ -104,7 +108,7 @@ func (s *Sensor) SetDefaults() {
 	s.Widget.Color0 = "#00FF00"
 	s.Widget.ColorN = "#FFFF00"
 	s.Widget.Color100 = "#FF0000"
-	s.Widget.ColorNP = 50
+	s.Widget.ColorNP = 50.0
 }
 
 func (sens *Sensor) Start(sensChan chan *Sensor) error {
@@ -136,6 +140,11 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 	if sens.Options.Min >= sens.Options.Max {
 		sens.Options.Max = sens.Options.Min + 1
 		slog.Info("Forcing sensor '%s' min/max to %f/%f", sens.Name, sens.Options.Min, sens.Options.Max)
+	}
+
+	if !sens.Widget.ShowGradient {
+		sens.Runtime.Gradient = new(gradient.Gradient3)
+		sens.Runtime.Gradient.Make(sens.Widget.Color0, sens.Widget.ColorN, sens.Widget.Color100, sens.Widget.ColorNP)
 	}
 
 	sens.pvt.percentier = (sens.Options.Max - sens.Options.Min) / 100.0
@@ -192,6 +201,11 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 				// calc percents
 				sens.Runtime.Percents = (sens.Runtime.Value - sens.Options.Min) / sens.pvt.percentier
 				sens.Runtime.AntiPercents = 100.0 - sens.Runtime.Percents
+
+				// calc current gradient color value if not showing whole gradient gauge
+				if !sens.Widget.ShowGradient {
+					sens.Runtime.Color = sens.Runtime.Gradient.ColorAt(sens.Runtime.Percents).String()
+				}
 
 				sens.Unlock()
 
