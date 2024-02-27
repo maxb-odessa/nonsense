@@ -93,7 +93,7 @@ func processFeedback(data []byte) {
 		// delete all empty columns, etc
 		conf.Sanitize()
 		makeMainPage()
-		sendMainPage()
+		sendMainPage(toClientCh)
 	}
 
 }

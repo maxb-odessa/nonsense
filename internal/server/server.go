@@ -116,7 +116,7 @@ func GetHostName() string {
 	return "HostName Here"
 }
 
-func sendMainPage() {
+func sendMainPage(ch chan []byte) {
 
 	msg := &ToClientMsg{
 		Target: "main",
@@ -128,7 +128,7 @@ func sendMainPage() {
 	slog.Debug(9, "sending main page to server: %+v", msg)
 
 	// can't skip this message - it's a main page
-	toClientCh <- data
+	ch <- data
 }
 
 func sendSysinfo() {
@@ -271,7 +271,7 @@ func server() {
 
 		go reader()
 
-		go sendMainPage() // this blocks if chan is full
+		go sendMainPage(wsChan) // this blocks if chan is full
 
 		for {
 			select {
