@@ -5,12 +5,15 @@
 ###########################################################
 
 [Unit]
-Description = NonSENS: yet another sensors monitor
+    Description = NonSENS: sensors monitor
 
 [Service]
-Type = simple
-StandardOutput = journal
-ExecStart = %h/.local/bin/nonsens -c %h/.local/etc/nonsens.json
+    Type = simple
+    StandardOutput = journal
+    Restart = always
+    RestartSec = 10
+    Nice = 19
+    ExecStart = %h/.local/bin/nonsens -c %h/.local/etc/nonsens.json
 
 [Install]
-WantedBy=default.target
+    WantedBy=default.target

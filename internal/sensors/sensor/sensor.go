@@ -3,6 +3,7 @@ package sensor
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"math"
 	"os"
 	"strconv"
@@ -26,8 +27,10 @@ type Sensor struct {
 		cancelFunc     func()    // ctx cancelling func
 		id             string    // uniq id
 		input          string    // full path to sensor input file, may vary across reboots
-		fractionsRatio float64   // calculated fractions ratio to be shown
-		percentier     float64   // calculated (max - min ) * 100
+		inputFd        *os.File  // opened input file descriptor
+		inputBuf       []byte
+		fractionsRatio float64 // calculated fractions ratio to be shown
+		percentier     float64 // calculated (max - min ) * 100
 	} `json:"-"`
 
 	// runtime data, not for save
@@ -147,70 +150,60 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 		sens.Runtime.Gradient.Make(sens.Widget.Color0, sens.Widget.ColorN, sens.Widget.Color100, sens.Widget.ColorNP)
 	}
 
+	sens.Name = sens.Options.Device + "/" + sens.Options.Input
+
 	sens.pvt.percentier = (sens.Options.Max - sens.Options.Min) / 100.0
 
-	sens.Name = sens.Options.Device + "/" + sens.Options.Input
+	sens.pvt.inputBuf = make([]byte, 64)
 
 	updater := func() {
 
-		// misconfigured sensor?
-		if sens.pvt.input == "" {
-			sens.Offline = true
-		} else if data, err := os.ReadFile(sens.pvt.input); err != nil {
-			sens.Offline = true
-		} else {
+		if value, err := sens.read(); err == nil {
 
-			s := strings.TrimSpace(string(data))
+			sens.Lock()
 
-			if value, err := strconv.ParseFloat(s, 64); err != nil {
-				sens.Offline = true
+			// this senseor is operational
+			sens.Offline = false
+
+			// apply divider if defined
+			if sens.Options.Divider != 1.0 {
+				sens.Runtime.Value = value / sens.Options.Divider
 			} else {
-
-				sens.Lock()
-
-				// this senseor is operational
-				sens.Offline = false
-
-				// apply divider if defined
-				if sens.Options.Divider != 1.0 {
-					sens.Runtime.Value = value / sens.Options.Divider
-				} else {
-					sens.Runtime.Value = value
-				}
-
-				// round to fractions if defined
-				if sens.Widget.Fractions > 0 {
-					sens.Runtime.Value = math.Round(sens.Runtime.Value*sens.pvt.fractionsRatio) / sens.pvt.fractionsRatio
-				} else {
-					sens.Runtime.Value = math.Round(sens.Runtime.Value)
-				}
-
-				// auto-adjust min/max values
-				if sens.Runtime.Value > sens.Options.Max {
-					slog.Warn("Max value for sensor '%s' is too low: value=%f, max=%f), adjusting", sens.Name, sens.Runtime.Value, sens.Options.Max)
-					sens.Options.Max = sens.Runtime.Value
-					sens.pvt.percentier = (sens.Options.Max - sens.Options.Min) / 100.0
-				}
-
-				if sens.Runtime.Value < sens.Options.Min {
-					slog.Warn("Min value for sensor '%s' is too high: value=%f, min=%f), adjusting", sens.Name, sens.Runtime.Value, sens.Options.Min)
-					sens.Options.Min = sens.Runtime.Value
-					sens.pvt.percentier = (sens.Options.Max - sens.Options.Min) / 100.0
-				}
-
-				// calc percents
-				sens.Runtime.Percents = (sens.Runtime.Value - sens.Options.Min) / sens.pvt.percentier
-				sens.Runtime.AntiPercents = 100.0 - sens.Runtime.Percents
-
-				// calc current gradient color value if not showing whole gradient gauge
-				if !sens.Widget.ShowGradient {
-					sens.Runtime.Color = sens.Runtime.Gradient.ColorAt(sens.Runtime.Percents).String()
-				}
-
-				sens.Unlock()
-
-				slog.Debug(5, "sensor '%s' value=%f percents=%f", sens.Name, sens.Runtime.Value, sens.Runtime.Percents)
+				sens.Runtime.Value = value
 			}
+
+			// round to fractions if defined
+			if sens.Widget.Fractions > 0 {
+				sens.Runtime.Value = math.Round(sens.Runtime.Value*sens.pvt.fractionsRatio) / sens.pvt.fractionsRatio
+			} else {
+				sens.Runtime.Value = math.Round(sens.Runtime.Value)
+			}
+
+			// auto-adjust min/max values
+			if sens.Runtime.Value > sens.Options.Max {
+				slog.Warn("Max value for sensor '%s' is too low: value=%f, max=%f), adjusting", sens.Name, sens.Runtime.Value, sens.Options.Max)
+				sens.Options.Max = sens.Runtime.Value
+				sens.pvt.percentier = (sens.Options.Max - sens.Options.Min) / 100.0
+			}
+
+			if sens.Runtime.Value < sens.Options.Min {
+				slog.Warn("Min value for sensor '%s' is too high: value=%f, min=%f), adjusting", sens.Name, sens.Runtime.Value, sens.Options.Min)
+				sens.Options.Min = sens.Runtime.Value
+				sens.pvt.percentier = (sens.Options.Max - sens.Options.Min) / 100.0
+			}
+
+			// calc percents
+			sens.Runtime.Percents = (sens.Runtime.Value - sens.Options.Min) / sens.pvt.percentier
+			sens.Runtime.AntiPercents = 100.0 - sens.Runtime.Percents
+
+			// calc current gradient color value if not showing whole gradient gauge
+			if !sens.Widget.ShowGradient {
+				sens.Runtime.Color = sens.Runtime.Gradient.ColorAt(sens.Runtime.Percents).String()
+			}
+
+			sens.Unlock()
+
+			slog.Debug(5, "sensor '%s' value=%f percents=%f", sens.Name, sens.Runtime.Value, sens.Runtime.Percents)
 		}
 
 		select {
@@ -261,4 +254,30 @@ func (s *Sensor) Stop() {
 		// wait for sensor to finish its job
 		<-s.pvt.done
 	}
+}
+
+func (s *Sensor) read() (val float64, err error) {
+
+	s.pvt.active = false
+
+	if s.pvt.inputFd == nil {
+		if s.pvt.inputFd, err = os.Open(s.pvt.input); err != nil {
+			return
+		}
+	}
+
+	if _, err = s.pvt.inputFd.Seek(0, io.SeekStart); err != nil {
+		return
+	}
+
+	if num, e := s.pvt.inputFd.Read(s.pvt.inputBuf); e != nil {
+		if e != io.EOF {
+			err = e
+			return
+		}
+	} else if val, err = strconv.ParseFloat(strings.TrimSpace(string(s.pvt.inputBuf[:num])), 64); err == nil {
+		s.pvt.active = true
+	}
+
+	return
 }

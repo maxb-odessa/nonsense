@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/signal"
+	"runtime/pprof"
 	"syscall"
 
 	"github.com/maxb-odessa/nonsens/internal/config"
@@ -17,11 +18,13 @@ func main() {
 
 	// get cmdline args and parse them
 	help := false
+	profile := false
 	debug := 0
 	configFile := os.ExpandEnv("$HOME/.local/etc/nonsens.conf")
 	getopt.HelpColumn = 0
 	getopt.FlagLong(&help, "help", 'h', "Show this help")
 	getopt.FlagLong(&debug, "debug", 'd', "Set debug log level")
+	getopt.FlagLong(&profile, "profile", 'p', "Enable CPU profiler (/tmp/nonsens.prof)")
 	getopt.FlagLong(&configFile, "config", 'c', "Path to config file")
 	getopt.Parse()
 
@@ -38,6 +41,15 @@ func main() {
 	if os.Getuid() == 0 || os.Geteuid() == 0 {
 		slog.Err("Please don't run me as root")
 		return
+	}
+
+	if profile {
+		if fd, err := os.Create("/tmp/nonsens.prof"); err != nil {
+			slog.Warn("Failed to enable profiler: %s", err)
+		} else {
+			pprof.StartCPUProfile(fd)
+			defer pprof.StopCPUProfile()
+		}
 	}
 
 	// set proggie termination signal handler(s)

@@ -2,30 +2,31 @@
 V1
 ---------
 
-TUNE
-- system info: mem, date, uptime, la
-- more info popups (after scan with hints, value too large, etc)
+TODO
+- more readable system info: mem, date, la
+- un-hardcode sysinfo update interval
+- more info popups (after scan with hints, value too large, etc)?
+- help page
 
 BUGZ
-- sensors with large poll values sometimes don't show at start
+- sensors with large poll values sometimes don't show at browser connection
 - plenty yet to find
 
-TODO
-- help page
 
 V2
 ---------
 
 TODO
-- move sensor widget to static page; send only percents and value - update via js
-- more widget types
-- config files location? SPLIT CONFIG AND SENSORS DATA FILES
-- add `execute' sensor type, to read input data from stdout of executed binary?
-- dran-n-drop for groups and sensors? css+js can do that!
-- css chooser: light theme, for slow browsers, etc...
-- background colors for groups
-- auth, roles, RO mode, https? decide with that
-- advanced sensor creation: specify input file (full path) directly, i.e. 
+- ! config files location? SPLIT CONFIG AND SENSORS DATA FILES
+- ! advanced sensor creation: specify input file (full path) directly, i.e. 
     /sys/devices/0020:1022:0001.0001/HID-SENSOR-200041.1.auto/iio:device0/in_illuminance_raw
+- ? move sensor widget to static page; send only percents and value - update via js
+- ? more widget types
+- ? add `execute' sensor type, to read input data from stdout of executed binary
+- ! dran-n-drop for groups and sensors? css+js can do that
+- ! css chooser: light theme, for slow browsers, etc...
+- ! background colors for groups
+- ? auth, roles, RO mode
+- ? https
 
 

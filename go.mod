@@ -1,6 +1,6 @@
 module github.com/maxb-odessa/nonsens
 
-go 1.21.6
+go 1.19
 
 require (
 	github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964
