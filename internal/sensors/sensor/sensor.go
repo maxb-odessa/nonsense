@@ -158,11 +158,12 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 
 	updater := func() {
 
-		if value, err := sens.read(); err == nil {
+		sens.Lock()
 
-			sens.Lock()
+		if value, err := sens.readInput(); err != nil {
+			sens.Offline = true
+		} else {
 
-			// this senseor is operational
 			sens.Offline = false
 
 			// apply divider if defined
@@ -201,10 +202,10 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 				sens.Runtime.Color = sens.Runtime.Gradient.ColorAt(sens.Runtime.Percents).String()
 			}
 
-			sens.Unlock()
-
 			slog.Debug(5, "sensor '%s' value=%f percents=%f", sens.Name, sens.Runtime.Value, sens.Runtime.Percents)
 		}
+
+		sens.Unlock()
 
 		select {
 		case sensChan <- sens:
@@ -224,6 +225,7 @@ func (sens *Sensor) Start(sensChan chan *Sensor) error {
 		defer func() {
 			slog.Info("Stopped sensor '%s'", sens.Name)
 			ticker.Stop()
+			sens.closeInput()
 			sens.pvt.active = false
 			sens.pvt.done <- true
 		}()
@@ -256,9 +258,16 @@ func (s *Sensor) Stop() {
 	}
 }
 
-func (s *Sensor) read() (val float64, err error) {
+func (s *Sensor) readInput() (val float64, err error) {
 
-	s.pvt.active = false
+	defer func() {
+		if err != nil {
+			s.closeInput()
+			s.pvt.active = false
+		} else {
+			s.pvt.active = true
+		}
+	}()
 
 	if s.pvt.inputFd == nil {
 		if s.pvt.inputFd, err = os.Open(s.pvt.input); err != nil {
@@ -275,9 +284,16 @@ func (s *Sensor) read() (val float64, err error) {
 			err = e
 			return
 		}
-	} else if val, err = strconv.ParseFloat(strings.TrimSpace(string(s.pvt.inputBuf[:num])), 64); err == nil {
-		s.pvt.active = true
+	} else {
+		val, err = strconv.ParseFloat(strings.TrimSpace(string(s.pvt.inputBuf[:num])), 64)
 	}
 
 	return
+}
+
+func (s *Sensor) closeInput() {
+	if s.pvt.inputFd != nil {
+		s.pvt.inputFd.Close()
+		s.pvt.inputFd = nil
+	}
 }
