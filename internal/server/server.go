@@ -299,7 +299,7 @@ func server() {
 
 	listen := conf.Server.Listen
 	if listen == "" {
-		listen = ":12345"
+		listen = ":12346"
 	}
 	slog.Info("Listening at %s", listen)
 
