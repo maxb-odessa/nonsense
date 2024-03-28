@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/maxb-odessa/nonsens/internal/config"
-	"github.com/maxb-odessa/nonsens/internal/sensors"
-	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
-	"github.com/maxb-odessa/nonsens/internal/utils"
+	"nonsens/internal/config"
+	"nonsens/internal/sensors"
+	"nonsens/internal/sensors/sensor"
+	"nonsens/internal/utils"
+
 	"github.com/maxb-odessa/slog"
 )
 

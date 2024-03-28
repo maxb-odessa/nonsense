@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
-	"github.com/maxb-odessa/nonsens/internal/utils"
+	"nonsens/internal/sensors/sensor"
+	"nonsens/internal/utils"
+
 	"github.com/maxb-odessa/slog"
 )
 

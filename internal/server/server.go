@@ -15,9 +15,10 @@ import (
 
 	"github.com/rafacas/sysstats"
 
-	"github.com/maxb-odessa/nonsens/internal/config"
-	"github.com/maxb-odessa/nonsens/internal/sensors"
-	"github.com/maxb-odessa/nonsens/internal/tmpl"
+	"nonsens/internal/config"
+	"nonsens/internal/sensors"
+	"nonsens/internal/tmpl"
+
 	"github.com/maxb-odessa/slog"
 )
 

@@ -6,9 +6,10 @@ import (
 	"runtime/pprof"
 	"syscall"
 
-	"github.com/maxb-odessa/nonsens/internal/config"
-	"github.com/maxb-odessa/nonsens/internal/sensors"
-	"github.com/maxb-odessa/nonsens/internal/server"
+	"nonsens/internal/config"
+	"nonsens/internal/sensors"
+	"nonsens/internal/server"
+
 	"github.com/maxb-odessa/slog"
 
 	"github.com/pborman/getopt/v2"

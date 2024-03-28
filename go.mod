@@ -1,4 +1,4 @@
-module github.com/maxb-odessa/nonsens
+module nonsens
 
 go 1.19
 

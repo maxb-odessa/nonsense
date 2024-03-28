@@ -11,8 +11,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/maxb-odessa/nonsens/internal/gradient"
-	"github.com/maxb-odessa/nonsens/internal/utils"
+	"nonsens/internal/gradient"
+	"nonsens/internal/utils"
+
 	"github.com/maxb-odessa/slog"
 )
 

@@ -1,8 +1,8 @@
 package sensors
 
 import (
-	"github.com/maxb-odessa/nonsens/internal/config"
-	"github.com/maxb-odessa/nonsens/internal/sensors/sensor"
+	"nonsens/internal/config"
+	"nonsens/internal/sensors/sensor"
 )
 
 var sensChan chan *sensor.Sensor
