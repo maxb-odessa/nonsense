@@ -3,12 +3,13 @@ V1
 ---------
 
 TODO
-- more readable system info: mem, date, la
+- readable and fancy system info: mem, date, la (rework it)
 - un-hardcode sysinfo update interval
 - more info popups (after scan with hints, value too large, etc)?
-- help page
+- help page!
 
 BUGZ
+- "restore" doesn't work sometimes
 - sensors with large poll values sometimes don't show at browser connection
 - plenty yet to find
 
